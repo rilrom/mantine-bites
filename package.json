@@ -1,0 +1,42 @@
+{
+	"name": "mantine-bites",
+	"description": "collection of various bited-sized Mantine extensions",
+	"author": "Riley Langbein <rilrom-dev@protonmail.com>",
+	"repository": "https://github.com/rilrom/mantine-bites",
+	"bugs": "https://github.com/rilrom/mantine-bites/issues",
+	"homepage": "https://github.com/rilrom/mantine-bites#readme",
+	"keywords": [
+		"mantine"
+	],
+	"private": true,
+	"scripts": {
+		"dev": "turbo dev",
+		"dev:storybook": "turbo dev --filter storybook",
+		"dev:docs": "turbo dev --filter docs",
+		"build": "turbo build",
+		"build:storybook": "pnpm build --filter storybook",
+		"build:docs": "pnpm build --filter docs",
+		"build:example": "pnpm build --filter @mantine-bites/example",
+		"docgen": "turbo docgen",
+		"test": "turbo test",
+		"lint": "turbo lint",
+		"tsc": "turbo tsc",
+		"clean": "find . -type d \\( -name \"node_modules\" -o -name \".next\" -o -name \".turbo\" -o -name \"dist\" -o -name \"storybook-static\" -o -name \"out\" \\) -prune -exec rm -rf {} +"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.15",
+		"@types/node": "^22.19.11",
+		"postcss": "^8.5.4",
+		"postcss-preset-mantine": "1.17.0",
+		"stylelint": "^16.26.1",
+		"stylelint-config-standard-scss": "^16.0.0",
+		"tsx": "^4.19.4",
+		"turbo": "^2.8.8",
+		"typescript": "5.9.3"
+	},
+	"engines": {
+		"node": ">=22",
+		"pnpm": "^10.19.0"
+	},
+	"packageManager": "pnpm@10.23.0"
+}

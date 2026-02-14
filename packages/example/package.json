@@ -1,0 +1,63 @@
+{
+	"name": "@mantine-bites/example",
+	"version": "0.0.1",
+	"description": "Example extension",
+	"license": "MIT",
+	"type": "module",
+	"main": "./dist/cjs/index.cjs",
+	"module": "./dist/esm/index.mjs",
+	"types": "./dist/types/index.d.ts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/types/index.d.mts",
+				"default": "./dist/esm/index.mjs"
+			},
+			"require": {
+				"types": "./dist/types/index.d.ts",
+				"default": "./dist/cjs/index.cjs"
+			}
+		},
+		"./styles.css": "./dist/styles.css",
+		"./styles.layer.css": "./dist/styles.layer.css"
+	},
+	"files": [
+		"dist"
+	],
+	"peerDependencies": {
+		"@mantine/core": ">=7.0.0",
+		"@mantine/hooks": ">=7.0.0",
+		"react": "^18.x || ^19.x",
+		"react-dom": "^18.x || ^19.x"
+	},
+	"devDependencies": {
+		"@mantine-bites/rollup-config": "workspace:*",
+		"@mantine-bites/typescript-config": "workspace:*",
+		"@mantine-tests/core": "^2.0.0",
+		"@mantine/core": "^8.3.14",
+		"@mantine/hooks": "^8.3.14",
+		"@testing-library/dom": "^10.4.0",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.6.1",
+		"@types/jest": "^29.5.14",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19",
+		"esbuild-jest": "^0.5.0",
+		"identity-obj-proxy": "^3.0.0",
+		"jest": "^29.7.0",
+		"jest-axe": "^10.0.0",
+		"jest-environment-jsdom": "^29.7.0",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"rollup": "^4.41.1"
+	},
+	"scripts": {
+		"build": "rollup -c && tsx ../../scripts/generate-dts.ts && tsx ../../scripts/prepare-css.ts",
+		"test": "jest",
+		"tsc": "tsc --noEmit",
+		"lint": "pnpm lint:biome && pnpm lint:styles",
+		"lint:biome": "biome check --write .",
+		"lint:styles": "stylelint --fix=strict \"**/*.module.css\""
+	}
+}

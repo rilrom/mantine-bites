@@ -1,0 +1,5 @@
+{
+	"extends": "@mantine-bites/typescript-config/react-library.json",
+	"include": ["src", "global.d.ts"],
+	"exclude": ["dist"]
+}

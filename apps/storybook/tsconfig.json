@@ -1,0 +1,7 @@
+{
+	"extends": "@mantine-bites/typescript-config/react-library.json",
+	"include": [".storybook"],
+	"compilerOptions": {
+		"noEmit": true
+	}
+}

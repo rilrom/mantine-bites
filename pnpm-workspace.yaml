@@ -1,0 +1,11 @@
+packages:
+  - apps/**/*
+  - packages/**/*
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - unrs-resolver
+
+settings:
+  minimumReleaseAge: 10080
