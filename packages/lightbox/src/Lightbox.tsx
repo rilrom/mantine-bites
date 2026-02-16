@@ -50,51 +50,51 @@ export type LightboxCssVariables = {
 };
 
 export interface LightboxProps
-		extends BoxProps,
-			StylesApiProps<LightboxFactory>,
-			ElementProps<"div", "onChange"> {
-		/** Controls lightbox visibility */
-		opened: boolean;
+	extends BoxProps,
+		StylesApiProps<LightboxFactory>,
+		ElementProps<"div", "onChange"> {
+	/** Controls lightbox visibility */
+	opened: boolean;
 
-		/** Called when lightbox should close */
-		onClose: () => void;
+	/** Called when lightbox should close */
+	onClose: () => void;
 
-		/** Initial slide index, `0` by default */
-		initialSlide?: number;
+	/** Initial slide index, `0` by default */
+	initialSlide?: number;
 
-		/** Called when active slide changes */
-		onSlideChange?: (index: number) => void;
+	/** Called when active slide changes */
+	onSlideChange?: (index: number) => void;
 
-		/** Whether navigation wraps around, `true` by default */
-		loop?: boolean;
+	/** Whether navigation wraps around, `true` by default */
+	loop?: boolean;
 
-		/** Show prev/next arrow controls, `true` by default */
-		withControls?: boolean;
+	/** Show prev/next arrow controls, `true` by default */
+	withControls?: boolean;
 
-		/** Show thumbnail strip, `true` by default */
-		withThumbnails?: boolean;
+	/** Show thumbnail strip, `true` by default */
+	withThumbnails?: boolean;
 
-		/** Show slide counter, `true` by default */
-		withCounter?: boolean;
+	/** Show slide counter, `true` by default */
+	withCounter?: boolean;
 
-		/** Enable zoom (WIP), `true` by default */
-		withZoom?: boolean;
+	/** Enable zoom (WIP), `true` by default */
+	withZoom?: boolean;
 
-		/** Enable fullscreen (WIP), `true` by default */
-		withFullscreen?: boolean;
+	/** Enable fullscreen (WIP), `true` by default */
+	withFullscreen?: boolean;
 
-		/** Enable autoplay (WIP), `true` by default */
-		withAutoPlay?: boolean;
+	/** Enable autoplay (WIP), `true` by default */
+	withAutoPlay?: boolean;
 
-		/** Custom counter format function, default: `"1 / 3"` */
-		counterFormatter?: (index: number, total: number) => string;
+	/** Custom counter format function, default: `"1 / 3"` */
+	counterFormatter?: (index: number, total: number) => string;
 
-		/** Custom previous control icon */
-		previousControlIcon?: ReactNode;
+	/** Custom previous control icon */
+	previousControlIcon?: ReactNode;
 
-		/** Custom next control icon */
-		nextControlIcon?: ReactNode;
-	}
+	/** Custom next control icon */
+	nextControlIcon?: ReactNode;
+}
 
 export type LightboxFactory = Factory<{
 	props: LightboxProps;
