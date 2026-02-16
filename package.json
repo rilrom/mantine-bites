@@ -12,10 +12,11 @@
 	"scripts": {
 		"dev": "turbo dev",
 		"dev:storybook": "turbo dev --filter storybook",
-		"dev:docs": "turbo dev --filter docs",
+		"dev:docs": "pnpm run docgen && turbo dev --filter docs",
 		"build": "turbo build",
 		"build:storybook": "pnpm build --filter storybook",
-		"build:docs": "pnpm build --filter docs",
+		"build:docs": "pnpm run docgen && pnpm build --filter docs",
+		"build:lightbox": "pnpm build --filter @mantine-bites/lightbox",
 		"docgen": "turbo docgen",
 		"test": "turbo test",
 		"lint": "turbo lint",
