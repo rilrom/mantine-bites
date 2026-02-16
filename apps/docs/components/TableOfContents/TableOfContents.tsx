@@ -1,6 +1,5 @@
 import { Box, ScrollArea, Space, Text } from "@mantine/core";
 import { useScrollSpy } from "@mantine/hooks";
-import { useRouter } from "next/router";
 import classes from "./TableOfContents.module.css";
 
 interface TableOfContentsProps {
@@ -8,7 +7,6 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ withTabs }: TableOfContentsProps) {
-	const router = useRouter();
 	const spy = useScrollSpy({
 		selector: "#mdx [data-heading]",
 		getDepth: (element) => Number(element.getAttribute("data-order")),
@@ -29,10 +27,6 @@ export function TableOfContents({ withTabs }: TableOfContentsProps) {
 			mod={{ active: spy.active === index }}
 			href={`#${heading.id}`}
 			__vars={{ "--toc-link-offset": `${heading.depth - 1}` }}
-			onClick={(event) => {
-				event.preventDefault();
-				router.replace(`${router.pathname}#${heading.id}`);
-			}}
 		>
 			{heading.value}
 		</Text>

@@ -7,8 +7,8 @@ import {
 	Title,
 } from "@mantine/core";
 import Link from "next/link";
-import { Shell } from "../components/Shell";
-import { PACKAGES_DATA } from "../data";
+import { Shell } from "../../components/Shell";
+import { PACKAGES_DATA, REPO_NAME } from "../../data";
 
 export default function HomePage() {
 	return (
@@ -22,7 +22,7 @@ export default function HomePage() {
 						<Anchor
 							key={slug}
 							component={Link}
-							href={`/${slug}`}
+							href={`/${REPO_NAME}/${slug}`}
 							underline="never"
 						>
 							<Card padding="lg" radius="md" withBorder>

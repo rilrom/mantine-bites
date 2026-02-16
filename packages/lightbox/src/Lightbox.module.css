@@ -1,0 +1,104 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  color: var(--lightbox-color);
+}
+
+.slides {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  line-height: 1;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.toolbar {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  right: var(--mantine-spacing-md);
+  z-index: 1;
+}
+
+.counter {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  left: var(--mantine-spacing-md);
+  z-index: 1;
+  color: var(--lightbox-color);
+  font-weight: 500;
+  user-select: none;
+}
+
+.control {
+  position: absolute;
+  z-index: 1;
+  color: var(--lightbox-color);
+  top: 0; bottom: 0; margin: auto; height: fit-content;
+}
+
+.control[data-position="previous"] {
+  left: var(--mantine-spacing-md);
+}
+
+.control[data-position="next"] {
+  right: var(--mantine-spacing-md);
+}
+
+.thumbnails {
+  display: flex;
+  gap: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-md);
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.thumbnailButton {
+  width: var(--lightbox-thumbnail-size);
+  height: var(--lightbox-thumbnail-size);
+  border-radius: var(--lightbox-thumbnail-radius);
+  border: 2px solid transparent;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 150ms ease, border-color 150ms ease;
+  flex-shrink: 0;
+  overflow: hidden;
+  font-size: 0;
+  line-height: 1;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.thumbnailButton[data-active] {
+  opacity: 1;
+  border-color: var(--lightbox-thumbnail-highlight);
+}
+
+.thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--mantine-color-dark-4);
+  color: var(--mantine-color-dark-1);
+}

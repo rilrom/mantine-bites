@@ -30,21 +30,37 @@ export interface PackageData {
 	componentsStyles: string[];
 }
 
-export const REPO_URL = "https://github.com/rilrom/mantine-bites";
+export const REPO_NAME = "mantine-bites";
+
+export const REPO_URL = `https://github.com/rilrom/${REPO_NAME}`;
 
 export const PACKAGES_DATA: Record<string, PackageData> = {
 	example: {
-		packageName: "@mantine-bites/example",
+		packageName: `@${REPO_NAME}/example`,
 		packageDescription: "Example extension",
-		mdxFileUrl:
-			"https://github.com/rilrom/mantine-bites/blob/master/apps/docs/docs/example.mdx",
+		mdxFileUrl: `https://github.com/rilrom/${REPO_NAME}/blob/main/apps/docs/docs/example.mdx`,
 		repositoryUrl: REPO_URL,
-		licenseUrl: "https://github.com/rilrom/mantine-bites/blob/master/LICENSE",
+		licenseUrl: `https://github.com/rilrom/${REPO_NAME}/blob/main/LICENSE`,
 		author: {
 			name: "Riley Langbein",
 			githubUsername: "rilrom",
 		},
 		componentsProps: ["TestComponent"],
 		componentsStyles: ["TestComponent"],
+	},
+
+	lightbox: {
+		packageName: `@${REPO_NAME}/lightbox`,
+		packageDescription:
+			"Full-screen image lightbox with thumbnails, controls, and carousel navigation",
+		mdxFileUrl: `https://github.com/rilrom/${REPO_NAME}/blob/main/apps/docs/docs/lightbox.mdx`,
+		repositoryUrl: REPO_URL,
+		licenseUrl: `https://github.com/rilrom/${REPO_NAME}/blob/main/LICENSE`,
+		author: {
+			name: "Riley Langbein",
+			githubUsername: "rilrom",
+		},
+		componentsProps: ["Lightbox", "LightboxSlide"],
+		componentsStyles: ["Lightbox", "LightboxSlide"],
 	},
 };

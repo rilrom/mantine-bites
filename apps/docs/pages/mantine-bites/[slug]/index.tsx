@@ -1,17 +1,19 @@
 import type { GetStaticPaths, GetStaticProps } from "next";
 import dynamic from "next/dynamic";
-import { DocsTabs } from "../../components/DocsTabs";
-import { PageHeader } from "../../components/PageHeader";
-import { Shell } from "../../components/Shell";
-import { PACKAGES_DATA } from "../../data";
-import docgen from "../../docgen.json";
+import { DocsTabs } from "../../../components/DocsTabs";
+import { PageHeader } from "../../../components/PageHeader";
+import { Shell } from "../../../components/Shell";
+import { PACKAGES_DATA } from "../../../data";
+import docgen from "../../../docgen.json";
 
 const MDX_CONTENT: Record<string, React.ComponentType> = {
-	example: dynamic(() => import("../../docs/example.mdx")),
+	example: dynamic(() => import("../../../docs/example.mdx")),
+	lightbox: dynamic(() => import("../../../docs/lightbox.mdx")),
 };
 
 const STYLES_API: Record<string, any> = {
-	example: require("../../styles-api/example").STYLES_API_DATA,
+	example: require("../../../styles-api/example").STYLES_API_DATA,
+	lightbox: require("../../../styles-api/lightbox").STYLES_API_DATA,
 };
 
 interface PackagePageProps {

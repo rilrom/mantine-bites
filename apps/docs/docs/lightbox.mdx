@@ -1,0 +1,75 @@
+import { InstallScript } from '../components/InstallScript/InstallScript';
+import * as demos from '../demos/lightbox';
+
+## Installation
+
+<InstallScript packages="embla-carousel@^8.5.2 embla-carousel-react@^8.5.2 @mantine/carousel @mantine-bites/lightbox" />
+
+After installation import package styles at the root of your application:
+
+```tsx
+import '@mantine/core/styles.css';
+// ‼️ import carousel and lightbox styles after core package styles
+import '@mantine/carousel/styles.css';
+import '@mantine-bites/lightbox/styles.css';
+```
+
+## Do not forget to import styles
+
+You've followed the installation instructions above but it is still not working?
+
+- Lightbox isn't appearing.
+- Carousel slides are rendered vertically
+- No controls or indicators
+
+You've fallen into the trap of not importing the lightbox and carousel styles! To fix the issue, import the lightbox and carousel styles at the root of your application:
+
+```tsx
+import '@mantine/carousel/styles.css';
+import '@mantine-bites/lightbox/styles.css';
+```
+
+## Usage
+
+`Lightbox` is a full-screen modal-based image viewer built on `@mantine/carousel`. It uses a compound component pattern — slides are declared as `Lightbox.Slide` children. Each slide can have an optional `thumbnail` prop that renders in the thumbnail strip. Use the `initialSlide` prop to control which slide is displayed when the lightbox opens — click any image in the grid below to see it in action.
+
+<Demo data={demos.usage} />
+
+## Disable loop
+
+By default, navigation wraps around when reaching the first or last slide. Set `loop={false}` to disable this behavior. The previous and next controls are automatically disabled at the boundaries.
+
+<Demo data={demos.noLoop} />
+
+## Minimal lightbox
+
+Strip the lightbox down to its essentials by disabling controls, thumbnails, and the counter. Users can still navigate with arrow keys and swipe gestures.
+
+<Demo data={demos.minimal} />
+
+## Placeholder thumbnails
+
+When a `Lightbox.Slide` does not have a `thumbnail` prop, a placeholder icon is rendered in the thumbnail strip. This is useful for slides that contain non-image content.
+
+<Demo data={demos.placeholderThumbnails} />
+
+## Custom counter format
+
+Use the `counterFormatter` prop to customize how the slide counter is displayed. The function receives the current zero-based index and total slide count.
+
+<Demo data={demos.customCounter} />
+
+## Keyboard navigation
+
+The lightbox supports keyboard navigation out of the box:
+
+- **Left arrow** — previous slide
+- **Right arrow** — next slide
+- **Escape** — close lightbox
+
+## Accessibility
+
+- Close button includes `aria-label="Close lightbox"`
+- Navigation controls include `aria-label="Previous image"` and `aria-label="Next image"`
+- Thumbnail buttons include `aria-label="Go to slide N"` and `aria-current="true"` on the active thumbnail
+- Controls are disabled (not hidden) at navigation boundaries when `loop={false}`
