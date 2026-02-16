@@ -87,9 +87,7 @@ function Demo() {
 				opened={opened}
 				onClose={() => setOpened(false)}
 				initialSlide={initialSlide}
-				counterFormatter={(index, total) =>
-					`Image ${index + 1} of ${total}`
-				}
+				counterFormatter={(index, total) => `Image ${index + 1} of ${total}`}
 			>
 				{images.map((img) => (
 					<Lightbox.Slide
