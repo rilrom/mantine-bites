@@ -4,7 +4,6 @@ import "@mantine/code-highlight/styles.css";
 import "@mantinex/mantine-logo/styles.css";
 import "@mantinex/mantine-header/styles.css";
 import "@mantinex/demo/styles.css";
-import "@mantine-bites/example/styles.css";
 import "@mantine-bites/lightbox/styles.css";
 
 import {

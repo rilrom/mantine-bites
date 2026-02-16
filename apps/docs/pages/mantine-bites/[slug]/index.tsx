@@ -7,12 +7,10 @@ import { PACKAGES_DATA } from "../../../data";
 import docgen from "../../../docgen.json";
 
 const MDX_CONTENT: Record<string, React.ComponentType> = {
-	example: dynamic(() => import("../../../docs/example.mdx")),
 	lightbox: dynamic(() => import("../../../docs/lightbox.mdx")),
 };
 
 const STYLES_API: Record<string, any> = {
-	example: require("../../../styles-api/example").STYLES_API_DATA,
 	lightbox: require("../../../styles-api/lightbox").STYLES_API_DATA,
 };
 

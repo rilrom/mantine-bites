@@ -1,167 +1,145 @@
 {
-	"TestComponent": {
-		"props": {
-			"color": {
-				"defaultValue": null,
-				"description": "Controls <code>background-color</code> of the root element, key of <code>theme.colors</code> or any valid CSS color, <code>theme.primaryColor</code> by default",
-				"name": "color",
-				"required": false,
-				"type": {
-					"name": "MantineColor"
-				}
-			},
-			"label": {
-				"defaultValue": null,
-				"description": "Label displayed inside the component, <code>'Test component'</code> by default",
-				"name": "label",
-				"required": false,
-				"type": {
-					"name": "React.ReactNode"
-				}
-			}
-		}
-	},
-	"Lightbox": {
-		"props": {
-			"counterFormatter": {
-				"defaultValue": null,
-				"description": "Custom counter format function, default: <code>\"1 / 3\"</code>",
-				"name": "counterFormatter",
-				"required": false,
-				"type": {
-					"name": "(index: number, total: number) => string"
-				}
-			},
-			"initialSlide": {
-				"defaultValue": null,
-				"description": "Initial slide index, <code>0</code> by default",
-				"name": "initialSlide",
-				"required": false,
-				"type": {
-					"name": "number"
-				}
-			},
-			"loop": {
-				"defaultValue": null,
-				"description": "Whether navigation wraps around, <code>true</code> by default",
-				"name": "loop",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"nextControlIcon": {
-				"defaultValue": null,
-				"description": "Custom next control icon",
-				"name": "nextControlIcon",
-				"required": false,
-				"type": {
-					"name": "React.ReactNode"
-				}
-			},
-			"onClose": {
-				"defaultValue": null,
-				"description": "Called when lightbox should close",
-				"name": "onClose",
-				"required": true,
-				"type": {
-					"name": "() => void"
-				}
-			},
-			"onSlideChange": {
-				"defaultValue": null,
-				"description": "Called when active slide changes",
-				"name": "onSlideChange",
-				"required": false,
-				"type": {
-					"name": "(index: number) => void"
-				}
-			},
-			"opened": {
-				"defaultValue": null,
-				"description": "Controls lightbox visibility",
-				"name": "opened",
-				"required": true,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"previousControlIcon": {
-				"defaultValue": null,
-				"description": "Custom previous control icon",
-				"name": "previousControlIcon",
-				"required": false,
-				"type": {
-					"name": "React.ReactNode"
-				}
-			},
-			"withAutoPlay": {
-				"defaultValue": null,
-				"description": "Enable autoplay (WIP), <code>true</code> by default",
-				"name": "withAutoPlay",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"withControls": {
-				"defaultValue": null,
-				"description": "Show prev/next arrow controls, <code>true</code> by default",
-				"name": "withControls",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"withCounter": {
-				"defaultValue": null,
-				"description": "Show slide counter, <code>true</code> by default",
-				"name": "withCounter",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"withFullscreen": {
-				"defaultValue": null,
-				"description": "Enable fullscreen (WIP), <code>true</code> by default",
-				"name": "withFullscreen",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"withThumbnails": {
-				"defaultValue": null,
-				"description": "Show thumbnail strip, <code>true</code> by default",
-				"name": "withThumbnails",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			},
-			"withZoom": {
-				"defaultValue": null,
-				"description": "Enable zoom (WIP), <code>true</code> by default",
-				"name": "withZoom",
-				"required": false,
-				"type": {
-					"name": "boolean"
-				}
-			}
-		}
-	},
-	"LightboxSlide": {
-		"props": {
-			"thumbnail": {
-				"defaultValue": null,
-				"description": "Thumbnail content for this slide, shows a placeholder if omitted",
-				"name": "thumbnail",
-				"required": false,
-				"type": {
-					"name": "React.ReactNode"
-				}
-			}
-		}
-	}
+  "Lightbox": {
+    "props": {
+      "counterFormatter": {
+        "defaultValue": null,
+        "description": "Custom counter format function, default: <code>\"1 / 3\"</code>",
+        "name": "counterFormatter",
+        "required": false,
+        "type": {
+          "name": "(index: number, total: number) => string"
+        }
+      },
+      "initialSlide": {
+        "defaultValue": null,
+        "description": "Initial slide index, <code>0</code> by default",
+        "name": "initialSlide",
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      },
+      "loop": {
+        "defaultValue": null,
+        "description": "Whether navigation wraps around, <code>true</code> by default",
+        "name": "loop",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "nextControlIcon": {
+        "defaultValue": null,
+        "description": "Custom next control icon",
+        "name": "nextControlIcon",
+        "required": false,
+        "type": {
+          "name": "React.ReactNode"
+        }
+      },
+      "onClose": {
+        "defaultValue": null,
+        "description": "Called when lightbox should close",
+        "name": "onClose",
+        "required": true,
+        "type": {
+          "name": "() => void"
+        }
+      },
+      "onSlideChange": {
+        "defaultValue": null,
+        "description": "Called when active slide changes",
+        "name": "onSlideChange",
+        "required": false,
+        "type": {
+          "name": "(index: number) => void"
+        }
+      },
+      "opened": {
+        "defaultValue": null,
+        "description": "Controls lightbox visibility",
+        "name": "opened",
+        "required": true,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "previousControlIcon": {
+        "defaultValue": null,
+        "description": "Custom previous control icon",
+        "name": "previousControlIcon",
+        "required": false,
+        "type": {
+          "name": "React.ReactNode"
+        }
+      },
+      "withAutoPlay": {
+        "defaultValue": null,
+        "description": "Enable autoplay (WIP), <code>true</code> by default",
+        "name": "withAutoPlay",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "withControls": {
+        "defaultValue": null,
+        "description": "Show prev/next arrow controls, <code>true</code> by default",
+        "name": "withControls",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "withCounter": {
+        "defaultValue": null,
+        "description": "Show slide counter, <code>true</code> by default",
+        "name": "withCounter",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "withFullscreen": {
+        "defaultValue": null,
+        "description": "Enable fullscreen (WIP), <code>true</code> by default",
+        "name": "withFullscreen",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "withThumbnails": {
+        "defaultValue": null,
+        "description": "Show thumbnail strip, <code>true</code> by default",
+        "name": "withThumbnails",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "withZoom": {
+        "defaultValue": null,
+        "description": "Enable zoom (WIP), <code>true</code> by default",
+        "name": "withZoom",
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      }
+    }
+  },
+  "LightboxSlide": {
+    "props": {
+      "thumbnail": {
+        "defaultValue": null,
+        "description": "Thumbnail content for this slide, shows a placeholder if omitted",
+        "name": "thumbnail",
+        "required": false,
+        "type": {
+          "name": "React.ReactNode"
+        }
+      }
+    }
+  }
 }

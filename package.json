@@ -16,7 +16,6 @@
 		"build": "turbo build",
 		"build:storybook": "pnpm build --filter storybook",
 		"build:docs": "pnpm build --filter docs",
-		"build:example": "pnpm build --filter @mantine-bites/example",
 		"docgen": "turbo docgen",
 		"test": "turbo test",
 		"lint": "turbo lint",

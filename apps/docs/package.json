@@ -13,14 +13,11 @@
 		"docgen": "tsx scripts/docgen"
 	},
 	"dependencies": {
-		"@mantine-bites/example": "workspace:*",
 		"@mantine-bites/lightbox": "workspace:*",
 		"@mantine/carousel": "8.3.14",
 		"@mantine/code-highlight": "8.3.14",
 		"@mantine/core": "8.3.14",
 		"@mantine/hooks": "8.3.14",
-		"embla-carousel": "^8.5.2",
-		"embla-carousel-react": "^8.5.2",
 		"@mantinex/demo": "^2.0.0",
 		"@mantinex/dev-icons": "^2.0.0",
 		"@mantinex/mantine-header": "^2.0.0",
@@ -32,11 +29,13 @@
 		"@tabler/icons-react": "^3.33.0",
 		"@types/mdx": "^2.0.13",
 		"clsx": "^2.1.1",
+		"embla-carousel": "^8.5.2",
+		"embla-carousel-react": "^8.5.2",
 		"next": "^15.5.12",
 		"react": "^19.2.4",
 		"react-dom": "^19.2.4",
 		"remark-slug": "^7.0.1",
-		"shiki": "^3.4.2",
+		"shiki": "^3.22.0",
 		"type-fest": "^4.41.0"
 	},
 	"devDependencies": {
