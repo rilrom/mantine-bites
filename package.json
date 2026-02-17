@@ -15,7 +15,7 @@
 		"dev:docs": "pnpm run docgen && turbo dev --filter docs",
 		"build": "turbo build",
 		"build:storybook": "pnpm build --filter storybook",
-		"build:docs": "pnpm run docgen && pnpm build --filter docs",
+		"build:docs": "pnpm run docgen && pnpm lint && pnpm build --filter docs",
 		"build:lightbox": "pnpm build --filter @mantine-bites/lightbox",
 		"deploy:docs": "npm run build:docs && tsx scripts/nojekyll && gh-pages -d apps/docs/out -t",
 		"docgen": "turbo docgen",
