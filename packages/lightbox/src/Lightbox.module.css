@@ -4,7 +4,7 @@
   flex-direction: column;
   height: 100dvh;
   width: 100dvw;
-  color: var(--lightbox-color);
+  color: var(--mantine-color-white);
 }
 
 .slides {
@@ -44,21 +44,6 @@
   user-select: none;
 }
 
-.control {
-  position: absolute;
-  z-index: 1;
-  color: var(--lightbox-color);
-  top: 0; bottom: 0; margin: auto; height: fit-content;
-}
-
-.control[data-position="previous"] {
-  left: var(--mantine-spacing-md);
-}
-
-.control[data-position="next"] {
-  right: var(--mantine-spacing-md);
-}
-
 .thumbnails {
   display: flex;
   gap: var(--mantine-spacing-xs);
@@ -68,9 +53,9 @@
 }
 
 .thumbnailButton {
-  width: var(--lightbox-thumbnail-size);
-  height: var(--lightbox-thumbnail-size);
-  border-radius: var(--lightbox-thumbnail-radius);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--mantine-radius-sm);
   border: 2px solid transparent;
   opacity: 0.5;
   cursor: pointer;
@@ -80,17 +65,17 @@
   font-size: 0;
   line-height: 1;
 
+  &[data-active] {
+    opacity: 1;
+    border-color: var(--mantine-primary-color-filled);
+  }
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-}
-
-.thumbnailButton[data-active] {
-  opacity: 1;
-  border-color: var(--lightbox-thumbnail-highlight);
 }
 
 .thumbnailPlaceholder {

@@ -44,12 +44,12 @@ const PlaceholderCard = (props: PropsWithChildren) => {
 	);
 };
 
-export function FullExample() {
+export function Default() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
 		<Container>
-			<Button onClick={open}>Open Lightbox</Button>
+			<Button onClick={open}>Open</Button>
 
 			<Lightbox opened={opened} onClose={close}>
 				{sampleImages.map((img) => (
@@ -65,41 +65,21 @@ export function FullExample() {
 	);
 }
 
-export function WithoutLoop() {
+export function WithLoop() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
 		<Container>
-			<Button onClick={open}>Open Non-Looping Lightbox</Button>
-
-			<Lightbox opened={opened} onClose={close} loop={false}>
-				{sampleImages.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
-		</Container>
-	);
-}
-
-export function Minimal() {
-	const [opened, { open, close }] = useDisclosure(false);
-
-	return (
-		<Container>
-			<Button onClick={open}>Open Minimal Lightbox</Button>
+			<Button onClick={open}>Open</Button>
 
 			<Lightbox
 				opened={opened}
 				onClose={close}
-				withControls={false}
-				withThumbnails={false}
-				withCounter={false}
-				loop={false}
+				carouselOptions={{
+					emblaOptions: {
+						loop: true,
+					},
+				}}
 			>
 				{sampleImages.map((img) => (
 					<Lightbox.Slide
@@ -119,7 +99,7 @@ export function WithPlaceholderThumbnails() {
 
 	return (
 		<Container>
-			<Button onClick={open}>Open Lightbox (Mixed Thumbnails)</Button>
+			<Button onClick={open}>Open</Button>
 
 			<Lightbox opened={opened} onClose={close}>
 				<Lightbox.Slide
@@ -177,7 +157,7 @@ export function WithCustomCounter() {
 
 	return (
 		<Container>
-			<Button onClick={open}>Open with Custom Counter</Button>
+			<Button onClick={open}>Open</Button>
 
 			<Lightbox
 				opened={opened}

@@ -1,14 +1,14 @@
-import { Carousel } from "@mantine/carousel";
+import { Carousel, type CarouselProps } from "@mantine/carousel";
 import {
 	ActionIcon,
 	Box,
 	type BoxProps,
 	CloseIcon,
-	createVarsResolver,
 	type ElementProps,
 	type Factory,
 	factory,
 	Modal,
+	type ModalProps,
 	type StylesApiProps,
 	Text,
 	UnstyledButton,
@@ -35,19 +35,17 @@ export type LightboxStylesNames =
 	| "slide"
 	| "toolbar"
 	| "closeButton"
-	| "control"
 	| "counter"
 	| "thumbnails"
 	| "thumbnailButton"
 	| "thumbnailPlaceholder";
 
-export type LightboxCssVariables = {
-	root:
-		| "--lightbox-color"
-		| "--lightbox-thumbnail-size"
-		| "--lightbox-thumbnail-radius"
-		| "--lightbox-thumbnail-highlight";
-};
+export type LightboxCarouselOptions = Omit<CarouselProps, "withKeyboardEvents">;
+
+export type LightboxModalOptions = Omit<
+	ModalProps,
+	"fullScreen" | "title" | "withCloseButton" | "opened" | "onClose"
+>;
 
 export interface LightboxProps
 	extends BoxProps,
@@ -59,145 +57,57 @@ export interface LightboxProps
 	/** Called when lightbox should close */
 	onClose: () => void;
 
-	/** Initial slide index, `0` by default */
-	initialSlide?: number;
-
-	/** Called when active slide changes */
-	onSlideChange?: (index: number) => void;
-
-	/** Whether navigation wraps around, `true` by default */
-	loop?: boolean;
-
-	/** Show prev/next arrow controls, `true` by default */
-	withControls?: boolean;
-
-	/** Show thumbnail strip, `true` by default */
+	/** Determines whether thumbnail images should be displayed, `true` by default */
 	withThumbnails?: boolean;
 
-	/** Show slide counter, `true` by default */
+	/** Determines whether the slide counter should be displayed, `true` by default */
 	withCounter?: boolean;
 
-	/** Enable zoom (WIP), `true` by default */
-	withZoom?: boolean;
-
-	/** Enable fullscreen (WIP), `true` by default */
-	withFullscreen?: boolean;
-
-	/** Enable autoplay (WIP), `true` by default */
-	withAutoPlay?: boolean;
-
-	/** Custom counter format function, default: `"1 / 3"` */
+	/** Custom counter format function, `"1 / 3"` by default */
 	counterFormatter?: (index: number, total: number) => string;
 
-	/** Custom previous control icon */
-	previousControlIcon?: ReactNode;
+	/** Props passed to the underlying `Carousel` component */
+	carouselOptions?: LightboxCarouselOptions;
 
-	/** Custom next control icon */
-	nextControlIcon?: ReactNode;
+	/** Props passed to the underlying `Modal` component */
+	modalOptions?: LightboxModalOptions;
 }
 
 export type LightboxFactory = Factory<{
 	props: LightboxProps;
 	ref: HTMLDivElement;
 	stylesNames: LightboxStylesNames;
-	vars: LightboxCssVariables;
 	staticComponents: {
 		Slide: typeof LightboxSlide;
 	};
 }>;
 
 const defaultProps: Partial<LightboxProps> = {
-	loop: true,
-	withControls: true,
 	withThumbnails: true,
 	withCounter: true,
-};
-
-const varsResolver = createVarsResolver<LightboxFactory>((_theme) => ({
-	root: {
-		"--lightbox-color": "var(--mantine-color-white)",
-		"--lightbox-thumbnail-size": "48px",
-		"--lightbox-thumbnail-radius": "var(--mantine-radius-sm)",
-		"--lightbox-thumbnail-highlight": "var(--mantine-primary-color-filled)",
+	carouselOptions: {
+		controlSize: 36,
 	},
-}));
-
-const QuestionMark = () => (
-	<svg
-		aria-hidden="true"
-		xmlns="http://www.w3.org/2000/svg"
-		width="16"
-		height="16"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-	>
-		<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-		<path d="M12 17h.01" />
-	</svg>
-);
-
-const ChevronLeft = () => (
-	<svg
-		aria-hidden="true"
-		xmlns="http://www.w3.org/2000/svg"
-		width="24"
-		height="24"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-	>
-		<path d="m15 18-6-6 6-6" />
-	</svg>
-);
-
-const ChevronRight = () => (
-	<svg
-		aria-hidden="true"
-		xmlns="http://www.w3.org/2000/svg"
-		width="24"
-		height="24"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-	>
-		<path d="m9 18 6-6-6-6" />
-	</svg>
-);
+};
 
 export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	const props = useProps("Lightbox", defaultProps, _props);
+
 	const {
+		opened,
+		onClose,
 		classNames,
 		className,
 		style,
 		styles,
 		unstyled,
 		vars,
-		opened,
-		onClose,
-		initialSlide,
-		onSlideChange,
-		loop,
-		withControls,
+		children,
 		withThumbnails,
 		withCounter,
-		withZoom: _withZoom,
-		withFullscreen: _withFullscreen,
-		withAutoPlay: _withAutoPlay,
 		counterFormatter,
-		previousControlIcon,
-		nextControlIcon,
-		children,
+		carouselOptions,
+		modalOptions,
 		...others
 	} = props;
 
@@ -211,42 +121,36 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		styles,
 		unstyled,
 		vars,
-		varsResolver,
 	});
-
-	const slides = Children.toArray(children).filter(isValidElement);
-	const total = slides.length;
 
 	const emblaRef = useRef<EmblaCarouselType | null>(null);
 
-	const [currentIndex, setCurrentIndex] = useState(initialSlide ?? 0);
-	const [canScrollPrev, setCanScrollPrev] = useState(false);
-	const [canScrollNext, setCanScrollNext] = useState(false);
+	const [currentIndex, setCurrentIndex] = useState(
+		carouselOptions?.initialSlide ?? 0,
+	);
+
+	const slides = Children.toArray(children).filter(isValidElement);
+
+	const total = slides.length;
+
+	const counterText = counterFormatter
+		? counterFormatter(currentIndex, total)
+		: `${currentIndex + 1} / ${total}`;
 
 	const handleSlideChange = useCallback(
 		(index: number) => {
 			setCurrentIndex(index);
-			onSlideChange?.(index);
+			carouselOptions?.onSlideChange?.(index);
 		},
-		[onSlideChange],
+		[carouselOptions?.onSlideChange],
 	);
 
-	const updateCanScroll = useCallback(() => {
-		const api = emblaRef.current;
-		if (api) {
-			setCanScrollPrev(api.canScrollPrev());
-			setCanScrollNext(api.canScrollNext());
-		}
-	}, []);
-
 	const handleEmblaApi = useCallback(
-		(api: EmblaCarouselType) => {
-			emblaRef.current = api;
-			updateCanScroll();
-			api.on("select", updateCanScroll);
-			api.on("init", updateCanScroll);
+		(embla: EmblaCarouselType) => {
+			emblaRef.current = embla;
+			carouselOptions?.getEmblaApi?.(embla);
 		},
-		[updateCanScroll],
+		[carouselOptions?.getEmblaApi],
 	);
 
 	useEffect(() => {
@@ -267,32 +171,34 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		return () => document.removeEventListener("keydown", handleKeyDown);
 	}, [opened]);
 
-	const counterText = counterFormatter
-		? counterFormatter(currentIndex, total)
-		: `${currentIndex + 1} / ${total}`;
-
 	return (
 		<Modal
-			opened={opened}
-			onClose={onClose}
-			fullScreen={true}
-			withCloseButton={false}
+			centered
 			radius={0}
 			padding={0}
 			xOffset={0}
 			yOffset={0}
+			{...modalOptions}
+			opened={opened}
+			onClose={onClose}
+			fullScreen={true}
+			title={undefined}
+			withCloseButton={false}
+			overlayProps={{
+				backgroundOpacity: 0.95,
+				color: "#18181B",
+				...modalOptions?.overlayProps,
+			}}
 			styles={{
+				...modalOptions?.styles,
 				inner: {
+					...modalOptions?.styles?.inner,
 					left: 0,
 					right: 0,
 				},
 				content: {
+					...modalOptions?.styles?.content,
 					background: "transparent",
-				},
-			}}
-			overlayProps={{
-				style: {
-					backgroundColor: "rgba(24, 24, 27, .95)",
 				},
 			}}
 		>
@@ -316,51 +222,20 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 						</Text>
 					)}
 
-					{withControls && (
-						<ActionIcon
-							variant="filled"
-							color="gray"
-							size="xl"
-							radius="xl"
-							onClick={() => emblaRef.current?.scrollPrev()}
-							disabled={!canScrollPrev}
-							aria-label="Previous image"
-							data-position="previous"
-							{...getStyles("control")}
-						>
-							{previousControlIcon ?? <ChevronLeft />}
-						</ActionIcon>
-					)}
-
 					<Carousel
-						withControls={false}
-						height="100%"
-						slideSize="100%"
 						slideGap={0}
-						emblaOptions={{ loop }}
-						initialSlide={initialSlide}
+						includeGapInSize={false}
+						withIndicators={false}
+						slideSize="100%"
+						height="100%"
+						{...carouselOptions}
+						{...getStyles("slides")}
+						withKeyboardEvents={false}
 						onSlideChange={handleSlideChange}
 						getEmblaApi={handleEmblaApi}
-						{...getStyles("slides")}
 					>
 						{children}
 					</Carousel>
-
-					{withControls && (
-						<ActionIcon
-							variant="filled"
-							color="gray"
-							size="xl"
-							radius="xl"
-							onClick={() => emblaRef.current?.scrollNext()}
-							disabled={!canScrollNext}
-							aria-label="Next image"
-							data-position="next"
-							{...getStyles("control")}
-						>
-							{nextControlIcon ?? <ChevronRight />}
-						</ActionIcon>
-					)}
 
 					{withThumbnails && (
 						<Box {...getStyles("thumbnails")}>
@@ -380,7 +255,21 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 									>
 										{thumbnail ?? (
 											<Box {...getStyles("thumbnailPlaceholder")}>
-												<QuestionMark />
+												<svg
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="16"
+													height="16"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													strokeWidth="2"
+													strokeLinecap="round"
+													strokeLinejoin="round"
+												>
+													<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+													<path d="M12 17h.01" />
+												</svg>
 											</Box>
 										)}
 									</UnstyledButton>

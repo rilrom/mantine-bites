@@ -31,21 +31,43 @@ import '@mantine-bites/lightbox/styles.css';
 
 ## Usage
 
-`Lightbox` is a full-screen modal-based image viewer built on `@mantine/carousel`. It uses a compound component pattern — slides are declared as `Lightbox.Slide` children. Each slide can have an optional `thumbnail` prop that renders in the thumbnail strip. Use the `initialSlide` prop to control which slide is displayed when the lightbox opens — click any image in the grid below to see it in action.
+`Lightbox` is a full-screen modal-based image viewer built on top of `@mantine/carousel` and `@mantine/modal`. It uses a compound component pattern — slides are declared as `Lightbox.Slide` children. Each slide can have an optional `thumbnail` prop that renders in the thumbnail strip. Use `carouselOptions={{ initialSlide }}` to control which slide is displayed when the lightbox opens — click any image in the grid below to see it in action.
 
 <Demo data={demos.usage} />
 
-## Disable loop
+## Carousel options
 
-By default, navigation wraps around when reaching the first or last slide. Set `loop={false}` to disable this behavior. The previous and next controls are automatically disabled at the boundaries.
+`Lightbox` renders a [Carousel](https://mantine.dev/x/carousel/) component under the hood. You can pass any `Carousel` props via the `carouselOptions` prop — this includes `withControls`, `initialSlide`, `onSlideChange`, `controlSize`, `controlsOffset`, `emblaOptions`, and more.
 
-<Demo data={demos.noLoop} />
+<Demo data={demos.carouselOptions} />
 
-## Minimal lightbox
+## Embla options
 
-Strip the lightbox down to its essentials by disabling controls, thumbnails, and the counter. Users can still navigate with arrow keys and swipe gestures.
+Embla options are passed through `carouselOptions.emblaOptions`. These control the core carousel behavior such as `loop`, `dragFree`, `align`, and more. See the [Embla Carousel options documentation](https://www.embla-carousel.com/api/options/) for the full list.
 
-<Demo data={demos.minimal} />
+## Loop
+
+By default, navigation stops at the first and last slide. To enable infinite looping, pass `emblaOptions: { loop: true }` via `carouselOptions`:
+
+<Demo data={demos.loop} />
+
+## Embla plugins
+
+`Lightbox` supports [Embla Carousel plugins](https://www.embla-carousel.com/plugins/) via `carouselOptions.plugins`. The example below uses the `embla-carousel-autoplay` plugin to automatically advance slides:
+
+<Demo data={demos.emblaPlugins} />
+
+## Modal options
+
+`Lightbox` renders a [Modal](https://mantine.dev/core/modal/) component under the hood. You can pass any `Modal` props via the `modalOptions` prop to customize the overlay, transitions, and more. The `opened`, `onClose`, `fullScreen`, `title`, and `withCloseButton` props are managed internally and cannot be overridden.
+
+<Demo data={demos.modalOptions} />
+
+## Hide controls
+
+Strip the lightbox down to its essentials by hiding controls, thumbnails, and the counter. Pass `withControls: false` via `carouselOptions` and set `withThumbnails={false}` and `withCounter={false}` on the `Lightbox` component. Users can still navigate with arrow keys and swipe gestures.
+
+<Demo data={demos.hideControls} />
 
 ## Placeholder thumbnails
 
@@ -70,6 +92,5 @@ The lightbox supports keyboard navigation out of the box:
 ## Accessibility
 
 - Close button includes `aria-label="Close lightbox"`
-- Navigation controls include `aria-label="Previous image"` and `aria-label="Next image"`
+- Navigation controls include appropriate `aria-label` attributes (configurable via `carouselOptions.previousControlProps` and `carouselOptions.nextControlProps`)
 - Thumbnail buttons include `aria-label="Go to slide N"` and `aria-current="true"` on the active thumbnail
-- Controls are disabled (not hidden) at navigation boundaries when `loop={false}`

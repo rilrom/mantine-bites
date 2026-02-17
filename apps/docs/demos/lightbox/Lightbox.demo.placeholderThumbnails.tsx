@@ -40,25 +40,30 @@ function Demo() {
           ) : (
             <Box
               key="placeholder"
-              bg="dark.6"
               style={{
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                aspectRatio: '3 / 2',
-                borderRadius: 'var(--mantine-radius-md)',
-                color: 'var(--mantine-color-dimmed)',
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                aspectRatio: "3 / 2",
+                border: "1px dashed var(--mantine-color-default-border)",
+                borderRadius: "var(--mantine-radius-md)",
+                color: "var(--mantine-color-dimmed)",
+                backgroundColor: "var(--mantine-color-default)",
               }}
               onClick={() => open(index)}
             >
-              Text content
+              Text-only slide
             </Box>
           )
         )}
       </SimpleGrid>
 
-      <Lightbox opened={opened} onClose={() => setOpened(false)} initialSlide={initialSlide}>
+      <Lightbox
+        opened={opened}
+        onClose={() => setOpened(false)}
+        carouselOptions={{ initialSlide }}
+      >
         {slides.map((slide) =>
           slide ? (
             <Lightbox.Slide key={slide.src} thumbnail={<img src={slide.src} alt={slide.alt} />}>
@@ -66,8 +71,23 @@ function Demo() {
             </Lightbox.Slide>
           ) : (
             <Lightbox.Slide key="placeholder">
-              <div style={{ color: 'white', fontSize: 24 }}>
-                This slide has no thumbnail – a placeholder is shown instead
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--mantine-color-dimmed)",
+                  fontSize: 24,
+                  textAlign: "center",
+                  padding: "2rem",
+                  border: "1px dashed var(--mantine-color-default-border)",
+                  borderRadius: "var(--mantine-radius-md)",
+                  backgroundColor: "var(--mantine-color-default)",
+                  maxWidth: 600,
+                  margin: "0 1rem",
+                }}
+              >
+                Text-only slide with a placeholder thumbnail image
               </div>
             </Lightbox.Slide>
           )
@@ -110,19 +130,20 @@ function Demo() {
 					) : (
 						<Box
 							key="placeholder"
-							bg="dark.6"
 							style={{
 								cursor: "pointer",
 								display: "flex",
 								alignItems: "center",
 								justifyContent: "center",
 								aspectRatio: "3 / 2",
+								border: "1px dashed var(--mantine-color-default-border)",
 								borderRadius: "var(--mantine-radius-md)",
 								color: "var(--mantine-color-dimmed)",
+								backgroundColor: "var(--mantine-color-default)",
 							}}
 							onClick={() => open(index)}
 						>
-							Text content
+							Text-only slide
 						</Box>
 					),
 				)}
@@ -131,7 +152,7 @@ function Demo() {
 			<Lightbox
 				opened={opened}
 				onClose={() => setOpened(false)}
-				initialSlide={initialSlide}
+				carouselOptions={{ initialSlide }}
 			>
 				{slides.map((slide) =>
 					slide ? (
@@ -143,8 +164,23 @@ function Demo() {
 						</Lightbox.Slide>
 					) : (
 						<Lightbox.Slide key="placeholder">
-							<div style={{ color: "white", fontSize: 24 }}>
-								This slide has no thumbnail – a placeholder is shown instead
+							<div
+								style={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									color: "var(--mantine-color-dimmed)",
+									fontSize: 24,
+									textAlign: "center",
+									padding: "2rem",
+									border: "1px dashed var(--mantine-color-default-border)",
+									borderRadius: "var(--mantine-radius-md)",
+									backgroundColor: "var(--mantine-color-default)",
+									maxWidth: 600,
+									margin: "0 1rem",
+								}}
+							>
+								Text-only slide with a placeholder thumbnail image
 							</div>
 						</Lightbox.Slide>
 					),

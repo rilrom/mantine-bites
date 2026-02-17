@@ -37,7 +37,17 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox opened={opened} onClose={() => setOpened(false)} initialSlide={initialSlide} loop={false}>
+      <Lightbox
+        opened={opened}
+        onClose={() => setOpened(false)}
+        carouselOptions={{
+          initialSlide,
+          controlSize: 40,
+          controlsOffset="xl",
+          emblaOptions: { loop: true },
+          onSlideChange: (index) => console.log('Slide changed to', index),
+        }}
+      >
         {images.map((img) => (
           <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
             <img src={img.src} alt={img.alt} />
@@ -81,8 +91,13 @@ function Demo() {
 			<Lightbox
 				opened={opened}
 				onClose={() => setOpened(false)}
-				initialSlide={initialSlide}
-				loop={false}
+				carouselOptions={{
+					initialSlide,
+					controlSize: 40,
+					controlsOffset: "xl",
+					emblaOptions: { loop: true },
+					onSlideChange: (index) => console.log("Slide changed to", index),
+				}}
 			>
 				{images.map((img) => (
 					<Lightbox.Slide
@@ -97,7 +112,7 @@ function Demo() {
 	);
 }
 
-export const noLoop: MantineDemo = {
+export const carouselOptions: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

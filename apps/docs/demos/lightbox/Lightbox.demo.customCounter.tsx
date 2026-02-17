@@ -40,7 +40,7 @@ function Demo() {
       <Lightbox
         opened={opened}
         onClose={() => setOpened(false)}
-        initialSlide={initialSlide}
+        carouselOptions={{ initialSlide }}
         counterFormatter={(index, total) => \`Image \${index + 1} of \${total}\`}
       >
         {images.map((img) => (
@@ -86,7 +86,7 @@ function Demo() {
 			<Lightbox
 				opened={opened}
 				onClose={() => setOpened(false)}
-				initialSlide={initialSlide}
+				carouselOptions={{ initialSlide }}
 				counterFormatter={(index, total) => `Image ${index + 1} of ${total}`}
 			>
 				{images.map((img) => (

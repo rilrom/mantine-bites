@@ -41,6 +41,11 @@ function Demo() {
         opened={opened}
         onClose={() => setOpened(false)}
         carouselOptions={{ initialSlide }}
+        modalOptions={{
+          transitionProps: { duration: 500, transition: 'fade' },
+          overlayProps: { backgroundOpacity: 0.8, blur: 10 },
+          closeOnEscape: false,
+        }}
       >
         {images.map((img) => (
           <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
@@ -86,6 +91,11 @@ function Demo() {
 				opened={opened}
 				onClose={() => setOpened(false)}
 				carouselOptions={{ initialSlide }}
+				modalOptions={{
+					transitionProps: { duration: 500, transition: "fade" },
+					overlayProps: { backgroundOpacity: 0.8, blur: 10 },
+					closeOnEscape: false,
+				}}
 			>
 				{images.map((img) => (
 					<Lightbox.Slide
@@ -100,7 +110,7 @@ function Demo() {
 	);
 }
 
-export const usage: MantineDemo = {
+export const modalOptions: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

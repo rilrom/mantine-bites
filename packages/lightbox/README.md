@@ -8,8 +8,8 @@ Full-screen image lightbox with thumbnails, controls, and carousel navigation.
 
 ## Roadmap
 
-- [ ] Fix mobile UI quirks.
-- [ ] Autoplay option.
+- [x] Fix mobile UI quirks.
+- [x] Autoplay option.
 - [ ] Zoom option.
 - [ ] Fullscreen option.
 - [ ] Iframes.

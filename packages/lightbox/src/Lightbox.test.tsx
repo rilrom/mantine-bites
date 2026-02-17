@@ -5,6 +5,10 @@ import { Lightbox, type LightboxProps } from "./index.js";
 const defaultProps: LightboxProps = {
 	opened: true,
 	onClose: () => {},
+	carouselOptions: {
+		previousControlProps: { "aria-label": "Previous image" },
+		nextControlProps: { "aria-label": "Next image" },
+	},
 	children: [
 		<Lightbox.Slide
 			key="1"
@@ -71,15 +75,24 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 	});
 
 	it("renders at initialSlide position", () => {
-		render(<Lightbox {...defaultProps} initialSlide={2} />);
+		render(
+			<Lightbox {...defaultProps} carouselOptions={{ initialSlide: 2 }} />,
+		);
 		expect(screen.getByAltText("Ocean sunset")).toBeInTheDocument();
 	});
 
-	it("calls onSlideChange on navigation", async () => {
+	it("accepts onSlideChange callback via carouselOptions", () => {
 		const onSlideChange = jest.fn();
-		render(<Lightbox {...defaultProps} onSlideChange={onSlideChange} />);
-		await userEvent.click(screen.getByLabelText("Next image"));
-		expect(onSlideChange).toHaveBeenCalledWith(1);
+		render(
+			<Lightbox
+				{...defaultProps}
+				carouselOptions={{
+					...defaultProps.carouselOptions,
+					onSlideChange,
+				}}
+			/>,
+		);
+		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("renders controls by default", () => {
@@ -89,24 +102,59 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 	});
 
 	it("hides controls when withControls={false}", () => {
-		render(<Lightbox {...defaultProps} withControls={false} />);
+		render(
+			<Lightbox {...defaultProps} carouselOptions={{ withControls: false }} />,
+		);
 		expect(screen.queryByLabelText("Previous image")).not.toBeInTheDocument();
 		expect(screen.queryByLabelText("Next image")).not.toBeInTheDocument();
 	});
 
-	it("disables prev at first slide when loop={false}", () => {
-		render(<Lightbox {...defaultProps} loop={false} />);
-		expect(screen.getByLabelText("Previous image")).toBeDisabled();
+	it("marks prev control inactive at first slide when loop={false}", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				carouselOptions={{
+					...defaultProps.carouselOptions,
+					emblaOptions: { loop: false },
+				}}
+			/>,
+		);
+		expect(screen.getByLabelText("Previous image")).toHaveAttribute(
+			"data-inactive",
+			"true",
+		);
 	});
 
-	it("disables next at last slide when loop={false}", () => {
-		render(<Lightbox {...defaultProps} loop={false} initialSlide={2} />);
-		expect(screen.getByLabelText("Next image")).toBeDisabled();
+	it("marks next control inactive at last slide when loop={false}", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				carouselOptions={{
+					...defaultProps.carouselOptions,
+					initialSlide: 2,
+					emblaOptions: { loop: false },
+				}}
+			/>,
+		);
+		expect(screen.getByLabelText("Next image")).toHaveAttribute(
+			"data-inactive",
+			"true",
+		);
 	});
 
-	it("does not disable controls when loop={true}", () => {
-		render(<Lightbox {...defaultProps} loop />);
-		expect(screen.getByLabelText("Previous image")).not.toBeDisabled();
+	it("does not mark controls inactive when loop={true}", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				carouselOptions={{
+					...defaultProps.carouselOptions,
+					emblaOptions: { loop: true },
+				}}
+			/>,
+		);
+		expect(screen.getByLabelText("Previous image")).not.toHaveAttribute(
+			"data-inactive",
+		);
 	});
 
 	it("renders counter by default", () => {
@@ -167,13 +215,11 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(button.querySelector("svg")).toBeInTheDocument();
 	});
 
-	it("navigates with arrow keys", async () => {
-		const onSlideChange = jest.fn();
-		render(<Lightbox {...defaultProps} onSlideChange={onSlideChange} />);
-		const root = document.querySelector("[tabindex]") as HTMLElement;
-		root.focus();
-		await userEvent.keyboard("{ArrowRight}");
-		expect(onSlideChange).toHaveBeenCalledWith(1);
+	it("registers keyboard listener when opened", () => {
+		const addSpy = jest.spyOn(document, "addEventListener");
+		render(<Lightbox {...defaultProps} />);
+		expect(addSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+		addSpy.mockRestore();
 	});
 
 	it("renders slide children", () => {

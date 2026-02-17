@@ -1,12 +1,14 @@
 import { Image, SimpleGrid } from "@mantine/core";
 import { Lightbox } from "@mantine-bites/lightbox";
 import type { MantineDemo } from "@mantinex/demo";
-import { useState } from "react";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef, useState } from "react";
 
 const code = `
 import { Lightbox } from '@mantine-bites/lightbox';
 import { Image, SimpleGrid } from '@mantine/core';
-import { useState } from 'react';
+import Autoplay from 'embla-carousel-autoplay';
+import { useRef, useState } from 'react';
 
 const images = [
   { src: 'https://picsum.photos/id/10/1200/800', alt: 'Forest' },
@@ -18,6 +20,7 @@ const images = [
 function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
+  const autoplay = useRef(Autoplay({ delay: 2000 }));
 
   return (
     <>
@@ -40,7 +43,11 @@ function Demo() {
       <Lightbox
         opened={opened}
         onClose={() => setOpened(false)}
-        carouselOptions={{ initialSlide }}
+        carouselOptions={{
+          initialSlide,
+          plugins: [autoplay.current],
+          emblaOptions: { loop: true },
+        }}
       >
         {images.map((img) => (
           <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
@@ -63,6 +70,7 @@ const images = [
 function Demo() {
 	const [opened, setOpened] = useState(false);
 	const [initialSlide, setInitialSlide] = useState(0);
+	const autoplay = useRef(Autoplay({ delay: 2000 }));
 
 	return (
 		<>
@@ -85,7 +93,11 @@ function Demo() {
 			<Lightbox
 				opened={opened}
 				onClose={() => setOpened(false)}
-				carouselOptions={{ initialSlide }}
+				carouselOptions={{
+					initialSlide,
+					plugins: [autoplay.current],
+					emblaOptions: { loop: true },
+				}}
 			>
 				{images.map((img) => (
 					<Lightbox.Slide
@@ -100,7 +112,7 @@ function Demo() {
 	);
 }
 
-export const usage: MantineDemo = {
+export const emblaPlugins: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

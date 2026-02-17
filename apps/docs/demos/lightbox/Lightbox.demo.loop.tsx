@@ -40,13 +40,13 @@ function Demo() {
       <Lightbox
         opened={opened}
         onClose={() => setOpened(false)}
-        initialSlide={initialSlide}
-        withControls={false}
-        withThumbnails={false}
-        withCounter={false}
+        carouselOptions={{
+          initialSlide,
+          emblaOptions: { loop: true },
+        }}
       >
         {images.map((img) => (
-          <Lightbox.Slide key={img.src}>
+          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
             <img src={img.src} alt={img.alt} />
           </Lightbox.Slide>
         ))}
@@ -88,13 +88,16 @@ function Demo() {
 			<Lightbox
 				opened={opened}
 				onClose={() => setOpened(false)}
-				initialSlide={initialSlide}
-				withControls={false}
-				withThumbnails={false}
-				withCounter={false}
+				carouselOptions={{
+					initialSlide,
+					emblaOptions: { loop: true },
+				}}
 			>
 				{images.map((img) => (
-					<Lightbox.Slide key={img.src}>
+					<Lightbox.Slide
+						key={img.src}
+						thumbnail={<img src={img.src} alt={img.alt} />}
+					>
 						<img src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
@@ -103,7 +106,7 @@ function Demo() {
 	);
 }
 
-export const minimal: MantineDemo = {
+export const loop: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

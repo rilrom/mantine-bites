@@ -8,7 +8,6 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 		slide: "Individual slide within the carousel",
 		toolbar: "Toolbar area containing the close button",
 		closeButton: "Close button in the toolbar",
-		control: "Previous/next navigation arrow button",
 		counter: "Slide counter text",
 		thumbnails: "Container for the thumbnail strip",
 		thumbnailButton: "Individual thumbnail button",
@@ -16,26 +15,9 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 			"Placeholder shown when a slide has no `thumbnail` prop",
 	},
 
-	vars: {
-		root: {
-			"--lightbox-color":
-				"Controls the text/icon `color` throughout the lightbox, `var(--mantine-color-white)` by default",
-			"--lightbox-thumbnail-size":
-				"Controls thumbnail `width` and `height`, `48px` by default",
-			"--lightbox-thumbnail-radius":
-				"Controls thumbnail `border-radius`, `var(--mantine-radius-sm)` by default",
-			"--lightbox-thumbnail-highlight":
-				"Controls active thumbnail `border-color`, `var(--mantine-primary-color-filled)` by default",
-		},
-	},
+	vars: {},
 
 	modifiers: [
-		{
-			modifier: "data-position",
-			selector: "control",
-			value: "`previous` or `next`",
-			condition: "Always set based on the control's position",
-		},
 		{
 			modifier: "data-active",
 			selector: "thumbnailButton",

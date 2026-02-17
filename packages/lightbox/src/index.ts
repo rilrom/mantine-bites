@@ -1,6 +1,7 @@
 export type {
-	LightboxCssVariables,
+	LightboxCarouselOptions,
 	LightboxFactory,
+	LightboxModalOptions,
 	LightboxProps,
 	LightboxStylesNames,
 } from "./Lightbox.js";
