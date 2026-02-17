@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import type { PropsWithChildren } from "react";
 import { Lightbox } from "./index.js";
 
 export default { title: "Lightbox" };
@@ -12,11 +13,42 @@ const sampleImages = [
 	{ src: "https://picsum.photos/id/50/1200/800", alt: "Desk" },
 ];
 
+const Container = (props: PropsWithChildren) => {
+	const { children } = props;
+
+	return <div style={{ padding: 40 }}>{children}</div>;
+};
+
+const PlaceholderCard = (props: PropsWithChildren) => {
+	const { children } = props;
+
+	return (
+		<div
+			style={{
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+				color: "var(--mantine-color-dimmed)",
+				fontSize: 24,
+				textAlign: "center",
+				padding: "2rem",
+				border: "1px dashed var(--mantine-color-default-border)",
+				borderRadius: "var(--mantine-radius-md)",
+				backgroundColor: "var(--mantine-color-default)",
+				maxWidth: 600,
+				margin: "0 1rem",
+			}}
+		>
+			{children}
+		</div>
+	);
+};
+
 export function FullExample() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
-		<div style={{ padding: 40 }}>
+		<Container>
 			<Button onClick={open}>Open Lightbox</Button>
 
 			<Lightbox opened={opened} onClose={close}>
@@ -29,7 +61,7 @@ export function FullExample() {
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
-		</div>
+		</Container>
 	);
 }
 
@@ -37,7 +69,7 @@ export function WithoutLoop() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
-		<div style={{ padding: 40 }}>
+		<Container>
 			<Button onClick={open}>Open Non-Looping Lightbox</Button>
 
 			<Lightbox opened={opened} onClose={close} loop={false}>
@@ -50,7 +82,7 @@ export function WithoutLoop() {
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
-		</div>
+		</Container>
 	);
 }
 
@@ -58,7 +90,7 @@ export function Minimal() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
-		<div style={{ padding: 40 }}>
+		<Container>
 			<Button onClick={open}>Open Minimal Lightbox</Button>
 
 			<Lightbox
@@ -78,7 +110,7 @@ export function Minimal() {
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
-		</div>
+		</Container>
 	);
 }
 
@@ -86,7 +118,7 @@ export function WithPlaceholderThumbnails() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
-		<div style={{ padding: 40 }}>
+		<Container>
 			<Button onClick={open}>Open Lightbox (Mixed Thumbnails)</Button>
 
 			<Lightbox opened={opened} onClose={close}>
@@ -99,9 +131,9 @@ export function WithPlaceholderThumbnails() {
 				</Lightbox.Slide>
 
 				<Lightbox.Slide>
-					<div style={{ color: "white", fontSize: 24 }}>
-						This slide has no image — placeholder thumbnail
-					</div>
+					<PlaceholderCard>
+						Text-only slide with a placeholder thumbnail image
+					</PlaceholderCard>
 				</Lightbox.Slide>
 
 				<Lightbox.Slide
@@ -115,10 +147,17 @@ export function WithPlaceholderThumbnails() {
 					<img src="https://picsum.photos/id/30/1200/800" alt="Plant" />
 				</Lightbox.Slide>
 
-				<Lightbox.Slide>
-					<div style={{ color: "white", fontSize: 24 }}>
-						Another text-only slide
-					</div>
+				<Lightbox.Slide
+					thumbnail={
+						<img
+							src="https://picsum.photos/id/40/200/200"
+							alt="Plant thumbnail"
+						/>
+					}
+				>
+					<PlaceholderCard>
+						Text-only slide with a thumbnail image
+					</PlaceholderCard>
 				</Lightbox.Slide>
 
 				<Lightbox.Slide
@@ -129,7 +168,7 @@ export function WithPlaceholderThumbnails() {
 					<img src="https://picsum.photos/id/50/1200/800" alt="Desk" />
 				</Lightbox.Slide>
 			</Lightbox>
-		</div>
+		</Container>
 	);
 }
 
@@ -137,7 +176,7 @@ export function WithCustomCounter() {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
-		<div style={{ padding: 40 }}>
+		<Container>
 			<Button onClick={open}>Open with Custom Counter</Button>
 
 			<Lightbox
@@ -154,6 +193,6 @@ export function WithCustomCounter() {
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
-		</div>
+		</Container>
 	);
 }
