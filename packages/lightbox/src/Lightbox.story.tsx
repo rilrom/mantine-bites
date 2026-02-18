@@ -1,6 +1,11 @@
-import { Button } from "@mantine/core";
+import { Box, Button, Center, Flex, Image, Loader } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import type { PropsWithChildren } from "react";
+import {
+	type ImgHTMLAttributes,
+	type PropsWithChildren,
+	type SyntheticEvent,
+	useState,
+} from "react";
 import { Lightbox } from "./index.js";
 
 export default { title: "Lightbox" };
@@ -16,35 +21,71 @@ const sampleImages = [
 const Container = (props: PropsWithChildren) => {
 	const { children } = props;
 
-	return <div style={{ padding: 40 }}>{children}</div>;
+	return <Box p={40}>{children}</Box>;
 };
 
-const PlaceholderCard = (props: PropsWithChildren) => {
-	const { children } = props;
-
+const PlaceholderCard = ({ children }: PropsWithChildren) => {
 	return (
-		<div
-			style={{
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				color: "var(--mantine-color-dimmed)",
-				fontSize: 24,
-				textAlign: "center",
-				padding: "2rem",
-				border: "1px dashed var(--mantine-color-default-border)",
-				borderRadius: "var(--mantine-radius-md)",
-				backgroundColor: "var(--mantine-color-default)",
-				maxWidth: 600,
-				margin: "0 1rem",
-			}}
+		<Flex
+			align="center"
+			justify="center"
+			c="dimmed"
+			fz={24}
+			ta="center"
+			p="2rem"
+			maw={600}
+			mx="1rem"
+			bg="var(--mantine-color-default)"
+			bd="1px dashed var(--mantine-color-default-border)"
+			bdrs="md"
 		>
 			{children}
-		</div>
+		</Flex>
 	);
 };
 
-export function Default() {
+interface ImgWithLoaderProps extends ImgHTMLAttributes<HTMLImageElement> {
+	type?: "default" | "thumbnail";
+}
+
+const ImgWithLoader = (props: ImgWithLoaderProps) => {
+	const { type = "default", src, alt, style, onLoad, onError, ...rest } = props;
+
+	const [loading, setLoading] = useState(true);
+
+	const handleLoad = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+		setLoading(false);
+		onLoad?.(e);
+	};
+
+	const handleError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+		setLoading(false);
+		onError?.(e);
+	};
+
+	return (
+		<>
+			{loading && (
+				<Center pos="absolute" inset={0}>
+					<Loader size={type === "thumbnail" ? 18 : 36} />
+				</Center>
+			)}
+
+			<Image
+				{...rest}
+				src={src}
+				fallbackSrc="https://placehold.co/1200x800?text=Error"
+				alt={alt}
+				onLoad={handleLoad}
+				onError={handleError}
+				opacity={loading ? 0 : 1}
+				style={{ transition: "opacity 120ms linear", ...style }}
+			/>
+		</>
+	);
+};
+
+export const Default = () => {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
@@ -55,17 +96,19 @@ export function Default() {
 				{sampleImages.map((img) => (
 					<Lightbox.Slide
 						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
+						thumbnail={
+							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+						}
 					>
-						<img src={img.src} alt={img.alt} />
+						<ImgWithLoader src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
 		</Container>
 	);
-}
+};
 
-export function WithLoop() {
+export const WithLoop = () => {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
@@ -84,17 +127,19 @@ export function WithLoop() {
 				{sampleImages.map((img) => (
 					<Lightbox.Slide
 						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
+						thumbnail={
+							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+						}
 					>
-						<img src={img.src} alt={img.alt} />
+						<ImgWithLoader src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
 		</Container>
 	);
-}
+};
 
-export function WithPlaceholderThumbnails() {
+export const WithPlaceholderThumbnails = () => {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
@@ -104,10 +149,17 @@ export function WithPlaceholderThumbnails() {
 			<Lightbox opened={opened} onClose={close}>
 				<Lightbox.Slide
 					thumbnail={
-						<img src="https://picsum.photos/id/10/1200/800" alt="Forest" />
+						<ImgWithLoader
+							src={sampleImages[0]?.src}
+							alt={sampleImages[0]?.alt}
+							type="thumbnail"
+						/>
 					}
 				>
-					<img src="https://picsum.photos/id/10/1200/800" alt="Forest" />
+					<ImgWithLoader
+						src={sampleImages[0]?.src}
+						alt={sampleImages[0]?.alt}
+					/>
 				</Lightbox.Slide>
 
 				<Lightbox.Slide>
@@ -118,20 +170,25 @@ export function WithPlaceholderThumbnails() {
 
 				<Lightbox.Slide
 					thumbnail={
-						<img
-							src="https://picsum.photos/id/30/200/200"
-							alt="Plant thumbnail"
+						<ImgWithLoader
+							src={sampleImages[1]?.src}
+							alt={sampleImages[1]?.alt}
+							type="thumbnail"
 						/>
 					}
 				>
-					<img src="https://picsum.photos/id/30/1200/800" alt="Plant" />
+					<ImgWithLoader
+						src={sampleImages[1]?.src}
+						alt={sampleImages[1]?.alt}
+					/>
 				</Lightbox.Slide>
 
 				<Lightbox.Slide
 					thumbnail={
-						<img
-							src="https://picsum.photos/id/40/200/200"
-							alt="Plant thumbnail"
+						<ImgWithLoader
+							src={sampleImages[2]?.src}
+							alt={sampleImages[2]?.alt}
+							type="thumbnail"
 						/>
 					}
 				>
@@ -142,17 +199,24 @@ export function WithPlaceholderThumbnails() {
 
 				<Lightbox.Slide
 					thumbnail={
-						<img src="https://picsum.photos/id/50/1200/800" alt="Desk" />
+						<ImgWithLoader
+							src={sampleImages[3]?.src}
+							alt={sampleImages[3]?.alt}
+							type="thumbnail"
+						/>
 					}
 				>
-					<img src="https://picsum.photos/id/50/1200/800" alt="Desk" />
+					<ImgWithLoader
+						src={sampleImages[3]?.src}
+						alt={sampleImages[3]?.alt}
+					/>
 				</Lightbox.Slide>
 			</Lightbox>
 		</Container>
 	);
-}
+};
 
-export function WithCustomCounter() {
+export const WithCustomCounter = () => {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
@@ -167,12 +231,14 @@ export function WithCustomCounter() {
 				{sampleImages.map((img) => (
 					<Lightbox.Slide
 						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
+						thumbnail={
+							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+						}
 					>
-						<img src={img.src} alt={img.alt} />
+						<ImgWithLoader src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
 			</Lightbox>
 		</Container>
 	);
-}
+};
