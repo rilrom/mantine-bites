@@ -56,8 +56,8 @@
 
 .thumbnailButton {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 94px;
+  height: 76px;
   border-radius: var(--mantine-radius-sm);
   border: 2px solid transparent;
   opacity: 0.5;
