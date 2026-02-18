@@ -1,5 +1,12 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.4
+
+### Minor Changes
+
+- feat: improve image loading handling ([e387590](https://github.com/rilrom/payload-bites/commit/e387590))
+- feat: update base thumbnail size ([0485f23](https://github.com/rilrom/payload-bites/commit/0485f23))
+
 ## 1.0.0-beta.3
 
 ### Minor Changes
