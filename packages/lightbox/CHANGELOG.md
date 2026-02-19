@@ -1,5 +1,16 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.5
+
+### Minor Changes
+
+- feat: fullscreen option ([57b64c3](https://github.com/rilrom/payload-bites/commit/57b64c3))
+- feat: zoom option ([ae29cce](https://github.com/rilrom/payload-bites/commit/ae29cce))
+
+### Patch Changes
+
+- refactor: move svgs to separate files ([f4aa8b8](https://github.com/rilrom/payload-bites/commit/f4aa8b8))
+
 ## 1.0.0-beta.4
 
 ### Minor Changes
