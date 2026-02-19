@@ -1,5 +1,5 @@
 import { render, screen } from "@mantine-tests/core";
-import { waitFor } from "@testing-library/react";
+import { fireEvent, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { Lightbox, type LightboxProps } from "./index.js";
 
@@ -112,6 +112,122 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(screen.queryByLabelText("Enter fullscreen")).not.toBeInTheDocument();
 	});
 
+	it("should render zoom button by default", () => {
+		render(<Lightbox {...defaultProps} />);
+
+		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
+	});
+
+	it("should hide zoom button when withZoom={false}", () => {
+		render(<Lightbox {...defaultProps} withZoom={false} />);
+
+		expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
+	});
+
+	it("should disable zoom button when active slide has no image", () => {
+		render(
+			<Lightbox opened onClose={() => {}}>
+				<Lightbox.Slide>
+					<div>No image content</div>
+				</Lightbox.Slide>
+			</Lightbox>,
+		);
+
+		return waitFor(() =>
+			expect(screen.getByLabelText("Zoom in")).toBeDisabled(),
+		);
+	});
+
+	it("should keep zoom enabled when image is downscaled even if container-height fill is 1", async () => {
+		render(<Lightbox {...defaultProps} />);
+
+		const zoomButton = screen.getByLabelText("Zoom in");
+		const image = screen.getByAltText("Forest landscape");
+		const container = image.closest("[data-active='true']");
+
+		expect(container).not.toBeNull();
+
+		Object.defineProperty(image, "naturalWidth", {
+			configurable: true,
+			value: 1500,
+		});
+
+		Object.defineProperty(image, "naturalHeight", {
+			configurable: true,
+			value: 1000,
+		});
+
+		Object.defineProperty(image, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+
+		Object.defineProperty(container, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+
+		fireEvent.load(image);
+
+		await waitFor(() => expect(zoomButton).toBeEnabled());
+	});
+
+	it("should disable zoom when image has no natural resolution headroom", async () => {
+		render(<Lightbox {...defaultProps} />);
+
+		const zoomButton = screen.getByLabelText("Zoom in");
+		const image = screen.getByAltText("Forest landscape");
+
+		Object.defineProperty(image, "naturalWidth", {
+			configurable: true,
+			value: 1000,
+		});
+
+		Object.defineProperty(image, "naturalHeight", {
+			configurable: true,
+			value: 667,
+		});
+
+		Object.defineProperty(image, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+
+		fireEvent.load(image);
+
+		await waitFor(() => expect(zoomButton).toBeDisabled());
+	});
+
 	it("should render fullscreen button before close button when withFullscreen is true", () => {
 		render(<Lightbox {...defaultProps} withFullscreen />);
 
@@ -162,6 +278,18 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		await userEvent.click(screen.getByLabelText("Close lightbox"));
 
 		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("should toggle zoom state from toolbar button", async () => {
+		render(<Lightbox {...defaultProps} />);
+
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+
+		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByLabelText("Zoom out"));
+
+		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
 	});
 
 	it("should render first slide by default", () => {
@@ -342,6 +470,36 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(screen.getByText("2 / 3")).toBeInTheDocument();
 	});
 
+	it("should reset current index when closed so reopen uses latest initialSlide", () => {
+		const { rerender } = render(
+			<Lightbox
+				{...defaultProps}
+				opened
+				carouselOptions={{ initialSlide: 1 }}
+			/>,
+		);
+
+		expect(screen.getByText("2 / 3")).toBeInTheDocument();
+
+		rerender(
+			<Lightbox
+				{...defaultProps}
+				opened={false}
+				carouselOptions={{ initialSlide: 0 }}
+			/>,
+		);
+
+		rerender(
+			<Lightbox
+				{...defaultProps}
+				opened
+				carouselOptions={{ initialSlide: 0 }}
+			/>,
+		);
+
+		expect(screen.getByText("1 / 3")).toBeInTheDocument();
+	});
+
 	it("should not crash on ArrowRight keydown", async () => {
 		render(<Lightbox {...defaultProps} />);
 
@@ -358,6 +516,36 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		await userEvent.keyboard("{ArrowLeft}");
 
 		expect(screen.getByText("3 / 3")).toBeInTheDocument();
+	});
+
+	it("should keep carousel controls enabled when zoomed", async () => {
+		render(<Lightbox {...defaultProps} />);
+
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+
+		expect(screen.getByLabelText("Previous image")).toBeEnabled();
+		expect(screen.getByLabelText("Next image")).toBeEnabled();
+	});
+
+	it("should toggle zoom when clicking active slide image", async () => {
+		render(<Lightbox {...defaultProps} />);
+
+		await userEvent.click(screen.getByAltText("Forest landscape"));
+
+		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByAltText("Forest landscape"));
+
+		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
+	});
+
+	it("should reset zoom when thumbnail is clicked", async () => {
+		render(<Lightbox {...defaultProps} />);
+
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+		await userEvent.click(screen.getByLabelText("Go to slide 2"));
+
+		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
 	});
 
 	it("should ignore keyboard events when lightbox is closed", async () => {

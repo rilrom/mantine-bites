@@ -19,31 +19,6 @@
   justify-content: center;
   height: 100%;
   line-height: 1;
-
-  img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-  }
-}
-
-.toolbar {
-  position: absolute;
-  top: var(--mantine-spacing-md);
-  right: var(--mantine-spacing-md);
-  z-index: 1;
-}
-
-.counter {
-  position: absolute;
-  top: var(--mantine-spacing-md);
-  left: var(--mantine-spacing-md);
-  z-index: 1;
-  color: var(--lightbox-color);
-  font-weight: 500;
-  user-select: none;
 }
 
 .thumbnails {
@@ -91,4 +66,64 @@
   justify-content: center;
   background-color: var(--mantine-color-dark-4);
   color: var(--mantine-color-dark-1);
+}
+
+.zoomContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+  overflow: hidden;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    cursor: zoom-in;
+  }
+
+  &[data-zoomed] img {
+    cursor: zoom-out;
+  }
+
+  &[data-can-zoom='false'] img {
+    cursor: default;
+  }
+}
+
+.zoomContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  transition: transform 150ms ease;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.zoomContainer[data-dragging] .zoomContent {
+  transition: none;
+}
+
+.toolbar {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  right: var(--mantine-spacing-md);
+  z-index: 1;
+}
+
+.counter {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  left: var(--mantine-spacing-md);
+  z-index: 1;
+  color: var(--lightbox-color);
+  font-weight: 500;
+  user-select: none;
 }

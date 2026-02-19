@@ -13,7 +13,7 @@ Full-screen image lightbox with thumbnails, controls, and carousel navigation.
 
 - [x] Fix mobile UI quirks.
 - [x] Autoplay option.
-- [ ] Zoom option.
+- [x] Zoom option.
 - [x] Fullscreen option.
 - [ ] Iframes.
 - [ ] Videos.

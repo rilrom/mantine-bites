@@ -18,16 +18,22 @@ import {
 import type { EmblaCarouselType } from "embla-carousel";
 import {
 	Children,
+	cloneElement,
 	isValidElement,
+	type ReactElement,
 	type ReactNode,
 	useCallback,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from "react";
 import { EnterFullscreen } from "./components/EnterFullscreen.js";
 import { ExitFullscreen } from "./components/ExitFullscreen.js";
 import { QuestionMark } from "./components/QuestionMark.js";
+import { ZoomIn } from "./components/ZoomIn.js";
+import { ZoomOut } from "./components/ZoomOut.js";
+import { useZoom } from "./hooks/useZoom.js";
 import { LightboxProvider } from "./Lightbox.context.js";
 import classes from "./Lightbox.module.css";
 import { LightboxSlide } from "./LightboxSlide.js";
@@ -37,13 +43,17 @@ import {
 	isBrowserFullscreen,
 	toggleBrowserFullscreen,
 } from "./utils/fullscreen.js";
+import { getZoomTransform } from "./utils/zoom.js";
 
 export type LightboxStylesNames =
 	| "root"
 	| "slides"
 	| "slide"
+	| "zoomContainer"
+	| "zoomContent"
 	| "toolbar"
 	| "fullscreenButton"
+	| "zoomButton"
 	| "closeButton"
 	| "counter"
 	| "thumbnails"
@@ -76,6 +86,9 @@ export interface LightboxProps
 	/** Determines whether fullscreen toggle button should be displayed, `true` by default */
 	withFullscreen?: boolean;
 
+	/** Determines whether zoom toggle button should be displayed, `true` by default */
+	withZoom?: boolean;
+
 	/** Custom counter format function, `"1 / 3"` by default */
 	counterFormatter?: (index: number, total: number) => string;
 
@@ -99,6 +112,7 @@ const defaultProps: Partial<LightboxProps> = {
 	withThumbnails: true,
 	withCounter: true,
 	withFullscreen: true,
+	withZoom: true,
 	carouselOptions: {
 		controlSize: 36,
 	},
@@ -120,6 +134,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		withThumbnails,
 		withCounter,
 		withFullscreen,
+		withZoom,
 		counterFormatter,
 		carouselOptions,
 		modalOptions,
@@ -146,6 +161,22 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 
 	const [isFullscreen, setIsFullscreen] = useState(isBrowserFullscreen);
 
+	const {
+		isZoomed,
+		isDraggingZoom,
+		zoomOffset,
+		zoomScale,
+		canZoomCurrent,
+		isZoomedRef,
+		activeZoomContainerRef,
+		resetZoom,
+		toggleZoom,
+		updateCanZoomAvailability,
+		handleZoomPointerDown,
+		handleZoomPointerMove,
+		handleZoomPointerEnd,
+	} = useZoom({ opened });
+
 	const slides = Children.toArray(children).filter(isValidElement);
 
 	const total = slides.length;
@@ -155,14 +186,6 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	const counterText = counterFormatter
 		? counterFormatter(currentIndex, total)
 		: `${currentIndex + 1} / ${total}`;
-
-	const handleSlideChange = useCallback(
-		(index: number) => {
-			setCurrentIndex(index);
-			carouselOptions?.onSlideChange?.(index);
-		},
-		[carouselOptions?.onSlideChange],
-	);
 
 	const handleEmblaApi = useCallback(
 		(embla: EmblaCarouselType) => {
@@ -179,6 +202,16 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 
 		await toggleBrowserFullscreen();
 	}, [canUseFullscreen]);
+
+	const handleSlideChange = useCallback(
+		(index: number) => {
+			setCurrentIndex(index);
+			resetZoom();
+			requestAnimationFrame(updateCanZoomAvailability);
+			carouselOptions?.onSlideChange?.(index);
+		},
+		[carouselOptions?.onSlideChange, resetZoom, updateCanZoomAvailability],
+	);
 
 	useEffect(() => {
 		if (!opened) {
@@ -211,9 +244,100 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 
 	useEffect(() => {
 		if (!opened) {
+			setCurrentIndex(carouselOptions?.initialSlide ?? 0);
+
 			void exitBrowserFullscreenIfActive();
 		}
-	}, [opened]);
+	}, [opened, carouselOptions?.initialSlide]);
+
+	const renderedSlides = slides.map((slide, index) => {
+		const isActive = index === currentIndex;
+		const isActiveAndZoomed = isActive && isZoomed;
+
+		const typedSlide = slide as ReactElement<{ children?: ReactNode }>;
+		const slideProps = typedSlide.props;
+
+		return cloneElement(typedSlide, {
+			children: (
+				<Box
+					ref={isActive ? activeZoomContainerRef : undefined}
+					{...getStyles("zoomContainer")}
+					data-active={isActive || undefined}
+					data-zoomed={isActiveAndZoomed || undefined}
+					data-can-zoom={isActive ? String(canZoomCurrent) : undefined}
+					data-dragging={(isDraggingZoom && isActiveAndZoomed) || undefined}
+					onPointerDown={(event) =>
+						handleZoomPointerDown(
+							event,
+							isActive,
+							isActiveAndZoomed,
+							isActive ? canZoomCurrent : false,
+						)
+					}
+					onPointerMove={(event) =>
+						handleZoomPointerMove(event, isActiveAndZoomed)
+					}
+					onPointerUp={handleZoomPointerEnd}
+					onPointerCancel={handleZoomPointerEnd}
+					onLoadCapture={(event) => {
+						if (isActive && event.target instanceof HTMLImageElement) {
+							updateCanZoomAvailability();
+						}
+					}}
+				>
+					<Box
+						{...getStyles("zoomContent")}
+						style={{
+							transform: getZoomTransform({
+								isZoomed: isActiveAndZoomed,
+								offset: zoomOffset,
+								scale: zoomScale,
+							}),
+						}}
+					>
+						{slideProps.children}
+					</Box>
+				</Box>
+			),
+		});
+	});
+
+	const mergedCarouselOptions = useMemo(
+		() => ({
+			...carouselOptions,
+			emblaOptions: {
+				...carouselOptions?.emblaOptions,
+				watchDrag: (
+					emblaApi: EmblaCarouselType,
+					event: MouseEvent | TouchEvent,
+				) => {
+					if (isZoomedRef.current) {
+						return false;
+					}
+
+					const configuredWatchDrag = carouselOptions?.emblaOptions?.watchDrag;
+
+					if (typeof configuredWatchDrag === "function") {
+						return configuredWatchDrag(emblaApi, event);
+					}
+
+					return configuredWatchDrag ?? true;
+				},
+			},
+		}),
+		[carouselOptions, isZoomedRef],
+	);
+
+	const handleThumbnailClick = useCallback(
+		(index: number) => {
+			if (isZoomed) {
+				resetZoom();
+			}
+
+			emblaRef.current?.scrollTo(index);
+		},
+		[isZoomed, resetZoom],
+	);
 
 	return (
 		<Modal
@@ -262,6 +386,19 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 							</ActionIcon>
 						)}
 
+						{withZoom && (
+							<ActionIcon
+								variant="default"
+								size="lg"
+								onClick={toggleZoom}
+								aria-label={isZoomed ? "Zoom out" : "Zoom in"}
+								disabled={!canZoomCurrent}
+								{...getStyles("zoomButton")}
+							>
+								{isZoomed ? <ZoomOut /> : <ZoomIn />}
+							</ActionIcon>
+						)}
+
 						<ActionIcon
 							variant="default"
 							size="lg"
@@ -285,13 +422,13 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 						withIndicators={false}
 						slideSize="100%"
 						height="100%"
-						{...carouselOptions}
+						{...mergedCarouselOptions}
 						{...getStyles("slides")}
 						withKeyboardEvents={false}
 						onSlideChange={handleSlideChange}
 						getEmblaApi={handleEmblaApi}
 					>
-						{children}
+						{renderedSlides}
 					</Carousel>
 
 					{withThumbnails && (
@@ -304,7 +441,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 								return (
 									<UnstyledButton
 										key={slide.key ?? i}
-										onClick={() => emblaRef.current?.scrollTo(i)}
+										onClick={() => handleThumbnailClick(i)}
 										aria-label={`Go to slide ${i + 1}`}
 										aria-current={i === currentIndex ? "true" : undefined}
 										data-active={i === currentIndex || undefined}
