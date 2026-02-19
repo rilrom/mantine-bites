@@ -25,16 +25,25 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { EnterFullscreen } from "./components/EnterFullscreen.js";
+import { ExitFullscreen } from "./components/ExitFullscreen.js";
 import { QuestionMark } from "./components/QuestionMark.js";
 import { LightboxProvider } from "./Lightbox.context.js";
 import classes from "./Lightbox.module.css";
 import { LightboxSlide } from "./LightboxSlide.js";
+import {
+	canToggleBrowserFullscreen,
+	exitBrowserFullscreenIfActive,
+	isBrowserFullscreen,
+	toggleBrowserFullscreen,
+} from "./utils/fullscreen.js";
 
 export type LightboxStylesNames =
 	| "root"
 	| "slides"
 	| "slide"
 	| "toolbar"
+	| "fullscreenButton"
 	| "closeButton"
 	| "counter"
 	| "thumbnails"
@@ -64,6 +73,9 @@ export interface LightboxProps
 	/** Determines whether the slide counter should be displayed, `true` by default */
 	withCounter?: boolean;
 
+	/** Determines whether fullscreen toggle button should be displayed, `true` by default */
+	withFullscreen?: boolean;
+
 	/** Custom counter format function, `"1 / 3"` by default */
 	counterFormatter?: (index: number, total: number) => string;
 
@@ -86,6 +98,7 @@ export type LightboxFactory = Factory<{
 const defaultProps: Partial<LightboxProps> = {
 	withThumbnails: true,
 	withCounter: true,
+	withFullscreen: true,
 	carouselOptions: {
 		controlSize: 36,
 	},
@@ -106,6 +119,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		children,
 		withThumbnails,
 		withCounter,
+		withFullscreen,
 		counterFormatter,
 		carouselOptions,
 		modalOptions,
@@ -130,9 +144,13 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		carouselOptions?.initialSlide ?? 0,
 	);
 
+	const [isFullscreen, setIsFullscreen] = useState(isBrowserFullscreen);
+
 	const slides = Children.toArray(children).filter(isValidElement);
 
 	const total = slides.length;
+
+	const canUseFullscreen = canToggleBrowserFullscreen();
 
 	const counterText = counterFormatter
 		? counterFormatter(currentIndex, total)
@@ -154,6 +172,14 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		[carouselOptions?.getEmblaApi],
 	);
 
+	const toggleFullscreen = useCallback(async () => {
+		if (!canUseFullscreen) {
+			return;
+		}
+
+		await toggleBrowserFullscreen();
+	}, [canUseFullscreen]);
+
 	useEffect(() => {
 		if (!opened) {
 			return;
@@ -170,6 +196,23 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		document.addEventListener("keydown", handleKeyDown);
 
 		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [opened]);
+
+	useEffect(() => {
+		const handleFullscreenChange = () => {
+			setIsFullscreen(isBrowserFullscreen());
+		};
+
+		document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+		return () =>
+			document.removeEventListener("fullscreenchange", handleFullscreenChange);
+	}, []);
+
+	useEffect(() => {
+		if (!opened) {
+			void exitBrowserFullscreenIfActive();
+		}
 	}, [opened]);
 
 	return (
@@ -206,6 +249,19 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 			<LightboxProvider value={{ getStyles }}>
 				<Box ref={ref} {...getStyles("root")} {...others}>
 					<ActionIcon.Group {...getStyles("toolbar")}>
+						{withFullscreen && (
+							<ActionIcon
+								variant="default"
+								size="lg"
+								onClick={toggleFullscreen}
+								aria-label={`${isFullscreen ? "Exit" : "Enter"} fullscreen`}
+								disabled={!canUseFullscreen}
+								{...getStyles("fullscreenButton")}
+							>
+								{isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
+							</ActionIcon>
+						)}
+
 						<ActionIcon
 							variant="default"
 							size="lg"

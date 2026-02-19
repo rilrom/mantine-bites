@@ -55,6 +55,15 @@
 					"name": "boolean"
 				}
 			},
+			"withFullscreen": {
+				"defaultValue": null,
+				"description": "Determines whether fullscreen toggle button should be displayed, <code>true</code> by default",
+				"name": "withFullscreen",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
 			"withThumbnails": {
 				"defaultValue": null,
 				"description": "Determines whether thumbnail images should be displayed, <code>true</code> by default",

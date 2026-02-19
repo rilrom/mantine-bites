@@ -34,7 +34,40 @@ const defaultProps: LightboxProps = {
 	],
 };
 
+let fullscreenElement: Element | null = null;
+
+const requestFullscreenMock = jest.fn(async function (this: Element) {
+	fullscreenElement = this;
+});
+
+const exitFullscreenMock = jest.fn(async () => {
+	fullscreenElement = null;
+});
+
 describe("@mantine-bites/lightbox/Lightbox", () => {
+	beforeEach(() => {
+		fullscreenElement = null;
+
+		requestFullscreenMock.mockClear();
+
+		exitFullscreenMock.mockClear();
+
+		Object.defineProperty(document, "fullscreenElement", {
+			configurable: true,
+			get: () => fullscreenElement,
+		});
+
+		Object.defineProperty(document.documentElement, "requestFullscreen", {
+			configurable: true,
+			value: requestFullscreenMock,
+		});
+
+		Object.defineProperty(document, "exitFullscreen", {
+			configurable: true,
+			value: exitFullscreenMock,
+		});
+	});
+
 	it("should have correct displayName", () => {
 		expect(Lightbox.displayName).toBe("Lightbox");
 	});
@@ -65,6 +98,60 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		render(<Lightbox {...defaultProps} />);
 
 		expect(screen.getByLabelText("Close lightbox")).toBeInTheDocument();
+	});
+
+	it("should render fullscreen button by default", () => {
+		render(<Lightbox {...defaultProps} />);
+
+		expect(screen.getByLabelText("Enter fullscreen")).toBeInTheDocument();
+	});
+
+	it("should hide fullscreen button when withFullscreen={false}", () => {
+		render(<Lightbox {...defaultProps} withFullscreen={false} />);
+
+		expect(screen.queryByLabelText("Enter fullscreen")).not.toBeInTheDocument();
+	});
+
+	it("should render fullscreen button before close button when withFullscreen is true", () => {
+		render(<Lightbox {...defaultProps} withFullscreen />);
+
+		const fullscreenButton = screen.getByLabelText("Enter fullscreen");
+		const closeButton = screen.getByLabelText("Close lightbox");
+
+		expect(
+			Boolean(
+				fullscreenButton.compareDocumentPosition(closeButton) &
+					Node.DOCUMENT_POSITION_FOLLOWING,
+			),
+		).toBe(true);
+	});
+
+	it("should request browser fullscreen when fullscreen button is clicked", async () => {
+		render(<Lightbox {...defaultProps} withFullscreen />);
+
+		await userEvent.click(screen.getByLabelText("Enter fullscreen"));
+
+		expect(requestFullscreenMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("should exit browser fullscreen when fullscreen button is clicked in fullscreen mode", async () => {
+		fullscreenElement = document.documentElement;
+
+		render(<Lightbox {...defaultProps} withFullscreen />);
+
+		await userEvent.click(screen.getByLabelText("Exit fullscreen"));
+
+		expect(exitFullscreenMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("should exit browser fullscreen when lightbox closes", async () => {
+		fullscreenElement = document.documentElement;
+
+		const { rerender } = render(<Lightbox {...defaultProps} opened />);
+
+		rerender(<Lightbox {...defaultProps} opened={false} />);
+
+		await waitFor(() => expect(exitFullscreenMock).toHaveBeenCalledTimes(1));
 	});
 
 	it("should call onClose when close button is clicked", async () => {
