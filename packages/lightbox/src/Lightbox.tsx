@@ -1,9 +1,7 @@
 import { Carousel, type CarouselProps } from "@mantine/carousel";
 import {
-	ActionIcon,
 	Box,
 	type BoxProps,
-	CloseIcon,
 	type ElementProps,
 	type Factory,
 	factory,
@@ -11,39 +9,16 @@ import {
 	type ModalProps,
 	type StylesApiProps,
 	Text,
-	UnstyledButton,
 	useProps,
 	useStyles,
 } from "@mantine/core";
-import type { EmblaCarouselType } from "embla-carousel";
-import {
-	Children,
-	cloneElement,
-	isValidElement,
-	type ReactElement,
-	type ReactNode,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
-import { EnterFullscreen } from "./components/EnterFullscreen.js";
-import { ExitFullscreen } from "./components/ExitFullscreen.js";
-import { QuestionMark } from "./components/QuestionMark.js";
-import { ZoomIn } from "./components/ZoomIn.js";
-import { ZoomOut } from "./components/ZoomOut.js";
-import { useZoom } from "./hooks/useZoom.js";
+import { LightboxSlides } from "./components/LightboxSlides.js";
+import { LightboxThumbnails } from "./components/LightboxThumbnails.js";
+import { LightboxToolbar } from "./components/LightboxToolbar.js";
+import { useLightbox } from "./hooks/useLightbox.js";
 import { LightboxProvider } from "./Lightbox.context.js";
 import classes from "./Lightbox.module.css";
 import { LightboxSlide } from "./LightboxSlide.js";
-import {
-	canToggleBrowserFullscreen,
-	exitBrowserFullscreenIfActive,
-	isBrowserFullscreen,
-	toggleBrowserFullscreen,
-} from "./utils/fullscreen.js";
-import { getZoomTransform } from "./utils/zoom.js";
 
 export type LightboxStylesNames =
 	| "root"
@@ -153,191 +128,34 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		vars,
 	});
 
-	const emblaRef = useRef<EmblaCarouselType | null>(null);
-
-	const [currentIndex, setCurrentIndex] = useState(
-		carouselOptions?.initialSlide ?? 0,
-	);
-
-	const [isFullscreen, setIsFullscreen] = useState(isBrowserFullscreen);
-
 	const {
+		slides,
+		currentIndex,
+		counterText,
+		isFullscreen,
+		canUseFullscreen,
+		toggleFullscreen,
 		isZoomed,
 		isDraggingZoom,
 		zoomOffset,
 		zoomScale,
 		canZoomCurrent,
-		isZoomedRef,
 		activeZoomContainerRef,
-		resetZoom,
 		toggleZoom,
 		updateCanZoomAvailability,
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
-	} = useZoom({ opened });
-
-	const slides = Children.toArray(children).filter(isValidElement);
-
-	const total = slides.length;
-
-	const canUseFullscreen = canToggleBrowserFullscreen();
-
-	const counterText = counterFormatter
-		? counterFormatter(currentIndex, total)
-		: `${currentIndex + 1} / ${total}`;
-
-	const handleEmblaApi = useCallback(
-		(embla: EmblaCarouselType) => {
-			emblaRef.current = embla;
-			carouselOptions?.getEmblaApi?.(embla);
-		},
-		[carouselOptions?.getEmblaApi],
-	);
-
-	const toggleFullscreen = useCallback(async () => {
-		if (!canUseFullscreen) {
-			return;
-		}
-
-		await toggleBrowserFullscreen();
-	}, [canUseFullscreen]);
-
-	const handleSlideChange = useCallback(
-		(index: number) => {
-			setCurrentIndex(index);
-			resetZoom();
-			requestAnimationFrame(updateCanZoomAvailability);
-			carouselOptions?.onSlideChange?.(index);
-		},
-		[carouselOptions?.onSlideChange, resetZoom, updateCanZoomAvailability],
-	);
-
-	useEffect(() => {
-		if (!opened) {
-			return;
-		}
-
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "ArrowLeft") {
-				emblaRef.current?.scrollPrev();
-			} else if (event.key === "ArrowRight") {
-				emblaRef.current?.scrollNext();
-			}
-		};
-
-		document.addEventListener("keydown", handleKeyDown);
-
-		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, [opened]);
-
-	useEffect(() => {
-		const handleFullscreenChange = () => {
-			setIsFullscreen(isBrowserFullscreen());
-		};
-
-		document.addEventListener("fullscreenchange", handleFullscreenChange);
-
-		return () =>
-			document.removeEventListener("fullscreenchange", handleFullscreenChange);
-	}, []);
-
-	useEffect(() => {
-		if (!opened) {
-			setCurrentIndex(carouselOptions?.initialSlide ?? 0);
-
-			void exitBrowserFullscreenIfActive();
-		}
-	}, [opened, carouselOptions?.initialSlide]);
-
-	const renderedSlides = slides.map((slide, index) => {
-		const isActive = index === currentIndex;
-		const isActiveAndZoomed = isActive && isZoomed;
-
-		const typedSlide = slide as ReactElement<{ children?: ReactNode }>;
-		const slideProps = typedSlide.props;
-
-		return cloneElement(typedSlide, {
-			children: (
-				<Box
-					ref={isActive ? activeZoomContainerRef : undefined}
-					{...getStyles("zoomContainer")}
-					data-active={isActive || undefined}
-					data-zoomed={isActiveAndZoomed || undefined}
-					data-can-zoom={isActive ? String(canZoomCurrent) : undefined}
-					data-dragging={(isDraggingZoom && isActiveAndZoomed) || undefined}
-					onPointerDown={(event) =>
-						handleZoomPointerDown(
-							event,
-							isActive,
-							isActiveAndZoomed,
-							isActive ? canZoomCurrent : false,
-						)
-					}
-					onPointerMove={(event) =>
-						handleZoomPointerMove(event, isActiveAndZoomed)
-					}
-					onPointerUp={handleZoomPointerEnd}
-					onPointerCancel={handleZoomPointerEnd}
-					onLoadCapture={(event) => {
-						if (isActive && event.target instanceof HTMLImageElement) {
-							updateCanZoomAvailability();
-						}
-					}}
-				>
-					<Box
-						{...getStyles("zoomContent")}
-						style={{
-							transform: getZoomTransform({
-								isZoomed: isActiveAndZoomed,
-								offset: zoomOffset,
-								scale: zoomScale,
-							}),
-						}}
-					>
-						{slideProps.children}
-					</Box>
-				</Box>
-			),
-		});
+		handleEmblaApi,
+		handleSlideChange,
+		handleThumbnailClick,
+		mergedCarouselOptions,
+	} = useLightbox({
+		opened,
+		children,
+		carouselOptions,
+		counterFormatter,
 	});
-
-	const mergedCarouselOptions = useMemo(
-		() => ({
-			...carouselOptions,
-			emblaOptions: {
-				...carouselOptions?.emblaOptions,
-				watchDrag: (
-					emblaApi: EmblaCarouselType,
-					event: MouseEvent | TouchEvent,
-				) => {
-					if (isZoomedRef.current) {
-						return false;
-					}
-
-					const configuredWatchDrag = carouselOptions?.emblaOptions?.watchDrag;
-
-					if (typeof configuredWatchDrag === "function") {
-						return configuredWatchDrag(emblaApi, event);
-					}
-
-					return configuredWatchDrag ?? true;
-				},
-			},
-		}),
-		[carouselOptions, isZoomedRef],
-	);
-
-	const handleThumbnailClick = useCallback(
-		(index: number) => {
-			if (isZoomed) {
-				resetZoom();
-			}
-
-			emblaRef.current?.scrollTo(index);
-		},
-		[isZoomed, resetZoom],
-	);
 
 	return (
 		<Modal
@@ -372,43 +190,18 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		>
 			<LightboxProvider value={{ getStyles }}>
 				<Box ref={ref} {...getStyles("root")} {...others}>
-					<ActionIcon.Group {...getStyles("toolbar")}>
-						{withFullscreen && (
-							<ActionIcon
-								variant="default"
-								size="lg"
-								onClick={toggleFullscreen}
-								aria-label={`${isFullscreen ? "Exit" : "Enter"} fullscreen`}
-								disabled={!canUseFullscreen}
-								{...getStyles("fullscreenButton")}
-							>
-								{isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
-							</ActionIcon>
-						)}
-
-						{withZoom && (
-							<ActionIcon
-								variant="default"
-								size="lg"
-								onClick={toggleZoom}
-								aria-label={isZoomed ? "Zoom out" : "Zoom in"}
-								disabled={!canZoomCurrent}
-								{...getStyles("zoomButton")}
-							>
-								{isZoomed ? <ZoomOut /> : <ZoomIn />}
-							</ActionIcon>
-						)}
-
-						<ActionIcon
-							variant="default"
-							size="lg"
-							onClick={onClose}
-							aria-label="Close lightbox"
-							{...getStyles("closeButton")}
-						>
-							<CloseIcon />
-						</ActionIcon>
-					</ActionIcon.Group>
+					<LightboxToolbar
+						withFullscreen={withFullscreen}
+						withZoom={withZoom}
+						isFullscreen={isFullscreen}
+						canUseFullscreen={canUseFullscreen}
+						onToggleFullscreen={toggleFullscreen}
+						isZoomed={isZoomed}
+						canZoomCurrent={canZoomCurrent}
+						onToggleZoom={toggleZoom}
+						onClose={onClose}
+						getStyles={getStyles}
+					/>
 
 					{withCounter && (
 						<Text size="sm" {...getStyles("counter")}>
@@ -428,34 +221,30 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 						onSlideChange={handleSlideChange}
 						getEmblaApi={handleEmblaApi}
 					>
-						{renderedSlides}
+						<LightboxSlides
+							slides={slides}
+							currentIndex={currentIndex}
+							isZoomed={isZoomed}
+							isDraggingZoom={isDraggingZoom}
+							canZoomCurrent={canZoomCurrent}
+							zoomOffset={zoomOffset}
+							zoomScale={zoomScale}
+							activeZoomContainerRef={activeZoomContainerRef}
+							updateCanZoomAvailability={updateCanZoomAvailability}
+							handleZoomPointerDown={handleZoomPointerDown}
+							handleZoomPointerMove={handleZoomPointerMove}
+							handleZoomPointerEnd={handleZoomPointerEnd}
+							getStyles={getStyles}
+						/>
 					</Carousel>
 
 					{withThumbnails && (
-						<Box {...getStyles("thumbnails")}>
-							{slides.map((slide, i) => {
-								const { thumbnail } = slide.props as {
-									thumbnail?: ReactNode;
-								};
-
-								return (
-									<UnstyledButton
-										key={slide.key ?? i}
-										onClick={() => handleThumbnailClick(i)}
-										aria-label={`Go to slide ${i + 1}`}
-										aria-current={i === currentIndex ? "true" : undefined}
-										data-active={i === currentIndex || undefined}
-										{...getStyles("thumbnailButton")}
-									>
-										{thumbnail ?? (
-											<Box {...getStyles("thumbnailPlaceholder")}>
-												<QuestionMark />
-											</Box>
-										)}
-									</UnstyledButton>
-								);
-							})}
-						</Box>
+						<LightboxThumbnails
+							slides={slides}
+							currentIndex={currentIndex}
+							onThumbnailClick={handleThumbnailClick}
+							getStyles={getStyles}
+						/>
 					)}
 				</Box>
 			</LightboxProvider>
