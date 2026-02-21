@@ -5,7 +5,9 @@ import {
 	clampZoomOffset,
 	DEFAULT_ZOOM_SCALE,
 	getImageMaxZoomScale,
+	getPointerCoordinate,
 	getTargetZoomScale,
+	hasPointerMoved,
 	isImageTarget,
 	ZERO_ZOOM_OFFSET,
 	type ZoomOffset,
@@ -26,20 +28,10 @@ interface UseZoomOutput {
 	resetZoom: () => void;
 	toggleZoom: () => void;
 	updateCanZoomAvailability: () => void;
-	handleZoomPointerDown: (
-		event: ReactPointerEvent<HTMLDivElement>,
-		isActive: boolean,
-		isActiveAndZoomed: boolean,
-		canZoom: boolean,
-	) => void;
-	handleZoomPointerMove: (
-		event: ReactPointerEvent<HTMLDivElement>,
-		isActiveAndZoomed: boolean,
-	) => void;
+	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 }
-
-const DRAG_MOVE_THRESHOLD = 2;
 
 export function useZoom(props: UseZoomInput): UseZoomOutput {
 	const { opened } = props;
@@ -136,13 +128,8 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 	}, []);
 
 	const handleZoomPointerDown = useCallback(
-		(
-			event: ReactPointerEvent<HTMLDivElement>,
-			isActive: boolean,
-			isActiveAndZoomed: boolean,
-			canZoom: boolean,
-		) => {
-			if (!isActive || !canZoom) {
+		(event: ReactPointerEvent<HTMLDivElement>) => {
+			if (!canZoomCurrent) {
 				return;
 			}
 
@@ -152,10 +139,10 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				return;
 			}
 
-			const startX = Number.isFinite(event.clientX) ? event.clientX : 0;
-			const startY = Number.isFinite(event.clientY) ? event.clientY : 0;
+			const startX = getPointerCoordinate(event.clientX, 0);
+			const startY = getPointerCoordinate(event.clientY, 0);
 
-			if (isActiveAndZoomed) {
+			if (isZoomed) {
 				event.currentTarget.setPointerCapture?.(event.pointerId);
 				setIsDraggingZoom(true);
 			}
@@ -166,40 +153,40 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				startY,
 				originX: zoomOffset.x,
 				originY: zoomOffset.y,
-				canPan: isActiveAndZoomed,
+				canPan: isZoomed,
 				canToggleOnRelease: true,
 				moved: false,
 			};
 		},
-		[zoomOffset.x, zoomOffset.y],
+		[canZoomCurrent, isZoomed, zoomOffset.x, zoomOffset.y],
 	);
 
 	const handleZoomPointerMove = useCallback(
-		(event: ReactPointerEvent<HTMLDivElement>, isActiveAndZoomed: boolean) => {
+		(event: ReactPointerEvent<HTMLDivElement>) => {
 			const drag = dragRef.current;
 
 			if (!drag || drag.pointerId !== event.pointerId) {
 				return;
 			}
 
-			const currentX = Number.isFinite(event.clientX)
-				? event.clientX
-				: drag.startX;
-			const currentY = Number.isFinite(event.clientY)
-				? event.clientY
-				: drag.startY;
+			const currentX = getPointerCoordinate(event.clientX, drag.startX);
+			const currentY = getPointerCoordinate(event.clientY, drag.startY);
 			const deltaX = currentX - drag.startX;
 			const deltaY = currentY - drag.startY;
 
 			if (
-				Math.abs(deltaX) > DRAG_MOVE_THRESHOLD ||
-				Math.abs(deltaY) > DRAG_MOVE_THRESHOLD
+				hasPointerMoved({
+					startX: drag.startX,
+					startY: drag.startY,
+					endX: currentX,
+					endY: currentY,
+				})
 			) {
 				drag.moved = true;
 				drag.canToggleOnRelease = false;
 			}
 
-			if (!isActiveAndZoomed || !drag.canPan) {
+			if (!drag.canPan) {
 				return;
 			}
 
@@ -237,14 +224,16 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				event.currentTarget.releasePointerCapture?.(event.pointerId);
 			}
 
-			const endX = Number.isFinite(event.clientX) ? event.clientX : drag.startX;
-			const endY = Number.isFinite(event.clientY) ? event.clientY : drag.startY;
-			const endDeltaX = endX - drag.startX;
-			const endDeltaY = endY - drag.startY;
+			const endX = getPointerCoordinate(event.clientX, drag.startX);
+			const endY = getPointerCoordinate(event.clientY, drag.startY);
 
 			if (
-				Math.abs(endDeltaX) > DRAG_MOVE_THRESHOLD ||
-				Math.abs(endDeltaY) > DRAG_MOVE_THRESHOLD
+				hasPointerMoved({
+					startX: drag.startX,
+					startY: drag.startY,
+					endX,
+					endY,
+				})
 			) {
 				drag.moved = true;
 				drag.canToggleOnRelease = false;
