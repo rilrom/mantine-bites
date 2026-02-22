@@ -21,7 +21,15 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 			"Placeholder shown when a slide has no `thumbnail` prop",
 	},
 
-	vars: {},
+	vars: {
+		root: {
+			"--lightbox-z-index": "Controls z-index of the lightbox root element",
+		},
+		overlay: {
+			"--lightbox-z-index": "Controls z-index of the overlay element",
+			"--overlay-z-index": "References --lightbox-z-index for overlay stacking",
+		},
+	},
 
 	modifiers: [
 		{
