@@ -41,11 +41,7 @@ function Demo() {
         opened={opened}
         onClose={() => setOpened(false)}
         carouselOptions={{ initialSlide }}
-        modalOptions={{
-          transitionProps: { duration: 500, transition: 'fade' },
-          overlayProps: { backgroundOpacity: 0.8, blur: 10 },
-          closeOnEscape: false,
-        }}
+        overlayProps={{ color: '#000', backgroundOpacity: 0.75, blur: 4 }}
       >
         {images.map((img) => (
           <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
@@ -91,11 +87,7 @@ function Demo() {
 				opened={opened}
 				onClose={() => setOpened(false)}
 				carouselOptions={{ initialSlide }}
-				modalOptions={{
-					transitionProps: { duration: 500, transition: "fade" },
-					overlayProps: { backgroundOpacity: 0.8, blur: 10 },
-					closeOnEscape: false,
-				}}
+				overlayProps={{ color: "#000", backgroundOpacity: 0.75, blur: 4 }}
 			>
 				{images.map((img) => (
 					<Lightbox.Slide
@@ -110,7 +102,7 @@ function Demo() {
 	);
 }
 
-export const modalOptions: MantineDemo = {
+export const overlayProps: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

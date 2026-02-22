@@ -4,8 +4,17 @@ export interface ZoomOffset {
 }
 
 export const DEFAULT_ZOOM_SCALE = 2;
+export const POINTER_MOVE_THRESHOLD = 2;
 
 export const ZERO_ZOOM_OFFSET: ZoomOffset = { x: 0, y: 0 };
+
+interface PointerMoveInput {
+	startX: number;
+	startY: number;
+	endX: number;
+	endY: number;
+	threshold?: number;
+}
 
 interface ClampZoomOffsetInput {
 	containerWidth: number;
@@ -50,8 +59,25 @@ export const getZoomTransform = ({
 		isZoomed ? scale : 1
 	})`;
 
+export const isEventTargetWithinSelector = (
+	target: EventTarget | null,
+	selector: string,
+) => target instanceof HTMLElement && Boolean(target.closest(selector));
+
 export const isImageTarget = (target: EventTarget | null) =>
-	target instanceof HTMLElement && Boolean(target.closest("img"));
+	isEventTargetWithinSelector(target, "img");
+
+export const getPointerCoordinate = (value: number, fallback: number) =>
+	Number.isFinite(value) ? value : fallback;
+
+export const hasPointerMoved = ({
+	startX,
+	startY,
+	endX,
+	endY,
+	threshold = POINTER_MOVE_THRESHOLD,
+}: PointerMoveInput) =>
+	Math.abs(endX - startX) > threshold || Math.abs(endY - startY) > threshold;
 
 const RESOLUTION_EPSILON = 1.01;
 

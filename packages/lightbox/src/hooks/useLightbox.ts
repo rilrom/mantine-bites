@@ -1,6 +1,8 @@
+import { useFocusReturn, useFocusTrap, useMergedRef } from "@mantine/hooks";
 import type { EmblaCarouselType } from "embla-carousel";
 import {
 	Children,
+	type ForwardedRef,
 	isValidElement,
 	type ReactElement,
 	type ReactNode,
@@ -9,6 +11,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 import type { LightboxCarouselOptions } from "../Lightbox.js";
 import { useCarouselOptions } from "./useCarouselOptions.js";
 import { useFullscreen } from "./useFullscreen.js";
@@ -16,14 +19,37 @@ import { useKeyboardNavigation } from "./useKeyboardNavigation.js";
 import { useZoom } from "./useZoom.js";
 
 interface UseLightboxInput {
+	ref: ForwardedRef<HTMLDivElement>;
 	opened: boolean;
+	onClose: () => void;
+	trapFocus: boolean | undefined;
+	returnFocus: boolean | undefined;
 	children: ReactNode;
 	carouselOptions: LightboxCarouselOptions | undefined;
 	counterFormatter: ((index: number, total: number) => string) | undefined;
 }
 
 export function useLightbox(props: UseLightboxInput) {
-	const { opened, children, carouselOptions, counterFormatter } = props;
+	const {
+		ref,
+		opened,
+		onClose,
+		trapFocus,
+		returnFocus,
+		children,
+		carouselOptions,
+		counterFormatter,
+	} = props;
+
+	const shouldTrapFocus = trapFocus ?? LIGHTBOX_DEFAULT_PROPS.trapFocus;
+
+	const shouldReturnFocus = returnFocus ?? LIGHTBOX_DEFAULT_PROPS.returnFocus;
+
+	const focusTrapRef = useFocusTrap(opened && shouldTrapFocus);
+
+	const mergedRef = useMergedRef(ref, focusTrapRef);
+
+	useFocusReturn({ opened, shouldReturnFocus });
 
 	const emblaRef = useRef<EmblaCarouselType | null>(null);
 	const [currentIndex, setCurrentIndex] = useState(
@@ -97,7 +123,7 @@ export function useLightbox(props: UseLightboxInput) {
 		isZoomedRef,
 	});
 
-	useKeyboardNavigation({ opened, emblaRef });
+	useKeyboardNavigation({ opened, emblaRef, onClose });
 
 	useEffect(() => {
 		if (!opened) {
@@ -106,6 +132,7 @@ export function useLightbox(props: UseLightboxInput) {
 	}, [opened, carouselOptions?.initialSlide]);
 
 	return {
+		mergedRef,
 		slides,
 		currentIndex,
 		counterText,

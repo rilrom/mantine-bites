@@ -3,6 +3,7 @@ export { customCounter } from "./Lightbox.demo.customCounter";
 export { emblaPlugins } from "./Lightbox.demo.emblaPlugins";
 export { hideControls } from "./Lightbox.demo.hideControls";
 export { loop } from "./Lightbox.demo.loop";
-export { modalOptions } from "./Lightbox.demo.modalOptions";
+export { overlayProps } from "./Lightbox.demo.overlayProps";
 export { placeholderThumbnails } from "./Lightbox.demo.placeholderThumbnails";
+export { transitionProps } from "./Lightbox.demo.transitionProps";
 export { usage } from "./Lightbox.demo.usage";

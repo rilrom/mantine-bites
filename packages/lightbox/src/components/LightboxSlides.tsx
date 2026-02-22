@@ -7,8 +7,7 @@ import {
 	type RefObject,
 } from "react";
 import type { LightboxFactory } from "../Lightbox.js";
-import type { ZoomOffset } from "../utils/zoom.js";
-import { getZoomTransform } from "../utils/zoom.js";
+import { getZoomTransform, type ZoomOffset } from "../utils/zoom.js";
 
 interface LightboxSlidesProps {
 	slides: ReactElement<{ children?: ReactNode }>[];
@@ -20,16 +19,8 @@ interface LightboxSlidesProps {
 	zoomScale: number;
 	activeZoomContainerRef: RefObject<HTMLDivElement | null>;
 	updateCanZoomAvailability: () => void;
-	handleZoomPointerDown: (
-		event: ReactPointerEvent<HTMLDivElement>,
-		isActive: boolean,
-		isActiveAndZoomed: boolean,
-		canZoom: boolean,
-	) => void;
-	handleZoomPointerMove: (
-		event: ReactPointerEvent<HTMLDivElement>,
-		isActiveAndZoomed: boolean,
-	) => void;
+	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	getStyles: GetStylesApi<LightboxFactory>;
 }
@@ -67,24 +58,19 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 							data-zoomed={isActiveAndZoomed || undefined}
 							data-can-zoom={isActive ? String(canZoomCurrent) : undefined}
 							data-dragging={(isDraggingZoom && isActiveAndZoomed) || undefined}
-							onPointerDown={(event) =>
-								handleZoomPointerDown(
-									event,
-									isActive,
-									isActiveAndZoomed,
-									isActive ? canZoomCurrent : false,
-								)
+							onPointerDown={isActive ? handleZoomPointerDown : undefined}
+							onPointerMove={isActive ? handleZoomPointerMove : undefined}
+							onPointerUp={isActive ? handleZoomPointerEnd : undefined}
+							onPointerCancel={isActive ? handleZoomPointerEnd : undefined}
+							onLoadCapture={
+								isActive
+									? (event) => {
+											if (event.target instanceof HTMLImageElement) {
+												updateCanZoomAvailability();
+											}
+										}
+									: undefined
 							}
-							onPointerMove={(event) =>
-								handleZoomPointerMove(event, isActiveAndZoomed)
-							}
-							onPointerUp={handleZoomPointerEnd}
-							onPointerCancel={handleZoomPointerEnd}
-							onLoadCapture={(event) => {
-								if (isActive && event.target instanceof HTMLImageElement) {
-									updateCanZoomAvailability();
-								}
-							}}
 						>
 							<Box
 								{...getStyles("zoomContent")}

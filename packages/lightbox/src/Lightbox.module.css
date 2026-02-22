@@ -1,10 +1,16 @@
 .root {
-  position: relative;
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   height: 100dvh;
   width: 100dvw;
   color: var(--mantine-color-white);
+  z-index: var(--lightbox-z-index);
+}
+
+.overlay {
+  z-index: var(--lightbox-z-index);
 }
 
 .slides {

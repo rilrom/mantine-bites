@@ -2,13 +2,19 @@ import { Carousel, type CarouselProps } from "@mantine/carousel";
 import {
 	Box,
 	type BoxProps,
+	createVarsResolver,
 	type ElementProps,
 	type Factory,
 	factory,
-	Modal,
-	type ModalProps,
+	OptionalPortal,
+	Overlay,
+	type OverlayProps,
+	type PortalProps,
+	RemoveScroll,
 	type StylesApiProps,
 	Text,
+	Transition,
+	type TransitionProps,
 	useProps,
 	useStyles,
 } from "@mantine/core";
@@ -17,11 +23,13 @@ import { LightboxThumbnails } from "./components/LightboxThumbnails.js";
 import { LightboxToolbar } from "./components/LightboxToolbar.js";
 import { useLightbox } from "./hooks/useLightbox.js";
 import { LightboxProvider } from "./Lightbox.context.js";
+import { LIGHTBOX_DEFAULT_PROPS } from "./Lightbox.defaults.js";
 import classes from "./Lightbox.module.css";
 import { LightboxSlide } from "./LightboxSlide.js";
 
 export type LightboxStylesNames =
 	| "root"
+	| "overlay"
 	| "slides"
 	| "slide"
 	| "zoomContainer"
@@ -35,17 +43,15 @@ export type LightboxStylesNames =
 	| "thumbnailButton"
 	| "thumbnailPlaceholder";
 
-export type LightboxCarouselOptions = Omit<CarouselProps, "withKeyboardEvents">;
-
-export type LightboxModalOptions = Omit<
-	ModalProps,
-	"fullScreen" | "title" | "withCloseButton" | "opened" | "onClose"
+export type LightboxCarouselOptions = Omit<
+	CarouselProps,
+	"withKeyboardEvents" | "withIndicators"
 >;
 
 export interface LightboxProps
 	extends BoxProps,
 		StylesApiProps<LightboxFactory>,
-		ElementProps<"div", "onChange"> {
+		ElementProps<"div"> {
 	/** Controls lightbox visibility */
 	opened: boolean;
 
@@ -70,8 +76,32 @@ export interface LightboxProps
 	/** Props passed to the underlying `Carousel` component */
 	carouselOptions?: LightboxCarouselOptions;
 
-	/** Props passed to the underlying `Modal` component */
-	modalOptions?: LightboxModalOptions;
+	/** Props passed to the `Overlay` component */
+	overlayProps?: OverlayProps;
+
+	/** Props passed to the `Transition` component */
+	transitionProps?: Omit<
+		TransitionProps,
+		"mounted" | "keepMounted" | "children"
+	>;
+
+	/** Determines whether the lightbox should be kept in the DOM when closed, `false` by default */
+	keepMounted?: boolean;
+
+	/** Determines whether focus should be trapped within the lightbox, `true` by default */
+	trapFocus?: boolean;
+
+	/** Determines whether scroll should be locked when lightbox is opened, `true` by default */
+	lockScroll?: boolean;
+
+	/** Determines whether focus should be returned to the last active element when lightbox is closed, `true` by default */
+	returnFocus?: boolean;
+
+	/** Determines whether the lightbox should be rendered inside a `Portal`, `true` by default */
+	withinPortal?: boolean;
+
+	/** Props passed to the `Portal` component */
+	portalProps?: Omit<PortalProps, "withinPortal" | "children">;
 }
 
 export type LightboxFactory = Factory<{
@@ -83,15 +113,23 @@ export type LightboxFactory = Factory<{
 	};
 }>;
 
-const defaultProps: Partial<LightboxProps> = {
-	withThumbnails: true,
-	withCounter: true,
-	withFullscreen: true,
-	withZoom: true,
-	carouselOptions: {
-		controlSize: 36,
-	},
-};
+const defaultProps: Partial<LightboxProps> = LIGHTBOX_DEFAULT_PROPS;
+
+const varsResolver = createVarsResolver<LightboxFactory>(
+	(_, { overlayProps }) => ({
+		root: {
+			"--lightbox-z-index": String(
+				overlayProps?.zIndex ?? LIGHTBOX_DEFAULT_PROPS.overlayProps.zIndex,
+			),
+		},
+		overlay: {
+			"--lightbox-z-index": String(
+				overlayProps?.zIndex ?? LIGHTBOX_DEFAULT_PROPS.overlayProps.zIndex,
+			),
+			"--overlay-z-index": "var(--lightbox-z-index)",
+		},
+	}),
+);
 
 export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	const props = useProps("Lightbox", defaultProps, _props);
@@ -112,14 +150,21 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		withZoom,
 		counterFormatter,
 		carouselOptions,
-		modalOptions,
-		...others
+		overlayProps,
+		transitionProps,
+		keepMounted,
+		trapFocus,
+		lockScroll,
+		returnFocus,
+		withinPortal,
+		portalProps,
 	} = props;
 
 	const getStyles = useStyles<LightboxFactory>({
 		name: "Lightbox",
 		classes,
 		props,
+		varsResolver,
 		className,
 		style,
 		classNames,
@@ -128,7 +173,23 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		vars,
 	});
 
+	const _carouselOptions = {
+		...LIGHTBOX_DEFAULT_PROPS.carouselOptions,
+		...carouselOptions,
+	};
+
+	const _overlayProps = {
+		...LIGHTBOX_DEFAULT_PROPS.overlayProps,
+		...overlayProps,
+	};
+
+	const _transitionProps = {
+		...LIGHTBOX_DEFAULT_PROPS.transitionProps,
+		...transitionProps,
+	};
+
 	const {
+		mergedRef,
 		slides,
 		currentIndex,
 		counterText,
@@ -151,104 +212,98 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		handleThumbnailClick,
 		mergedCarouselOptions,
 	} = useLightbox({
+		ref,
 		opened,
+		onClose,
+		trapFocus,
+		returnFocus,
 		children,
-		carouselOptions,
+		carouselOptions: _carouselOptions,
 		counterFormatter,
 	});
 
 	return (
-		<Modal
-			centered
-			radius={0}
-			padding={0}
-			xOffset={0}
-			yOffset={0}
-			{...modalOptions}
-			opened={opened}
-			onClose={onClose}
-			fullScreen={true}
-			title={undefined}
-			withCloseButton={false}
-			overlayProps={{
-				backgroundOpacity: 0.95,
-				color: "#18181B",
-				...modalOptions?.overlayProps,
-			}}
-			styles={{
-				...modalOptions?.styles,
-				inner: {
-					...modalOptions?.styles?.inner,
-					left: 0,
-					right: 0,
-				},
-				content: {
-					...modalOptions?.styles?.content,
-					background: "transparent",
-				},
-			}}
-		>
-			<LightboxProvider value={{ getStyles }}>
-				<Box ref={ref} {...getStyles("root")} {...others}>
-					<LightboxToolbar
-						withFullscreen={withFullscreen}
-						withZoom={withZoom}
-						isFullscreen={isFullscreen}
-						canUseFullscreen={canUseFullscreen}
-						onToggleFullscreen={toggleFullscreen}
-						isZoomed={isZoomed}
-						canZoomCurrent={canZoomCurrent}
-						onToggleZoom={toggleZoom}
-						onClose={onClose}
-						getStyles={getStyles}
-					/>
-
-					{withCounter && (
-						<Text size="sm" {...getStyles("counter")}>
-							{counterText}
-						</Text>
-					)}
-
-					<Carousel
-						slideGap={0}
-						includeGapInSize={false}
-						withIndicators={false}
-						slideSize="100%"
-						height="100%"
-						{...mergedCarouselOptions}
-						{...getStyles("slides")}
-						withKeyboardEvents={false}
-						onSlideChange={handleSlideChange}
-						getEmblaApi={handleEmblaApi}
-					>
-						<LightboxSlides
-							slides={slides}
-							currentIndex={currentIndex}
-							isZoomed={isZoomed}
-							isDraggingZoom={isDraggingZoom}
-							canZoomCurrent={canZoomCurrent}
-							zoomOffset={zoomOffset}
-							zoomScale={zoomScale}
-							activeZoomContainerRef={activeZoomContainerRef}
-							updateCanZoomAvailability={updateCanZoomAvailability}
-							handleZoomPointerDown={handleZoomPointerDown}
-							handleZoomPointerMove={handleZoomPointerMove}
-							handleZoomPointerEnd={handleZoomPointerEnd}
-							getStyles={getStyles}
+		<OptionalPortal {...portalProps} withinPortal={withinPortal}>
+			<Transition
+				{..._transitionProps}
+				mounted={opened}
+				keepMounted={keepMounted}
+			>
+				{(transitionStyles) => (
+					<RemoveScroll enabled={lockScroll}>
+						<Overlay
+							{..._overlayProps}
+							{...getStyles("overlay", {
+								className: _overlayProps.className,
+								style: [transitionStyles, overlayProps?.style],
+							})}
 						/>
-					</Carousel>
+						<LightboxProvider value={{ getStyles }}>
+							<Box
+								ref={mergedRef}
+								{...getStyles("root", { style: transitionStyles })}
+							>
+								<LightboxToolbar
+									withFullscreen={withFullscreen}
+									withZoom={withZoom}
+									isFullscreen={isFullscreen}
+									canUseFullscreen={canUseFullscreen}
+									onToggleFullscreen={toggleFullscreen}
+									isZoomed={isZoomed}
+									canZoomCurrent={canZoomCurrent}
+									onToggleZoom={toggleZoom}
+									onClose={onClose}
+									getStyles={getStyles}
+								/>
 
-					{withThumbnails && (
-						<LightboxThumbnails
-							slides={slides}
-							currentIndex={currentIndex}
-							onThumbnailClick={handleThumbnailClick}
-							getStyles={getStyles}
-						/>
-					)}
-				</Box>
-			</LightboxProvider>
-		</Modal>
+								{withCounter && (
+									<Text size="sm" {...getStyles("counter")}>
+										{counterText}
+									</Text>
+								)}
+
+								<Carousel
+									includeGapInSize={false}
+									slideSize="100%"
+									height="100%"
+									{...mergedCarouselOptions}
+									{...getStyles("slides")}
+									withIndicators={false}
+									withKeyboardEvents={false}
+									onSlideChange={handleSlideChange}
+									getEmblaApi={handleEmblaApi}
+								>
+									<LightboxSlides
+										slides={slides}
+										currentIndex={currentIndex}
+										isZoomed={isZoomed}
+										isDraggingZoom={isDraggingZoom}
+										canZoomCurrent={canZoomCurrent}
+										zoomOffset={zoomOffset}
+										zoomScale={zoomScale}
+										activeZoomContainerRef={activeZoomContainerRef}
+										updateCanZoomAvailability={updateCanZoomAvailability}
+										handleZoomPointerDown={handleZoomPointerDown}
+										handleZoomPointerMove={handleZoomPointerMove}
+										handleZoomPointerEnd={handleZoomPointerEnd}
+										getStyles={getStyles}
+									/>
+								</Carousel>
+
+								{withThumbnails && (
+									<LightboxThumbnails
+										slides={slides}
+										currentIndex={currentIndex}
+										onThumbnailClick={handleThumbnailClick}
+										getStyles={getStyles}
+									/>
+								)}
+							</Box>
+						</LightboxProvider>
+					</RemoveScroll>
+				)}
+			</Transition>
+		</OptionalPortal>
 	);
 });
 

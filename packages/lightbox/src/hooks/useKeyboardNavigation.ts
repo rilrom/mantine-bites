@@ -5,10 +5,11 @@ import { useEffect } from "react";
 interface UseKeyboardNavigationInput {
 	opened: boolean;
 	emblaRef: RefObject<EmblaCarouselType | null>;
+	onClose: () => void;
 }
 
 export function useKeyboardNavigation(props: UseKeyboardNavigationInput): void {
-	const { opened, emblaRef } = props;
+	const { opened, emblaRef, onClose } = props;
 
 	useEffect(() => {
 		if (!opened) {
@@ -16,7 +17,9 @@ export function useKeyboardNavigation(props: UseKeyboardNavigationInput): void {
 		}
 
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "ArrowLeft") {
+			if (event.key === "Escape") {
+				onClose();
+			} else if (event.key === "ArrowLeft") {
 				emblaRef.current?.scrollPrev();
 			} else if (event.key === "ArrowRight") {
 				emblaRef.current?.scrollNext();
@@ -28,5 +31,5 @@ export function useKeyboardNavigation(props: UseKeyboardNavigationInput): void {
 		return () => {
 			document.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [opened, emblaRef]);
+	}, [opened, emblaRef, onClose]);
 }

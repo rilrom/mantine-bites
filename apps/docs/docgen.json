@@ -19,13 +19,22 @@
 					"name": "(index: number, total: number) => string"
 				}
 			},
-			"modalOptions": {
+			"keepMounted": {
 				"defaultValue": null,
-				"description": "Props passed to the underlying <code>Modal</code> component",
-				"name": "modalOptions",
+				"description": "Determines whether the lightbox should be kept in the DOM when closed, <code>false</code> by default",
+				"name": "keepMounted",
 				"required": false,
 				"type": {
-					"name": "LightboxModalOptions"
+					"name": "boolean"
+				}
+			},
+			"lockScroll": {
+				"defaultValue": null,
+				"description": "Determines whether scroll should be locked when lightbox is opened, <code>true</code> by default",
+				"name": "lockScroll",
+				"required": false,
+				"type": {
+					"name": "boolean"
 				}
 			},
 			"onClose": {
@@ -42,6 +51,51 @@
 				"description": "Controls lightbox visibility",
 				"name": "opened",
 				"required": true,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"overlayProps": {
+				"defaultValue": null,
+				"description": "Props passed to the <code>Overlay</code> component",
+				"name": "overlayProps",
+				"required": false,
+				"type": {
+					"name": "OverlayProps"
+				}
+			},
+			"portalProps": {
+				"defaultValue": null,
+				"description": "Props passed to the <code>Portal</code> component",
+				"name": "portalProps",
+				"required": false,
+				"type": {
+					"name": "Omit<PortalProps, \"children\" | \"withinPortal\">"
+				}
+			},
+			"returnFocus": {
+				"defaultValue": null,
+				"description": "Determines whether focus should be returned to the last active element when lightbox is closed, <code>true</code> by default",
+				"name": "returnFocus",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"transitionProps": {
+				"defaultValue": null,
+				"description": "Props passed to the <code>Transition</code> component",
+				"name": "transitionProps",
+				"required": false,
+				"type": {
+					"name": "Omit<TransitionProps, \"children\" | \"mounted\" | \"keepMounted\">"
+				}
+			},
+			"trapFocus": {
+				"defaultValue": null,
+				"description": "Determines whether focus should be trapped within the lightbox, <code>true</code> by default",
+				"name": "trapFocus",
+				"required": false,
 				"type": {
 					"name": "boolean"
 				}
@@ -68,6 +122,24 @@
 				"defaultValue": null,
 				"description": "Determines whether thumbnail images should be displayed, <code>true</code> by default",
 				"name": "withThumbnails",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"withZoom": {
+				"defaultValue": null,
+				"description": "Determines whether zoom toggle button should be displayed, <code>true</code> by default",
+				"name": "withZoom",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"withinPortal": {
+				"defaultValue": null,
+				"description": "Determines whether the lightbox should be rendered inside a <code>Portal</code>, <code>true</code> by default",
+				"name": "withinPortal",
 				"required": false,
 				"type": {
 					"name": "boolean"

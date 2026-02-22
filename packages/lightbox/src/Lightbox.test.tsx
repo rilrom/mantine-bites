@@ -898,15 +898,9 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 	});
 
 	it("should render slide content even when closed when keepMounted is true", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				opened={false}
-				modalOptions={{ keepMounted: true }}
-			/>,
-		);
+		render(<Lightbox {...defaultProps} opened={false} keepMounted />);
 
-		// With keepMounted, Modal keeps content in the DOM (hidden).
+		// With keepMounted, content stays in the DOM (hidden).
 		// Contrast with the "does not render when closed" test which asserts
 		// the close button is absent when keepMounted is not set.
 		expect(screen.getByAltText("Forest landscape")).toBeInTheDocument();
@@ -914,40 +908,26 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 
 	it("should accept overlayProps without error", () => {
 		render(
-			<Lightbox
-				{...defaultProps}
-				modalOptions={{ overlayProps: { backgroundOpacity: 0.5 } }}
-			/>,
+			<Lightbox {...defaultProps} overlayProps={{ backgroundOpacity: 0.5 }} />,
 		);
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("should accept transitionProps without error", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				modalOptions={{ transitionProps: { duration: 0 } }}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should accept zIndex without error", () => {
-		render(<Lightbox {...defaultProps} modalOptions={{ zIndex: 9999 }} />);
+		render(<Lightbox {...defaultProps} transitionProps={{ duration: 0 }} />);
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("should accept trapFocus as false without error", () => {
-		render(<Lightbox {...defaultProps} modalOptions={{ trapFocus: false }} />);
+		render(<Lightbox {...defaultProps} trapFocus={false} />);
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("should accept lockScroll as false without error", () => {
-		render(<Lightbox {...defaultProps} modalOptions={{ lockScroll: false }} />);
+		render(<Lightbox {...defaultProps} lockScroll={false} />);
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});

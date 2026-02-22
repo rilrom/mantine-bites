@@ -3,7 +3,8 @@ import type { StylesApiData } from "../../components/styles-api.types";
 
 export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 	selectors: {
-		root: "Root element, wraps the entire lightbox content inside the modal",
+		root: "Wraps the lightbox component inside the portal",
+		overlay: "Backdrop component when lightbox is open",
 		slides: "Carousel container that holds all slides",
 		slide: "Individual slide within the carousel",
 		zoomContainer:
