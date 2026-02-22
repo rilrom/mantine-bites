@@ -1,10 +1,11 @@
 import { Box, UnstyledButton } from "@mantine/core";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 import { useLightboxContext } from "../Lightbox.context.js";
+import type { LightboxSlideProps } from "../LightboxSlide.js";
 import { QuestionMark } from "./QuestionMark.js";
 
 interface LightboxThumbnailsProps {
-	slides: ReactElement<{ thumbnail?: ReactNode }>[];
+	slides: ReactElement<Pick<LightboxSlideProps, "thumbnail">>[];
 	currentIndex: number;
 	onThumbnailClick: (index: number) => void;
 }

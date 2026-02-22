@@ -2,16 +2,16 @@ import { Box } from "@mantine/core";
 import {
 	cloneElement,
 	type ReactElement,
-	type ReactNode,
 	type PointerEvent as ReactPointerEvent,
 	type RefObject,
 } from "react";
 import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
 import { useLightboxContext } from "../Lightbox.context.js";
+import type { LightboxSlideProps } from "../LightboxSlide.js";
 import { getZoomTransform, type ZoomOffset } from "../utils/zoom.js";
 
 interface LightboxSlidesProps {
-	slides: ReactElement<{ children?: ReactNode }>[];
+	slides: ReactElement<Pick<LightboxSlideProps, "children">>[];
 	currentIndex: number;
 	isZoomed: boolean;
 	isDraggingZoom: boolean;

@@ -13,6 +13,7 @@ import {
 } from "react";
 import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 import type { LightboxCarouselOptions } from "../Lightbox.js";
+import type { LightboxSlideProps } from "../LightboxSlide.js";
 import { useCarouselOptions } from "./useCarouselOptions.js";
 import { useFullscreen } from "./useFullscreen.js";
 import { useKeyboardNavigation } from "./useKeyboardNavigation.js";
@@ -83,10 +84,7 @@ export function useLightbox(props: UseLightboxInput) {
 
 	const slides = Children.toArray(children).filter(
 		isValidElement,
-	) as ReactElement<{
-		children?: ReactNode;
-		thumbnail?: ReactNode;
-	}>[];
+	) as ReactElement<Pick<LightboxSlideProps, "children" | "thumbnail">>[];
 
 	const total = slides.length;
 
