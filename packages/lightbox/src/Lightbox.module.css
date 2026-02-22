@@ -129,7 +129,7 @@
   top: var(--mantine-spacing-md);
   left: var(--mantine-spacing-md);
   z-index: 1;
-  color: var(--lightbox-color);
+  color: var(--mantine-color-white);
   font-weight: 500;
   user-select: none;
 }
