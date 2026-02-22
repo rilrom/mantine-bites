@@ -1,18 +1,31 @@
+/** Pixel offset representing a translation applied to a zoomed image. */
 export interface ZoomOffset {
+	/** Horizontal translation in pixels. */
 	x: number;
+	/** Vertical translation in pixels. */
 	y: number;
 }
 
+/** Default zoom scale applied when zooming in on an image. */
 export const DEFAULT_ZOOM_SCALE = 2;
+
+/** Minimum pointer movement in pixels before a gesture is considered a drag. */
 export const POINTER_MOVE_THRESHOLD = 2;
 
+/** Zero-offset value representing no translation on a zoomed image. */
 export const ZERO_ZOOM_OFFSET: ZoomOffset = { x: 0, y: 0 };
 
+/** Tracks the state of a pointer used to detect outside-content close gestures. */
 export interface OutsideClosePointerState {
+	/** Identifier of the tracked pointer. */
 	pointerId: number;
+	/** Horizontal position where the pointer was initially pressed. */
 	startX: number;
+	/** Vertical position where the pointer was initially pressed. */
 	startY: number;
+	/** Whether the pointer press originated outside the slide content area. */
 	startedOutsideContent: boolean;
+	/** Whether the pointer has moved beyond the drag threshold since pressing. */
 	moved: boolean;
 }
 
@@ -41,6 +54,10 @@ interface ClampZoomOffsetInput {
 	nextY: number;
 }
 
+/**
+ * Clamps a proposed zoom pan offset so the image cannot be panned beyond its
+ * edges relative to the container at the given zoom scale.
+ */
 export const clampZoomOffset = ({
 	containerWidth,
 	containerHeight,
@@ -61,6 +78,10 @@ export const clampZoomOffset = ({
 	};
 };
 
+/**
+ * Returns a CSS `transform` string that applies the zoom pan offset and scale.
+ * When not zoomed, returns identity values regardless of the stored offset.
+ */
 export const getZoomTransform = ({
 	isZoomed,
 	offset,
@@ -74,17 +95,30 @@ export const getZoomTransform = ({
 		isZoomed ? scale : 1
 	})`;
 
+/**
+ * Returns `true` if the event target is an element (or descendant) matching
+ * the given CSS selector.
+ */
 export const isEventTargetWithinSelector = (
 	target: EventTarget | null,
 	selector: string,
 ) => target instanceof HTMLElement && Boolean(target.closest(selector));
 
+/** Returns `true` if the event target is or is inside an `<img>` element. */
 export const isImageTarget = (target: EventTarget | null) =>
 	isEventTargetWithinSelector(target, "img");
 
+/**
+ * Returns `value` if it is a finite number, otherwise returns `fallback`.
+ * Useful for sanitising pointer coordinates that may be `NaN` or `Infinity`.
+ */
 export const getPointerCoordinate = (value: number, fallback: number) =>
 	Number.isFinite(value) ? value : fallback;
 
+/**
+ * Returns `true` if the pointer has moved more than `threshold` pixels in
+ * either axis between the start and end positions.
+ */
 export const hasPointerMoved = ({
 	startX,
 	startY,
@@ -94,6 +128,7 @@ export const hasPointerMoved = ({
 }: PointerMoveInput) =>
 	Math.abs(endX - startX) > threshold || Math.abs(endY - startY) > threshold;
 
+/** Creates the initial tracking state for an outside-close pointer gesture. */
 export const createOutsideClosePointerState = ({
 	pointerId,
 	clientX,
@@ -107,6 +142,10 @@ export const createOutsideClosePointerState = ({
 	moved: false,
 });
 
+/**
+ * Returns an updated copy of the pointer state after a pointer move event.
+ * Sets `moved` to `true` once the pointer has exceeded the drag threshold.
+ */
 export const updateOutsideClosePointerState = (
 	state: OutsideClosePointerState,
 	{ clientX, clientY }: { clientX: number; clientY: number },
@@ -129,6 +168,11 @@ export const updateOutsideClosePointerState = (
 	return state;
 };
 
+/**
+ * Returns `true` if the pointer gesture should trigger the lightbox to close.
+ * The lightbox closes when the press started outside the content and the
+ * pointer did not drag.
+ */
 export const shouldCloseFromOutsidePointerState = (
 	state: OutsideClosePointerState,
 ) => state.startedOutsideContent && !state.moved;
@@ -145,6 +189,11 @@ const getImageMeasurements = (image: HTMLImageElement) => {
 	};
 };
 
+/**
+ * Returns the maximum zoom scale at which the image would still be rendered at
+ * its native resolution (1:1 pixel ratio). Falls back to `DEFAULT_ZOOM_SCALE`
+ * when image dimensions are unavailable.
+ */
 export const getImageMaxZoomScale = (image: HTMLImageElement) => {
 	const { naturalWidth, naturalHeight, renderedWidth, renderedHeight } =
 		getImageMeasurements(image);
@@ -159,6 +208,12 @@ export const getImageMaxZoomScale = (image: HTMLImageElement) => {
 	return Math.min(widthRatio, heightRatio);
 };
 
+/**
+ * Calculates the zoom scale that should be applied when the user triggers a
+ * zoom action. Prefers a scale that fills the container viewport; falls back to
+ * the native-resolution scale or `DEFAULT_ZOOM_SCALE` when the image is small.
+ * The returned value is always at least `1` and at most the max zoom scale.
+ */
 export const getTargetZoomScale = ({
 	image,
 	containerWidth,
@@ -182,6 +237,10 @@ export const getTargetZoomScale = ({
 	return Math.max(1, Math.min(maxZoomScale, targetScale));
 };
 
+/**
+ * Returns `true` if the image has sufficient resolution to be meaningfully
+ * zoomed (i.e. its max zoom scale exceeds the resolution epsilon threshold).
+ */
 export const canZoomImageElement = (image: HTMLImageElement) => {
 	return getImageMaxZoomScale(image) > RESOLUTION_EPSILON;
 };

@@ -12,6 +12,14 @@ export type UseCarouselOptionsOutput = LightboxCarouselOptions & {
 	emblaOptions: NonNullable<LightboxCarouselOptions["emblaOptions"]>;
 };
 
+/**
+ * Merges consumer-supplied carousel options with lightbox-internal overrides.
+ *
+ * Injects a `watchDrag` guard that disables Embla's drag when the lightbox is
+ * zoomed. Uses `isZoomedRef` (not `isZoomed` state) so that the returned
+ * options object stays stable across zoom state changes, preventing Embla from
+ * being re-initialised on every zoom toggle.
+ */
 export function useCarouselOptions(
 	props: UseCarouselOptionsInput,
 ): UseCarouselOptionsOutput {

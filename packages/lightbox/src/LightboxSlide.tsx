@@ -17,7 +17,7 @@ export interface LightboxSlideProps
 	extends BoxProps,
 		CompoundStylesApiProps<LightboxSlideFactory>,
 		ElementProps<"div"> {
-	/** Thumbnail content for this slide, shows a placeholder if omitted */
+	/** Content rendered as the slide thumbnail in the lightbox navigation, or a default placeholder if omitted. */
 	thumbnail?: ReactNode;
 }
 

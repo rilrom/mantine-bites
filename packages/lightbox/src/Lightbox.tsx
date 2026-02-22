@@ -57,58 +57,103 @@ export interface LightboxProps
 	extends BoxProps,
 		StylesApiProps<LightboxFactory>,
 		ElementProps<"div"> {
-	/** Controls lightbox visibility */
+	/**
+	 * Controls whether the lightbox is visible.
+	 */
 	opened: boolean;
 
-	/** Called when lightbox should close */
+	/**
+	 * Callback invoked when the lightbox requests to close.
+	 */
 	onClose: () => void;
 
-	/** Determines whether outside click should call `onClose`, `true` by default */
+	/**
+	 * Keeps the lightbox mounted in the DOM when it is not visible.
+	 * @default false
+	 */
+	keepMounted?: boolean;
+
+	/**
+	 * Closes the lightbox when a pointer interaction occurs outside its content area.
+	 * @default true
+	 */
 	closeOnClickOutside?: boolean;
 
-	/** Determines whether thumbnail images should be displayed, `true` by default */
+	/**
+	 * Constrains keyboard focus to elements within the lightbox while it is open.
+	 * @default true
+	 */
+	trapFocus?: boolean;
+
+	/**
+	 * Restores focus to the previously focused element after the lightbox closes.
+	 * @default true
+	 */
+	returnFocus?: boolean;
+
+	/**
+	 * Prevents background document scrolling while the lightbox is open.
+	 * @default true
+	 */
+	lockScroll?: boolean;
+
+	/**
+	 * Renders thumbnail previews for navigating between slides.
+	 * @default true
+	 */
 	withThumbnails?: boolean;
 
-	/** Determines whether the slide counter should be displayed, `true` by default */
+	/**
+	 * Displays the current slide index and total slide count.
+	 * @default true
+	 */
 	withCounter?: boolean;
 
-	/** Determines whether fullscreen toggle button should be displayed, `true` by default */
+	/**
+	 * Shows a control that toggles fullscreen mode for the lightbox.
+	 * @default true
+	 */
 	withFullscreen?: boolean;
 
-	/** Determines whether zoom toggle button should be displayed, `true` by default */
+	/**
+	 * Shows a control that toggles zoom functionality for the active slide.
+	 * @default true
+	 */
 	withZoom?: boolean;
 
-	/** Custom counter format function, `"1 / 3"` by default */
+	/**
+	 * Formats the slide counter output based on the current index and total count.
+	 * @default (index, total) => `${index + 1} / ${total}`
+	 */
 	counterFormatter?: (index: number, total: number) => string;
 
-	/** Props passed to the underlying `Carousel` component */
+	/**
+	 * Configuration options forwarded to the underlying Carousel instance.
+	 */
 	carouselOptions?: LightboxCarouselOptions;
 
-	/** Props passed to the `Overlay` component */
+	/**
+	 * Props forwarded to the Overlay component that renders the backdrop.
+	 */
 	overlayProps?: OverlayProps;
 
-	/** Props passed to the `Transition` component */
+	/**
+	 * Transition configuration applied to the lightbox content container.
+	 */
 	transitionProps?: Omit<
 		TransitionProps,
 		"mounted" | "keepMounted" | "children"
 	>;
 
-	/** Determines whether the lightbox should be kept in the DOM when closed, `false` by default */
-	keepMounted?: boolean;
-
-	/** Determines whether focus should be trapped within the lightbox, `true` by default */
-	trapFocus?: boolean;
-
-	/** Determines whether scroll should be locked when lightbox is opened, `true` by default */
-	lockScroll?: boolean;
-
-	/** Determines whether focus should be returned to the last active element when lightbox is closed, `true` by default */
-	returnFocus?: boolean;
-
-	/** Determines whether the lightbox should be rendered inside a `Portal`, `true` by default */
+	/**
+	 * Renders the lightbox inside a React Portal instead of the current DOM hierarchy.
+	 * @default true
+	 */
 	withinPortal?: boolean;
 
-	/** Props passed to the `Portal` component */
+	/**
+	 * Props forwarded to the Portal component when portal rendering is enabled.
+	 */
 	portalProps?: Omit<PortalProps, "withinPortal" | "children">;
 }
 

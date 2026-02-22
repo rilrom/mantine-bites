@@ -24,6 +24,14 @@ interface UseSlideInteractionsOutput {
 	handleSlideLoadCapture: (event: SyntheticEvent<HTMLDivElement>) => void;
 }
 
+/**
+ * Combines outside-content close detection with zoom pointer event delegation
+ * for a single lightbox slide element.
+ *
+ * Tracks whether each pointer press originated outside `[data-lightbox-slide-content]`
+ * and closes the lightbox on release if the pointer did not drag. Zoom pointer
+ * events are forwarded to the provided zoom handlers throughout.
+ */
 export function useSlideInteractions(
 	props: UseSlideInteractionsInput,
 ): UseSlideInteractionsOutput {

@@ -3,7 +3,8 @@ import type { StylesApiData } from "../../components/styles-api.types";
 
 export const LightboxSlideStylesApi: StylesApiData<LightboxSlideFactory> = {
 	selectors: {
-		slide: "Root element of the slide",
+		slide:
+			"Root element that wraps an individual slide within the lightbox carousel.",
 	},
 
 	vars: {},

@@ -33,6 +33,13 @@ interface UseZoomOutput {
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 }
 
+/**
+ * Manages all zoom and pan state for the lightbox.
+ *
+ * Handles pointer capture for smooth panning, tap-to-toggle zoom, offset
+ * clamping within container bounds, and automatic reset on slide change or
+ * window resize.
+ */
 export function useZoom(props: UseZoomInput): UseZoomOutput {
 	const { opened } = props;
 

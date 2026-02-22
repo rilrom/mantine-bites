@@ -3,31 +3,40 @@ import type { StylesApiData } from "../../components/styles-api.types";
 
 export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 	selectors: {
-		root: "Wraps the lightbox component inside the portal",
-		overlay: "Backdrop component when lightbox is open",
-		slides: "Carousel container that holds all slides",
-		slide: "Individual slide within the carousel",
+		root: "Root element that wraps the lightbox content and is rendered inside the portal.",
+		overlay: "Backdrop element displayed behind the lightbox when it is open.",
+		slides:
+			"Carousel viewport element that contains and manages all slide items.",
+		slide: "Individual slide element rendered within the carousel.",
 		zoomContainer:
-			"Interactive viewport wrapper that handles image zoom and pan gestures",
-		zoomContent: "Transform container used to apply zoom scale and pan offset",
-		toolbar: "Toolbar area containing various action buttons",
-		fullscreenButton: "Fullscreen toggle button in the toolbar",
-		zoomButton: "Zoom toggle button in the toolbar",
-		closeButton: "Close button in the toolbar",
-		counter: "Slide counter text",
-		thumbnails: "Container for the thumbnail strip",
-		thumbnailButton: "Individual thumbnail button",
+			"Interactive viewport element responsible for handling zoom and pan interactions.",
+		zoomContent:
+			"Inner transform element that applies scaling and translation for zoom and pan.",
+		toolbar:
+			"Container element that groups action controls such as zoom, fullscreen, and close.",
+		fullscreenButton: "Control element that toggles fullscreen mode.",
+		zoomButton: "Control element that toggles zoom mode for the active slide.",
+		closeButton: "Control element that triggers the lightbox close action.",
+		counter:
+			"Element that displays the current slide index and total slide count.",
+		thumbnails:
+			"Container element that renders the thumbnail navigation strip.",
+		thumbnailButton:
+			"Interactive element representing a single slide thumbnail.",
 		thumbnailPlaceholder:
-			"Placeholder shown when a slide has no `thumbnail` prop",
+			"Element displayed when a slide does not provide a custom thumbnail.",
 	},
 
 	vars: {
 		root: {
-			"--lightbox-z-index": "Controls z-index of the lightbox root element",
+			"--lightbox-z-index":
+				"Defines the stacking order of the lightbox root element.",
 		},
 		overlay: {
-			"--lightbox-z-index": "Controls z-index of the overlay element",
-			"--overlay-z-index": "References --lightbox-z-index for overlay stacking",
+			"--lightbox-z-index":
+				"Defines the stacking order of the overlay element.",
+			"--overlay-z-index":
+				"Alias variable referencing --lightbox-z-index for overlay layering.",
 		},
 	},
 
@@ -35,28 +44,31 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 		{
 			modifier: "data-active",
 			selector: "thumbnailButton",
-			condition: "Thumbnail corresponds to the currently active slide",
+			condition:
+				"Applied when the thumbnail corresponds to the currently active slide.",
 		},
 		{
 			modifier: "data-active",
 			selector: "zoomContainer",
-			condition: "Zoom container corresponds to the currently active slide",
+			condition:
+				"Applied when the zoom container belongs to the currently active slide.",
 		},
 		{
 			modifier: "data-zoomed",
 			selector: "zoomContainer",
-			condition: "Active slide is currently zoomed in",
+			condition: "Applied when the active slide is currently zoomed.",
 		},
 		{
 			modifier: "data-can-zoom",
 			selector: "zoomContainer",
 			value: "false",
-			condition: "Active slide cannot be zoomed",
+			condition:
+				"Applied when the active slide does not support zoom interactions.",
 		},
 		{
 			modifier: "data-dragging",
 			selector: "zoomContainer",
-			condition: "User is currently panning a zoomed slide",
+			condition: "Applied while the user is actively panning a zoomed slide.",
 		},
 	],
 };

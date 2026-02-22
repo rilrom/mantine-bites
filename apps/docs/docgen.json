@@ -3,7 +3,7 @@
 		"props": {
 			"carouselOptions": {
 				"defaultValue": null,
-				"description": "Props passed to the underlying <code>Carousel</code> component",
+				"description": "Configuration options forwarded to the underlying Carousel instance.",
 				"name": "carouselOptions",
 				"required": false,
 				"type": {
@@ -11,8 +11,8 @@
 				}
 			},
 			"closeOnClickOutside": {
-				"defaultValue": null,
-				"description": "Determines whether outside click should call <code>onClose</code>, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Closes the lightbox when a pointer interaction occurs outside its content area.",
 				"name": "closeOnClickOutside",
 				"required": false,
 				"type": {
@@ -20,8 +20,8 @@
 				}
 			},
 			"counterFormatter": {
-				"defaultValue": null,
-				"description": "Custom counter format function, <code>\"1 / 3\"</code> by default",
+				"defaultValue": "(index, total) => `${index + 1} / ${total}`",
+				"description": "Formats the slide counter output based on the current index and total count.",
 				"name": "counterFormatter",
 				"required": false,
 				"type": {
@@ -29,8 +29,8 @@
 				}
 			},
 			"keepMounted": {
-				"defaultValue": null,
-				"description": "Determines whether the lightbox should be kept in the DOM when closed, <code>false</code> by default",
+				"defaultValue": "false",
+				"description": "Keeps the lightbox mounted in the DOM when it is not visible.",
 				"name": "keepMounted",
 				"required": false,
 				"type": {
@@ -38,8 +38,8 @@
 				}
 			},
 			"lockScroll": {
-				"defaultValue": null,
-				"description": "Determines whether scroll should be locked when lightbox is opened, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Prevents background document scrolling while the lightbox is open.",
 				"name": "lockScroll",
 				"required": false,
 				"type": {
@@ -48,7 +48,7 @@
 			},
 			"onClose": {
 				"defaultValue": null,
-				"description": "Called when lightbox should close",
+				"description": "Callback invoked when the lightbox requests to close.",
 				"name": "onClose",
 				"required": true,
 				"type": {
@@ -57,7 +57,7 @@
 			},
 			"opened": {
 				"defaultValue": null,
-				"description": "Controls lightbox visibility",
+				"description": "Controls whether the lightbox is visible.",
 				"name": "opened",
 				"required": true,
 				"type": {
@@ -66,7 +66,7 @@
 			},
 			"overlayProps": {
 				"defaultValue": null,
-				"description": "Props passed to the <code>Overlay</code> component",
+				"description": "Props forwarded to the Overlay component that renders the backdrop.",
 				"name": "overlayProps",
 				"required": false,
 				"type": {
@@ -75,7 +75,7 @@
 			},
 			"portalProps": {
 				"defaultValue": null,
-				"description": "Props passed to the <code>Portal</code> component",
+				"description": "Props forwarded to the Portal component when portal rendering is enabled.",
 				"name": "portalProps",
 				"required": false,
 				"type": {
@@ -83,8 +83,8 @@
 				}
 			},
 			"returnFocus": {
-				"defaultValue": null,
-				"description": "Determines whether focus should be returned to the last active element when lightbox is closed, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Restores focus to the previously focused element after the lightbox closes.",
 				"name": "returnFocus",
 				"required": false,
 				"type": {
@@ -93,16 +93,16 @@
 			},
 			"transitionProps": {
 				"defaultValue": null,
-				"description": "Props passed to the <code>Transition</code> component",
+				"description": "Transition configuration applied to the lightbox content container.",
 				"name": "transitionProps",
 				"required": false,
 				"type": {
-					"name": "Omit<TransitionProps, \"children\" | \"mounted\" | \"keepMounted\">"
+					"name": "Omit<TransitionProps, \"children\" | \"keepMounted\" | \"mounted\">"
 				}
 			},
 			"trapFocus": {
-				"defaultValue": null,
-				"description": "Determines whether focus should be trapped within the lightbox, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Constrains keyboard focus to elements within the lightbox while it is open.",
 				"name": "trapFocus",
 				"required": false,
 				"type": {
@@ -110,8 +110,8 @@
 				}
 			},
 			"withCounter": {
-				"defaultValue": null,
-				"description": "Determines whether the slide counter should be displayed, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Displays the current slide index and total slide count.",
 				"name": "withCounter",
 				"required": false,
 				"type": {
@@ -119,8 +119,8 @@
 				}
 			},
 			"withFullscreen": {
-				"defaultValue": null,
-				"description": "Determines whether fullscreen toggle button should be displayed, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Shows a control that toggles fullscreen mode for the lightbox.",
 				"name": "withFullscreen",
 				"required": false,
 				"type": {
@@ -128,8 +128,8 @@
 				}
 			},
 			"withThumbnails": {
-				"defaultValue": null,
-				"description": "Determines whether thumbnail images should be displayed, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Renders thumbnail previews for navigating between slides.",
 				"name": "withThumbnails",
 				"required": false,
 				"type": {
@@ -137,8 +137,8 @@
 				}
 			},
 			"withZoom": {
-				"defaultValue": null,
-				"description": "Determines whether zoom toggle button should be displayed, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Shows a control that toggles zoom functionality for the active slide.",
 				"name": "withZoom",
 				"required": false,
 				"type": {
@@ -146,8 +146,8 @@
 				}
 			},
 			"withinPortal": {
-				"defaultValue": null,
-				"description": "Determines whether the lightbox should be rendered inside a <code>Portal</code>, <code>true</code> by default",
+				"defaultValue": "true",
+				"description": "Renders the lightbox inside a React Portal instead of the current DOM hierarchy.",
 				"name": "withinPortal",
 				"required": false,
 				"type": {
@@ -160,7 +160,7 @@
 		"props": {
 			"thumbnail": {
 				"defaultValue": null,
-				"description": "Thumbnail content for this slide, shows a placeholder if omitted",
+				"description": "Content rendered as the slide thumbnail in the lightbox navigation, or a default placeholder if omitted.",
 				"name": "thumbnail",
 				"required": false,
 				"type": {
