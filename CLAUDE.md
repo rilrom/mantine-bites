@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Mantine bites is a monorepo containing bite-sized Mantine extensions. Each extension is published as an independent npm package under `@mantine-bites/*`. Extensions should leverage as much of the existing Mantine API as possible (styles API, factory pattern, theme integration, etc.) rather than reinventing functionality.
 
 **Current packages:**
-- `example` - Template package demonstrating conventions for new extensions
+- `lightbox` - Full-screen image lightbox with thumbnails, zoom, fullscreen, and carousel navigation
 
 ## Monorepo Structure
 
@@ -19,7 +19,7 @@ mantine-bites/
 │   ├── docs/        # Next.js documentation site
 │   └── storybook/   # Storybook component showcase
 ├── packages/
-│   ├── example/            # Template extension package
+│   ├── lightbox/           # Lightbox extension package
 │   ├── rollup-config/      # Shared Rollup build configuration
 │   └── typescript-config/  # Shared TypeScript configurations
 └── scripts/
@@ -54,10 +54,15 @@ Within `packages/*/`:
 packages/PACKAGE_NAME/
 ├── src/
 │   ├── index.ts                    # Barrel exports (types + components)
-│   ├── ComponentName.tsx           # Component implementation
+│   ├── ComponentName.tsx           # Root component implementation
+│   ├── ComponentName.context.ts    # Context (for complex components with shared state)
+│   ├── ComponentName.defaults.ts   # Default props constant (for complex components)
 │   ├── ComponentName.module.css    # CSS module styles
 │   ├── ComponentName.test.tsx      # Tests
-│   └── ComponentName.story.tsx     # Storybook stories
+│   ├── ComponentName.story.tsx     # Storybook stories
+│   ├── components/                 # Sub-components (for complex packages)
+│   ├── hooks/                      # Custom hooks
+│   └── utils/                      # Utilities
 ├── package.json
 ├── rollup.config.ts
 ├── jest.config.cjs
@@ -65,6 +70,8 @@ packages/PACKAGE_NAME/
 ├── tsconfig.json
 └── global.d.ts
 ```
+
+Simple packages may omit `context.ts`, `defaults.ts`, and subdirectories.
 
 ### Component implementation pattern
 
@@ -110,9 +117,13 @@ export type ComponentNameFactory = Factory<{
   ref: HTMLDivElement;
   stylesNames: ComponentNameStylesNames;
   vars: ComponentNameCssVariables;
+  // Add staticComponents when exposing sub-components as static properties:
+  // staticComponents: { SubComponent: typeof SubComponent };
 }>;
 
 const defaultProps: Partial<ComponentNameProps> = {};
+// For complex components with many defaults, extract to ComponentName.defaults.ts:
+// export const COMPONENT_NAME_DEFAULT_PROPS = { ... } as const;
 
 const varsResolver = createVarsResolver<ComponentNameFactory>(
   (theme, { color }) => ({
@@ -145,6 +156,8 @@ export const ComponentName = factory<ComponentNameFactory>((_props, ref) => {
 
 ComponentName.displayName = "ComponentName";
 ComponentName.classes = classes;
+// If using staticComponents in Factory, attach them:
+// ComponentName.SubComponent = SubComponent;
 ```
 
 ### CSS module conventions
