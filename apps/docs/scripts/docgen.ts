@@ -24,8 +24,17 @@ for (const pkg of fs.readdirSync(packagesDir)) {
 	}
 }
 
-generateDeclarations({
+const outputPath = cwd;
+
+const docgenPath = path.join(outputPath, "docgen.json");
+
+await generateDeclarations({
 	componentsPaths,
 	tsConfigPath: path.join(cwd, "tsconfig.json"),
-	outputPath: cwd,
+	outputPath,
 });
+
+const docgen = JSON.parse(fs.readFileSync(docgenPath, "utf-8"));
+
+// Format it to use tabs to satisfy biome formatting
+fs.writeFileSync(docgenPath, `${JSON.stringify(docgen, null, "\t")}\n`);
