@@ -1,33 +1,12 @@
 import { Box } from "@mantine/core";
-import {
-	cloneElement,
-	type ReactElement,
-	type PointerEvent as ReactPointerEvent,
-	type RefObject,
-} from "react";
+import { cloneElement } from "react";
 import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
 import { useLightboxContext } from "../Lightbox.context.js";
-import type { LightboxSlideProps } from "../LightboxSlide.js";
-import { getZoomTransform, type ZoomOffset } from "../utils/zoom.js";
+import { getZoomTransform } from "../utils/zoom.js";
 
-interface LightboxSlidesProps {
-	slides: ReactElement<Pick<LightboxSlideProps, "children">>[];
-	currentIndex: number;
-	isZoomed: boolean;
-	isDraggingZoom: boolean;
-	canZoomCurrent: boolean;
-	zoomOffset: ZoomOffset;
-	zoomScale: number;
-	activeZoomContainerRef: RefObject<HTMLDivElement | null>;
-	updateCanZoomAvailability: () => void;
-	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	onClose: () => void;
-}
-
-export function LightboxSlides(props: LightboxSlidesProps) {
+export function LightboxSlides() {
 	const {
+		getStyles,
 		slides,
 		currentIndex,
 		isZoomed,
@@ -40,10 +19,8 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
-		onClose,
-	} = props;
-
-	const { getStyles } = useLightboxContext();
+		handleOutsideClick,
+	} = useLightboxContext();
 
 	const {
 		handleSlidePointerDown,
@@ -52,7 +29,7 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 		handleSlidePointerCancel,
 		handleSlideLoadCapture,
 	} = useSlideInteractions({
-		onClose,
+		onClose: handleOutsideClick,
 		onZoomPointerDown: handleZoomPointerDown,
 		onZoomPointerMove: handleZoomPointerMove,
 		onZoomPointerEnd: handleZoomPointerEnd,

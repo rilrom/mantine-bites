@@ -250,22 +250,37 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 								style: [transitionStyles, overlayProps?.style],
 							})}
 						/>
-						<LightboxProvider value={{ getStyles }}>
+						<LightboxProvider
+							value={{
+								getStyles,
+								slides,
+								currentIndex,
+								withFullscreen,
+								withZoom,
+								isFullscreen,
+								canUseFullscreen,
+								onToggleFullscreen: toggleFullscreen,
+								onToggleZoom: toggleZoom,
+								isZoomed,
+								isDraggingZoom,
+								canZoomCurrent,
+								zoomOffset,
+								zoomScale,
+								activeZoomContainerRef,
+								updateCanZoomAvailability,
+								handleZoomPointerDown,
+								handleZoomPointerMove,
+								handleZoomPointerEnd,
+								onClose,
+								handleOutsideClick,
+								onThumbnailClick: handleThumbnailClick,
+							}}
+						>
 							<Box
 								ref={mergedRef}
 								{...getStyles("root", { style: transitionStyles })}
 							>
-								<LightboxToolbar
-									withFullscreen={withFullscreen}
-									withZoom={withZoom}
-									isFullscreen={isFullscreen}
-									canUseFullscreen={canUseFullscreen}
-									onToggleFullscreen={toggleFullscreen}
-									isZoomed={isZoomed}
-									canZoomCurrent={canZoomCurrent}
-									onToggleZoom={toggleZoom}
-									onClose={onClose}
-								/>
+								<LightboxToolbar />
 
 								{withCounter && (
 									<Text size="sm" {...getStyles("counter")}>
@@ -284,30 +299,10 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 									onSlideChange={handleSlideChange}
 									getEmblaApi={handleEmblaApi}
 								>
-									<LightboxSlides
-										slides={slides}
-										currentIndex={currentIndex}
-										isZoomed={isZoomed}
-										isDraggingZoom={isDraggingZoom}
-										canZoomCurrent={canZoomCurrent}
-										zoomOffset={zoomOffset}
-										zoomScale={zoomScale}
-										activeZoomContainerRef={activeZoomContainerRef}
-										updateCanZoomAvailability={updateCanZoomAvailability}
-										handleZoomPointerDown={handleZoomPointerDown}
-										handleZoomPointerMove={handleZoomPointerMove}
-										handleZoomPointerEnd={handleZoomPointerEnd}
-										onClose={handleOutsideClick}
-									/>
+									<LightboxSlides />
 								</Carousel>
 
-								{withThumbnails && (
-									<LightboxThumbnails
-										slides={slides}
-										currentIndex={currentIndex}
-										onThumbnailClick={handleThumbnailClick}
-									/>
-								)}
+								{withThumbnails && <LightboxThumbnails />}
 							</Box>
 						</LightboxProvider>
 					</RemoveScroll>

@@ -5,20 +5,9 @@ import { ExitFullscreen } from "./ExitFullscreen.js";
 import { ZoomIn } from "./ZoomIn.js";
 import { ZoomOut } from "./ZoomOut.js";
 
-interface LightboxToolbarProps {
-	withFullscreen: boolean | undefined;
-	withZoom: boolean | undefined;
-	isFullscreen: boolean;
-	canUseFullscreen: boolean;
-	onToggleFullscreen: () => void;
-	isZoomed: boolean;
-	canZoomCurrent: boolean;
-	onToggleZoom: () => void;
-	onClose: () => void;
-}
-
-export function LightboxToolbar(props: LightboxToolbarProps) {
+export function LightboxToolbar() {
 	const {
+		getStyles,
 		withFullscreen,
 		withZoom,
 		isFullscreen,
@@ -28,9 +17,7 @@ export function LightboxToolbar(props: LightboxToolbarProps) {
 		canZoomCurrent,
 		onToggleZoom,
 		onClose,
-	} = props;
-
-	const { getStyles } = useLightboxContext();
+	} = useLightboxContext();
 
 	return (
 		<ActionIcon.Group {...getStyles("toolbar")}>
