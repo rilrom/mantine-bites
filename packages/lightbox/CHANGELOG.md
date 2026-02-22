@@ -1,5 +1,27 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.6
+
+### Minor Changes
+
+- feat!: replace modal dep with portal/overlay dep for flexibility ([2ab8339](https://github.com/rilrom/payload-bites/commit/2ab8339))
+- feat: implement closeOnClickOutside ([e9485a5](https://github.com/rilrom/payload-bites/commit/e9485a5))
+
+#### BREAKING CHANGES
+
+- `modalOptions` was removed and replaced with top-level props such as `overlayProps` and `transitionProps`.
+
+### Patch Changes
+
+- refactor: improve code structure ([847bf72](https://github.com/rilrom/payload-bites/commit/847bf72))
+- fix: update counter color variable ([2714127](https://github.com/rilrom/payload-bites/commit/2714127))
+- fix: add missing LightboxCssVariables type ([6a96ecf](https://github.com/rilrom/payload-bites/commit/6a96ecf))
+- refactor: use context for getStyles ([9aeb948](https://github.com/rilrom/payload-bites/commit/9aeb948))
+- refactor: improve slides types ([dda5939](https://github.com/rilrom/payload-bites/commit/dda5939))
+- refactor: add missing output types to some hooks ([ea6621e](https://github.com/rilrom/payload-bites/commit/ea6621e))
+- refactor: migrate prop drilling to context ([b295575](https://github.com/rilrom/payload-bites/commit/b295575))
+- refactor: improve code and consumer docs ([7599136](https://github.com/rilrom/payload-bites/commit/7599136))
+
 ## 1.0.0-beta.5
 
 ### Minor Changes
