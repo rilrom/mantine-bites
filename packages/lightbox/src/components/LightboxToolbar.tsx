@@ -1,5 +1,5 @@
-import { ActionIcon, CloseIcon, type GetStylesApi } from "@mantine/core";
-import type { LightboxFactory } from "../Lightbox.js";
+import { ActionIcon, CloseIcon } from "@mantine/core";
+import { useLightboxContext } from "../Lightbox.context.js";
 import { EnterFullscreen } from "./EnterFullscreen.js";
 import { ExitFullscreen } from "./ExitFullscreen.js";
 import { ZoomIn } from "./ZoomIn.js";
@@ -15,7 +15,6 @@ interface LightboxToolbarProps {
 	canZoomCurrent: boolean;
 	onToggleZoom: () => void;
 	onClose: () => void;
-	getStyles: GetStylesApi<LightboxFactory>;
 }
 
 export function LightboxToolbar(props: LightboxToolbarProps) {
@@ -29,8 +28,9 @@ export function LightboxToolbar(props: LightboxToolbarProps) {
 		canZoomCurrent,
 		onToggleZoom,
 		onClose,
-		getStyles,
 	} = props;
+
+	const { getStyles } = useLightboxContext();
 
 	return (
 		<ActionIcon.Group {...getStyles("toolbar")}>

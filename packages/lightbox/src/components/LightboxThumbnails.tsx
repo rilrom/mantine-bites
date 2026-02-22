@@ -1,17 +1,18 @@
-import { Box, type GetStylesApi, UnstyledButton } from "@mantine/core";
+import { Box, UnstyledButton } from "@mantine/core";
 import type { ReactElement, ReactNode } from "react";
-import type { LightboxFactory } from "../Lightbox.js";
+import { useLightboxContext } from "../Lightbox.context.js";
 import { QuestionMark } from "./QuestionMark.js";
 
 interface LightboxThumbnailsProps {
 	slides: ReactElement<{ thumbnail?: ReactNode }>[];
 	currentIndex: number;
 	onThumbnailClick: (index: number) => void;
-	getStyles: GetStylesApi<LightboxFactory>;
 }
 
 export function LightboxThumbnails(props: LightboxThumbnailsProps) {
-	const { slides, currentIndex, onThumbnailClick, getStyles } = props;
+	const { slides, currentIndex, onThumbnailClick } = props;
+
+	const { getStyles } = useLightboxContext();
 
 	return (
 		<Box {...getStyles("thumbnails")}>

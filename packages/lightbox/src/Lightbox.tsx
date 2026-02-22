@@ -265,7 +265,6 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 									canZoomCurrent={canZoomCurrent}
 									onToggleZoom={toggleZoom}
 									onClose={onClose}
-									getStyles={getStyles}
 								/>
 
 								{withCounter && (
@@ -298,7 +297,6 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 										handleZoomPointerDown={handleZoomPointerDown}
 										handleZoomPointerMove={handleZoomPointerMove}
 										handleZoomPointerEnd={handleZoomPointerEnd}
-										getStyles={getStyles}
 										onClose={handleOutsideClick}
 									/>
 								</Carousel>
@@ -308,7 +306,6 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 										slides={slides}
 										currentIndex={currentIndex}
 										onThumbnailClick={handleThumbnailClick}
-										getStyles={getStyles}
 									/>
 								)}
 							</Box>

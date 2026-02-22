@@ -1,4 +1,4 @@
-import { Box, type GetStylesApi } from "@mantine/core";
+import { Box } from "@mantine/core";
 import {
 	cloneElement,
 	type ReactElement,
@@ -7,7 +7,7 @@ import {
 	type RefObject,
 } from "react";
 import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
-import type { LightboxFactory } from "../Lightbox.js";
+import { useLightboxContext } from "../Lightbox.context.js";
 import { getZoomTransform, type ZoomOffset } from "../utils/zoom.js";
 
 interface LightboxSlidesProps {
@@ -23,7 +23,6 @@ interface LightboxSlidesProps {
 	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	getStyles: GetStylesApi<LightboxFactory>;
 	onClose: () => void;
 }
 
@@ -41,9 +40,10 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
-		getStyles,
 		onClose,
 	} = props;
+
+	const { getStyles } = useLightboxContext();
 
 	const {
 		handleSlidePointerDown,
