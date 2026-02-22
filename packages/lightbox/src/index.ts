@@ -1,5 +1,6 @@
 export type {
 	LightboxCarouselOptions,
+	LightboxCssVariables,
 	LightboxFactory,
 	LightboxProps,
 	LightboxStylesNames,

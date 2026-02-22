@@ -27,6 +27,11 @@ import { LIGHTBOX_DEFAULT_PROPS } from "./Lightbox.defaults.js";
 import classes from "./Lightbox.module.css";
 import { LightboxSlide } from "./LightboxSlide.js";
 
+export type LightboxCssVariables = {
+	root: "--lightbox-z-index";
+	overlay: "--lightbox-z-index" | "--overlay-z-index";
+};
+
 export type LightboxStylesNames =
 	| "root"
 	| "overlay"
@@ -111,6 +116,7 @@ export type LightboxFactory = Factory<{
 	props: LightboxProps;
 	ref: HTMLDivElement;
 	stylesNames: LightboxStylesNames;
+	vars: LightboxCssVariables;
 	staticComponents: {
 		Slide: typeof LightboxSlide;
 	};
