@@ -8,7 +8,13 @@ interface UseCarouselOptionsInput {
 	isZoomedRef: RefObject<boolean>;
 }
 
-export function useCarouselOptions(props: UseCarouselOptionsInput) {
+export type UseCarouselOptionsOutput = LightboxCarouselOptions & {
+	emblaOptions: NonNullable<LightboxCarouselOptions["emblaOptions"]>;
+};
+
+export function useCarouselOptions(
+	props: UseCarouselOptionsInput,
+): UseCarouselOptionsOutput {
 	const { carouselOptions, isZoomedRef } = props;
 
 	return useMemo(

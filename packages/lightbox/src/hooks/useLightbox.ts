@@ -6,6 +6,8 @@ import {
 	isValidElement,
 	type ReactElement,
 	type ReactNode,
+	type PointerEvent as ReactPointerEvent,
+	type RefObject,
 	useCallback,
 	useEffect,
 	useRef,
@@ -14,7 +16,11 @@ import {
 import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 import type { LightboxCarouselOptions } from "../Lightbox.js";
 import type { LightboxSlideProps } from "../LightboxSlide.js";
-import { useCarouselOptions } from "./useCarouselOptions.js";
+import type { ZoomOffset } from "../utils/zoom.js";
+import {
+	type UseCarouselOptionsOutput,
+	useCarouselOptions,
+} from "./useCarouselOptions.js";
 import { useFullscreen } from "./useFullscreen.js";
 import { useKeyboardNavigation } from "./useKeyboardNavigation.js";
 import { useZoom } from "./useZoom.js";
@@ -31,7 +37,33 @@ interface UseLightboxInput {
 	counterFormatter: ((index: number, total: number) => string) | undefined;
 }
 
-export function useLightbox(props: UseLightboxInput) {
+interface UseLightboxOutput {
+	mergedRef: (node: HTMLDivElement | null) => void;
+	slides: ReactElement<Pick<LightboxSlideProps, "children" | "thumbnail">>[];
+	currentIndex: number;
+	counterText: string;
+	isFullscreen: boolean;
+	canUseFullscreen: boolean;
+	toggleFullscreen: () => void;
+	isZoomed: boolean;
+	isDraggingZoom: boolean;
+	zoomOffset: ZoomOffset;
+	zoomScale: number;
+	canZoomCurrent: boolean;
+	activeZoomContainerRef: RefObject<HTMLDivElement | null>;
+	toggleZoom: () => void;
+	updateCanZoomAvailability: () => void;
+	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleEmblaApi: (embla: EmblaCarouselType) => void;
+	handleSlideChange: (index: number) => void;
+	handleThumbnailClick: (index: number) => void;
+	handleOutsideClick: () => void;
+	mergedCarouselOptions: UseCarouselOptionsOutput;
+}
+
+export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const {
 		ref,
 		opened,
