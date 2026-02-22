@@ -10,6 +10,15 @@
 					"name": "LightboxCarouselOptions"
 				}
 			},
+			"closeOnClickOutside": {
+				"defaultValue": null,
+				"description": "Determines whether outside click should call <code>onClose</code>, <code>true</code> by default",
+				"name": "closeOnClickOutside",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
 			"counterFormatter": {
 				"defaultValue": null,
 				"description": "Custom counter format function, <code>\"1 / 3\"</code> by default",

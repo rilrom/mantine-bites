@@ -58,6 +58,9 @@ export interface LightboxProps
 	/** Called when lightbox should close */
 	onClose: () => void;
 
+	/** Determines whether outside click should call `onClose`, `true` by default */
+	closeOnClickOutside?: boolean;
+
 	/** Determines whether thumbnail images should be displayed, `true` by default */
 	withThumbnails?: boolean;
 
@@ -137,6 +140,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	const {
 		opened,
 		onClose,
+		closeOnClickOutside,
 		classNames,
 		className,
 		style,
@@ -210,11 +214,13 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		handleEmblaApi,
 		handleSlideChange,
 		handleThumbnailClick,
+		handleOutsideClick,
 		mergedCarouselOptions,
 	} = useLightbox({
 		ref,
 		opened,
 		onClose,
+		closeOnClickOutside,
 		trapFocus,
 		returnFocus,
 		children,
@@ -287,6 +293,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 										handleZoomPointerMove={handleZoomPointerMove}
 										handleZoomPointerEnd={handleZoomPointerEnd}
 										getStyles={getStyles}
+										onClose={handleOutsideClick}
 									/>
 								</Carousel>
 

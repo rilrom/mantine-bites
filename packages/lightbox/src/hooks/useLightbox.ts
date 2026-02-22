@@ -22,6 +22,7 @@ interface UseLightboxInput {
 	ref: ForwardedRef<HTMLDivElement>;
 	opened: boolean;
 	onClose: () => void;
+	closeOnClickOutside: boolean | undefined;
 	trapFocus: boolean | undefined;
 	returnFocus: boolean | undefined;
 	children: ReactNode;
@@ -34,12 +35,16 @@ export function useLightbox(props: UseLightboxInput) {
 		ref,
 		opened,
 		onClose,
+		closeOnClickOutside,
 		trapFocus,
 		returnFocus,
 		children,
 		carouselOptions,
 		counterFormatter,
 	} = props;
+
+	const shouldCloseOnClickOutside =
+		closeOnClickOutside ?? LIGHTBOX_DEFAULT_PROPS.closeOnClickOutside;
 
 	const shouldTrapFocus = trapFocus ?? LIGHTBOX_DEFAULT_PROPS.trapFocus;
 
@@ -118,6 +123,14 @@ export function useLightbox(props: UseLightboxInput) {
 		[isZoomed, resetZoom],
 	);
 
+	const handleOutsideClick = useCallback(() => {
+		if (!shouldCloseOnClickOutside) {
+			return;
+		}
+
+		onClose();
+	}, [shouldCloseOnClickOutside, onClose]);
+
 	const mergedCarouselOptions = useCarouselOptions({
 		carouselOptions,
 		isZoomedRef,
@@ -153,6 +166,7 @@ export function useLightbox(props: UseLightboxInput) {
 		handleEmblaApi,
 		handleSlideChange,
 		handleThumbnailClick,
+		handleOutsideClick,
 		mergedCarouselOptions,
 	};
 }

@@ -6,6 +6,7 @@ import {
 	type PointerEvent as ReactPointerEvent,
 	type RefObject,
 } from "react";
+import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
 import type { LightboxFactory } from "../Lightbox.js";
 import { getZoomTransform, type ZoomOffset } from "../utils/zoom.js";
 
@@ -23,6 +24,7 @@ interface LightboxSlidesProps {
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	getStyles: GetStylesApi<LightboxFactory>;
+	onClose: () => void;
 }
 
 export function LightboxSlides(props: LightboxSlidesProps) {
@@ -40,7 +42,22 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
 		getStyles,
+		onClose,
 	} = props;
+
+	const {
+		handleSlidePointerDown,
+		handleSlidePointerMove,
+		handleSlidePointerUp,
+		handleSlidePointerCancel,
+		handleSlideLoadCapture,
+	} = useSlideInteractions({
+		onClose,
+		onZoomPointerDown: handleZoomPointerDown,
+		onZoomPointerMove: handleZoomPointerMove,
+		onZoomPointerEnd: handleZoomPointerEnd,
+		updateCanZoomAvailability,
+	});
 
 	return (
 		<>
@@ -58,19 +75,11 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 							data-zoomed={isActiveAndZoomed || undefined}
 							data-can-zoom={isActive ? String(canZoomCurrent) : undefined}
 							data-dragging={(isDraggingZoom && isActiveAndZoomed) || undefined}
-							onPointerDown={isActive ? handleZoomPointerDown : undefined}
-							onPointerMove={isActive ? handleZoomPointerMove : undefined}
-							onPointerUp={isActive ? handleZoomPointerEnd : undefined}
-							onPointerCancel={isActive ? handleZoomPointerEnd : undefined}
-							onLoadCapture={
-								isActive
-									? (event) => {
-											if (event.target instanceof HTMLImageElement) {
-												updateCanZoomAvailability();
-											}
-										}
-									: undefined
-							}
+							onPointerDown={isActive ? handleSlidePointerDown : undefined}
+							onPointerMove={isActive ? handleSlidePointerMove : undefined}
+							onPointerUp={isActive ? handleSlidePointerUp : undefined}
+							onPointerCancel={isActive ? handleSlidePointerCancel : undefined}
+							onLoadCapture={isActive ? handleSlideLoadCapture : undefined}
 						>
 							<Box
 								{...getStyles("zoomContent")}
@@ -82,7 +91,12 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 									}),
 								}}
 							>
-								{slideProps.children}
+								<Box
+									style={{ display: "contents" }}
+									data-lightbox-slide-content
+								>
+									{slideProps.children}
+								</Box>
 							</Box>
 						</Box>
 					),

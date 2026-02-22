@@ -8,6 +8,21 @@ export const POINTER_MOVE_THRESHOLD = 2;
 
 export const ZERO_ZOOM_OFFSET: ZoomOffset = { x: 0, y: 0 };
 
+export interface OutsideClosePointerState {
+	pointerId: number;
+	startX: number;
+	startY: number;
+	startedOutsideContent: boolean;
+	moved: boolean;
+}
+
+interface CreateOutsideClosePointerStateInput {
+	pointerId: number;
+	clientX: number;
+	clientY: number;
+	startedOutsideContent: boolean;
+}
+
 interface PointerMoveInput {
 	startX: number;
 	startY: number;
@@ -78,6 +93,45 @@ export const hasPointerMoved = ({
 	threshold = POINTER_MOVE_THRESHOLD,
 }: PointerMoveInput) =>
 	Math.abs(endX - startX) > threshold || Math.abs(endY - startY) > threshold;
+
+export const createOutsideClosePointerState = ({
+	pointerId,
+	clientX,
+	clientY,
+	startedOutsideContent,
+}: CreateOutsideClosePointerStateInput): OutsideClosePointerState => ({
+	pointerId,
+	startX: getPointerCoordinate(clientX, 0),
+	startY: getPointerCoordinate(clientY, 0),
+	startedOutsideContent,
+	moved: false,
+});
+
+export const updateOutsideClosePointerState = (
+	state: OutsideClosePointerState,
+	{ clientX, clientY }: { clientX: number; clientY: number },
+): OutsideClosePointerState => {
+	const endX = getPointerCoordinate(clientX, state.startX);
+	const endY = getPointerCoordinate(clientY, state.startY);
+
+	if (
+		!state.moved &&
+		hasPointerMoved({
+			startX: state.startX,
+			startY: state.startY,
+			endX,
+			endY,
+		})
+	) {
+		return { ...state, moved: true };
+	}
+
+	return state;
+};
+
+export const shouldCloseFromOutsidePointerState = (
+	state: OutsideClosePointerState,
+) => state.startedOutsideContent && !state.moved;
 
 const RESOLUTION_EPSILON = 1.01;
 

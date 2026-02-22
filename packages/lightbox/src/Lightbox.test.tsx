@@ -280,6 +280,89 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
+	it("should call onClose when active slide is tapped outside slide content", () => {
+		const onClose = jest.fn();
+
+		render(<Lightbox {...defaultProps} onClose={onClose} />);
+
+		const image = screen.getByAltText("Forest landscape");
+		const activeSlide = image.closest("[data-active='true']");
+
+		expect(activeSlide).toBeInstanceOf(HTMLElement);
+
+		if (!activeSlide) {
+			return;
+		}
+
+		fireEvent.pointerDown(activeSlide, {
+			pointerId: 1,
+			clientX: 24,
+			clientY: 24,
+		});
+		fireEvent.pointerUp(activeSlide, {
+			pointerId: 1,
+			clientX: 24,
+			clientY: 24,
+		});
+
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("should not call onClose when closeOnClickOutside is false", () => {
+		const onClose = jest.fn();
+
+		render(
+			<Lightbox
+				{...defaultProps}
+				onClose={onClose}
+				closeOnClickOutside={false}
+			/>,
+		);
+
+		const image = screen.getByAltText("Forest landscape");
+		const activeSlide = image.closest("[data-active='true']");
+
+		expect(activeSlide).toBeInstanceOf(HTMLElement);
+
+		if (!activeSlide) {
+			return;
+		}
+
+		fireEvent.pointerDown(activeSlide, {
+			pointerId: 1,
+			clientX: 24,
+			clientY: 24,
+		});
+		fireEvent.pointerUp(activeSlide, {
+			pointerId: 1,
+			clientX: 24,
+			clientY: 24,
+		});
+
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("should not call onClose when active slide image is tapped", () => {
+		const onClose = jest.fn();
+
+		render(<Lightbox {...defaultProps} onClose={onClose} />);
+
+		const image = screen.getByAltText("Forest landscape");
+
+		fireEvent.pointerDown(image, {
+			pointerId: 2,
+			clientX: 40,
+			clientY: 40,
+		});
+		fireEvent.pointerUp(image, {
+			pointerId: 2,
+			clientX: 40,
+			clientY: 40,
+		});
+
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
 	it("should toggle zoom state from toolbar button", async () => {
 		render(<Lightbox {...defaultProps} />);
 
