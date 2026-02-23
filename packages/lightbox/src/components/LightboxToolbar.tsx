@@ -2,6 +2,8 @@ import { ActionIcon, CloseIcon } from "@mantine/core";
 import { useLightboxContext } from "../Lightbox.context.js";
 import { EnterFullscreen } from "./EnterFullscreen.js";
 import { ExitFullscreen } from "./ExitFullscreen.js";
+import { Pause } from "./Pause.js";
+import { Play } from "./Play.js";
 import { ZoomIn } from "./ZoomIn.js";
 import { ZoomOut } from "./ZoomOut.js";
 
@@ -16,6 +18,9 @@ export function LightboxToolbar() {
 		isZoomed,
 		canZoomCurrent,
 		onToggleZoom,
+		canUseAutoPlay,
+		isPlaying,
+		onToggleAutoPlay,
 		onClose,
 	} = useLightboxContext();
 
@@ -44,6 +49,18 @@ export function LightboxToolbar() {
 					{...getStyles("zoomButton")}
 				>
 					{isZoomed ? <ZoomOut /> : <ZoomIn />}
+				</ActionIcon>
+			)}
+
+			{canUseAutoPlay && (
+				<ActionIcon
+					variant="default"
+					size="lg"
+					onClick={onToggleAutoPlay}
+					aria-label={isPlaying ? "Pause autoplay" : "Play autoplay"}
+					{...getStyles("autoplayButton")}
+				>
+					{isPlaying ? <Pause /> : <Play />}
 				</ActionIcon>
 			)}
 

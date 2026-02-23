@@ -1,3 +1,4 @@
+import type { CarouselProps } from "@mantine/carousel";
 import { useFocusReturn, useFocusTrap, useMergedRef } from "@mantine/hooks";
 import type { EmblaCarouselType } from "embla-carousel";
 import {
@@ -17,6 +18,7 @@ import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 import type { LightboxCarouselOptions } from "../Lightbox.js";
 import type { LightboxSlideProps } from "../LightboxSlide.js";
 import type { ZoomOffset } from "../utils/zoom.js";
+import { useAutoPlay } from "./useAutoPlay.js";
 import {
 	type UseCarouselOptionsOutput,
 	useCarouselOptions,
@@ -56,10 +58,13 @@ interface UseLightboxOutput {
 	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	handleEmblaApi: (embla: EmblaCarouselType) => void;
+	handleEmblaApi: CarouselProps["getEmblaApi"];
 	handleSlideChange: (index: number) => void;
 	handleThumbnailClick: (index: number) => void;
 	handleOutsideClick: () => void;
+	isPlaying: boolean;
+	canUseAutoPlay: boolean;
+	toggleAutoPlay: () => void;
 	mergedCarouselOptions: UseCarouselOptionsOutput;
 }
 
@@ -114,6 +119,13 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		handleZoomPointerEnd,
 	} = useZoom({ opened });
 
+	const {
+		canUseAutoPlay,
+		isPlaying,
+		toggleAutoPlay,
+		handleEmblaApiForAutoPlay,
+	} = useAutoPlay();
+
 	const slides = Children.toArray(children).filter(
 		isValidElement,
 	) as ReactElement<Pick<LightboxSlideProps, "children" | "thumbnail">>[];
@@ -127,9 +139,10 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const handleEmblaApi = useCallback(
 		(embla: EmblaCarouselType) => {
 			emblaRef.current = embla;
+			handleEmblaApiForAutoPlay(embla);
 			carouselOptions?.getEmblaApi?.(embla);
 		},
-		[carouselOptions?.getEmblaApi],
+		[carouselOptions?.getEmblaApi, handleEmblaApiForAutoPlay],
 	);
 
 	const handleSlideChange = useCallback(
@@ -197,6 +210,9 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		handleSlideChange,
 		handleThumbnailClick,
 		handleOutsideClick,
+		isPlaying,
+		canUseAutoPlay,
+		toggleAutoPlay,
 		mergedCarouselOptions,
 	};
 }

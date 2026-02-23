@@ -1,9 +1,11 @@
 import { Box, Button, Center, Flex, Image, Loader } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import Autoplay from "embla-carousel-autoplay";
 import {
 	type ImgHTMLAttributes,
 	type PropsWithChildren,
 	type SyntheticEvent,
+	useRef,
 	useState,
 } from "react";
 import { Lightbox } from "./index.js";
@@ -227,6 +229,40 @@ export const WithCustomCounter = () => {
 				opened={opened}
 				onClose={close}
 				counterFormatter={(index, total) => `Image ${index + 1} of ${total}`}
+			>
+				{sampleImages.map((img) => (
+					<Lightbox.Slide
+						key={img.src}
+						thumbnail={
+							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+						}
+					>
+						<ImgWithLoader src={img.src} alt={img.alt} />
+					</Lightbox.Slide>
+				))}
+			</Lightbox>
+		</Container>
+	);
+};
+
+export const WithAutoPlay = () => {
+	const [opened, { open, close }] = useDisclosure(false);
+
+	const autoplay = useRef(Autoplay());
+
+	return (
+		<Container>
+			<Button onClick={open}>Open</Button>
+
+			<Lightbox
+				opened={opened}
+				onClose={close}
+				carouselOptions={{
+					plugins: [autoplay.current],
+					emblaOptions: {
+						loop: true,
+					},
+				}}
 			>
 				{sampleImages.map((img) => (
 					<Lightbox.Slide

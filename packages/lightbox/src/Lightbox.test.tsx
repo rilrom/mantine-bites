@@ -1089,4 +1089,12 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 
 		expect(screen.getByLabelText("Close lightbox")).toBeInTheDocument();
 	});
+
+	it("should not render autoplay button when no autoplay plugin is configured", () => {
+		render(<Lightbox {...defaultProps} />);
+
+		expect(screen.queryByLabelText("Pause autoplay")).not.toBeInTheDocument();
+
+		expect(screen.queryByLabelText("Play autoplay")).not.toBeInTheDocument();
+	});
 });

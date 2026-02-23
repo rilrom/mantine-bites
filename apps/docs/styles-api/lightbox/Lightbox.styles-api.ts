@@ -16,6 +16,8 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 			"Container element that groups action controls such as zoom, fullscreen, and close.",
 		fullscreenButton: "Control element that toggles fullscreen mode.",
 		zoomButton: "Control element that toggles zoom mode for the active slide.",
+		autoplayButton:
+			"Control element that toggles autoplay mode. The embla carousel autoplay plugin must be enabled.",
 		closeButton: "Control element that triggers the lightbox close action.",
 		counter:
 			"Element that displays the current slide index and total slide count.",

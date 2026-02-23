@@ -43,6 +43,7 @@ export type LightboxStylesNames =
 	| "fullscreenButton"
 	| "zoomButton"
 	| "closeButton"
+	| "autoplayButton"
 	| "counter"
 	| "thumbnails"
 	| "thumbnailButton"
@@ -266,6 +267,9 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		handleSlideChange,
 		handleThumbnailClick,
 		handleOutsideClick,
+		isPlaying,
+		canUseAutoPlay,
+		toggleAutoPlay,
 		mergedCarouselOptions,
 	} = useLightbox({
 		ref,
@@ -319,6 +323,9 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 								onClose,
 								handleOutsideClick,
 								onThumbnailClick: handleThumbnailClick,
+								canUseAutoPlay,
+								isPlaying,
+								onToggleAutoPlay: toggleAutoPlay,
 							}}
 						>
 							<Box

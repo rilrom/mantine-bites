@@ -238,6 +238,9 @@ importers:
       embla-carousel:
         specifier: ^8.5.2
         version: 8.6.0
+      embla-carousel-autoplay:
+        specifier: ^8.5.2
+        version: 8.6.0(embla-carousel@8.6.0)
       embla-carousel-react:
         specifier: ^8.5.2
         version: 8.6.0(react@19.2.4)

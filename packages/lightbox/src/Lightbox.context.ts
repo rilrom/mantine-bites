@@ -20,6 +20,10 @@ export interface LightboxContext {
 	isFullscreen: boolean;
 	canUseFullscreen: boolean;
 	onToggleFullscreen: () => void;
+	// AutoPlay
+	canUseAutoPlay: boolean;
+	isPlaying: boolean;
+	onToggleAutoPlay: () => void;
 	onToggleZoom: () => void;
 	// Zoom
 	isZoomed: boolean;
