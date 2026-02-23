@@ -1,5 +1,11 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.7
+
+### Minor Changes
+
+- feat: improve autoplay option ([4999462](https://github.com/rilrom/payload-bites/commit/4999462))
+
 ## 1.0.0-beta.6
 
 ### Minor Changes
