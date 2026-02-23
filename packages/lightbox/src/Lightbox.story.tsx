@@ -13,11 +13,11 @@ import { Lightbox } from "./index.js";
 export default { title: "Lightbox" };
 
 const sampleImages = [
-	{ src: "https://picsum.photos/id/10/1200/800", alt: "Forest" },
+	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
 	{ src: "https://picsum.photos/id/20/1200/800", alt: "Bird" },
-	{ src: "https://picsum.photos/id/30/1200/800", alt: "Plant" },
+	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Plant" },
 	{ src: "https://picsum.photos/id/40/1200/800", alt: "Leaves" },
-	{ src: "https://picsum.photos/id/50/1200/800", alt: "Desk" },
+	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Desk" },
 ];
 
 const Container = (props: PropsWithChildren) => {

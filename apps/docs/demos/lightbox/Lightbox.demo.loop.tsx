@@ -9,9 +9,9 @@ import { Image, SimpleGrid } from '@mantine/core';
 import { useState } from 'react';
 
 const images = [
-  { src: 'https://picsum.photos/id/10/1200/800', alt: 'Forest' },
+  { src: 'https://picsum.photos/id/10/2400/1600', alt: 'Forest' },
   { src: 'https://picsum.photos/id/20/1200/800', alt: 'Bird' },
-  { src: 'https://picsum.photos/id/30/1200/800', alt: 'Plant' },
+  { src: 'https://picsum.photos/id/30/2400/1600', alt: 'Plant' },
   { src: 'https://picsum.photos/id/40/1200/800', alt: 'Leaves' },
 ];
 
@@ -57,9 +57,9 @@ function Demo() {
 `;
 
 const images = [
-	{ src: "https://picsum.photos/id/10/1200/800", alt: "Forest" },
+	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
 	{ src: "https://picsum.photos/id/20/1200/800", alt: "Bird" },
-	{ src: "https://picsum.photos/id/30/1200/800", alt: "Plant" },
+	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Plant" },
 	{ src: "https://picsum.photos/id/40/1200/800", alt: "Leaves" },
 ];
 

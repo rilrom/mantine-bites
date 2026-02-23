@@ -9,9 +9,9 @@ import { Box, Image, SimpleGrid } from '@mantine/core';
 import { useState } from 'react';
 
 const slides: ({ src: string; alt: string } | null)[] = [
-  { src: 'https://picsum.photos/id/10/1200/800', alt: 'Forest' },
+  { src: 'https://picsum.photos/id/10/2400/1600', alt: 'Forest' },
   null,
-  { src: 'https://picsum.photos/id/30/1200/800', alt: 'Plant' },
+  { src: 'https://picsum.photos/id/30/2400/1600', alt: 'Plant' },
   { src: 'https://picsum.photos/id/40/1200/800', alt: 'Leaves' },
 ];
 
@@ -99,9 +99,9 @@ function Demo() {
 `;
 
 const slides: ({ src: string; alt: string } | null)[] = [
-	{ src: "https://picsum.photos/id/10/1200/800", alt: "Forest" },
+	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
 	null,
-	{ src: "https://picsum.photos/id/30/1200/800", alt: "Plant" },
+	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Plant" },
 	{ src: "https://picsum.photos/id/40/1200/800", alt: "Leaves" },
 ];
 
