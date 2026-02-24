@@ -1,5 +1,11 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.9
+
+### Patch Changes
+
+- fix: disable zoom when useZoom: false ([d789cb1](https://github.com/rilrom/payload-bites/commit/d789cb1))
+
 ## 1.0.0-beta.8
 
 ### Minor Changes
