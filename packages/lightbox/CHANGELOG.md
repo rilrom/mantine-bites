@@ -1,5 +1,16 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.8
+
+### Minor Changes
+
+- feat: zoom towards click position on image ([cced240](https://github.com/rilrom/payload-bites/commit/cced240))
+- feat: thumbnail carousel ([611aac8](https://github.com/rilrom/payload-bites/commit/611aac8))
+
+### Patch Changes
+
+- fix: stop autoplay on zoom button click ([f875b29](https://github.com/rilrom/payload-bites/commit/f875b29))
+
 ## 1.0.0-beta.7
 
 ### Minor Changes
