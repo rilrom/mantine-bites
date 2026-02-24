@@ -584,6 +584,57 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
+	it("should resync thumbnail active state and outside-click handlers when initialSlide changes while opened", () => {
+		const onClose = jest.fn();
+		const { rerender, container } = render(
+			<Lightbox
+				{...defaultProps}
+				opened
+				onClose={onClose}
+				carouselOptions={{ initialSlide: 2 }}
+			/>,
+		);
+
+		expect(screen.getByLabelText("Go to slide 3")).toHaveAttribute(
+			"data-active",
+			"true",
+		);
+
+		rerender(
+			<Lightbox
+				{...defaultProps}
+				opened
+				onClose={onClose}
+				carouselOptions={{ initialSlide: 0 }}
+			/>,
+		);
+
+		expect(screen.getByLabelText("Go to slide 1")).toHaveAttribute(
+			"data-active",
+			"true",
+		);
+		expect(screen.getByLabelText("Go to slide 3")).not.toHaveAttribute(
+			"data-active",
+		);
+
+		const activeZoomContainer = container.querySelector("[data-active='true']");
+
+		expect(activeZoomContainer).not.toBeNull();
+
+		fireEvent.pointerDown(activeZoomContainer as Element, {
+			pointerId: 1,
+			clientX: 100,
+			clientY: 100,
+		});
+		fireEvent.pointerUp(activeZoomContainer as Element, {
+			pointerId: 1,
+			clientX: 100,
+			clientY: 100,
+		});
+
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
 	it("should not crash on ArrowRight keydown", async () => {
 		render(<Lightbox {...defaultProps} />);
 
@@ -1002,6 +1053,19 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		render(<Lightbox {...defaultProps} transitionProps={{ duration: 0 }} />);
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
+	});
+
+	it("should accept thumbnailEmblaOptions without affecting main carousel", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				thumbnailEmblaOptions={{ dragFree: false, containScroll: "keepSnaps" }}
+			/>,
+		);
+
+		expect(screen.getByText("1 / 3")).toBeInTheDocument();
+		expect(screen.getByLabelText("Previous image")).toBeInTheDocument();
+		expect(screen.getByLabelText("Next image")).toBeInTheDocument();
 	});
 
 	it("should accept trapFocus as false without error", () => {

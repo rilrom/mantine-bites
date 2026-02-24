@@ -23,6 +23,12 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 			"Element that displays the current slide index and total slide count.",
 		thumbnails:
 			"Container element that renders the thumbnail navigation strip.",
+		thumbnailsViewport:
+			"Viewport element that clips the thumbnail strip for embla scrolling.",
+		thumbnailsContainer:
+			"Inner embla container element that holds thumbnail slide items.",
+		thumbnailSlide:
+			"Individual slide wrapper element for each thumbnail in the strip.",
 		thumbnailButton:
 			"Interactive element representing a single slide thumbnail.",
 		thumbnailPlaceholder:
@@ -43,6 +49,12 @@ export const LightboxStylesApi: StylesApiData<LightboxFactory> = {
 	},
 
 	modifiers: [
+		{
+			modifier: "data-overflow",
+			selector: "thumbnailsContainer",
+			condition:
+				"Applied when thumbnail content overflows the viewport and alignment switches to start.",
+		},
 		{
 			modifier: "data-active",
 			selector: "thumbnailButton",

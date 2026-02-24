@@ -15,7 +15,10 @@ import {
 	useState,
 } from "react";
 import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
-import type { LightboxCarouselOptions } from "../Lightbox.js";
+import type {
+	LightboxCarouselOptions,
+	LightboxThumbnailEmblaOptions,
+} from "../Lightbox.js";
 import type { LightboxSlideProps } from "../LightboxSlide.js";
 import type { ZoomOffset } from "../utils/zoom.js";
 import { useAutoPlay } from "./useAutoPlay.js";
@@ -36,6 +39,7 @@ interface UseLightboxInput {
 	returnFocus: boolean | undefined;
 	children: ReactNode;
 	carouselOptions: LightboxCarouselOptions | undefined;
+	thumbnailEmblaOptions: LightboxThumbnailEmblaOptions | undefined;
 	counterFormatter: ((index: number, total: number) => string) | undefined;
 }
 
@@ -59,6 +63,7 @@ interface UseLightboxOutput {
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleEmblaApi: CarouselProps["getEmblaApi"];
+	handleThumbnailsEmblaApi: (embla: EmblaCarouselType) => void;
 	handleSlideChange: (index: number) => void;
 	handleThumbnailClick: (index: number) => void;
 	handleOutsideClick: () => void;
@@ -66,6 +71,7 @@ interface UseLightboxOutput {
 	canUseAutoPlay: boolean;
 	toggleAutoPlay: () => void;
 	mergedCarouselOptions: UseCarouselOptionsOutput;
+	mergedThumbnailEmblaOptions: LightboxThumbnailEmblaOptions;
 }
 
 export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
@@ -78,6 +84,7 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		returnFocus,
 		children,
 		carouselOptions,
+		thumbnailEmblaOptions,
 		counterFormatter,
 	} = props;
 
@@ -95,9 +102,11 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	useFocusReturn({ opened, shouldReturnFocus });
 
 	const emblaRef = useRef<EmblaCarouselType | null>(null);
+	const thumbnailsEmblaRef = useRef<EmblaCarouselType | null>(null);
 	const [currentIndex, setCurrentIndex] = useState(
 		carouselOptions?.initialSlide ?? 0,
 	);
+	const initialSlide = carouselOptions?.initialSlide ?? 0;
 
 	const { isFullscreen, canUseFullscreen, toggleFullscreen } = useFullscreen({
 		opened,
@@ -140,7 +149,9 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const handleEmblaApi = useCallback(
 		(embla: EmblaCarouselType) => {
 			emblaRef.current = embla;
+
 			handleEmblaApiForAutoPlay(embla);
+
 			carouselOptions?.getEmblaApi?.(embla);
 		},
 		[carouselOptions?.getEmblaApi, handleEmblaApiForAutoPlay],
@@ -149,11 +160,25 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const handleSlideChange = useCallback(
 		(index: number) => {
 			setCurrentIndex(index);
+
 			resetZoom();
+
 			requestAnimationFrame(updateCanZoomAvailability);
+
 			carouselOptions?.onSlideChange?.(index);
+
+			thumbnailsEmblaRef.current?.scrollTo(index);
 		},
 		[carouselOptions?.onSlideChange, resetZoom, updateCanZoomAvailability],
+	);
+
+	const handleThumbnailsEmblaApi = useCallback(
+		(embla: EmblaCarouselType) => {
+			thumbnailsEmblaRef.current = embla;
+
+			embla.scrollTo(currentIndex);
+		},
+		[currentIndex],
 	);
 
 	const handleThumbnailClick = useCallback(
@@ -185,13 +210,31 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		isZoomedRef,
 	});
 
+	const mergedThumbnailEmblaOptions: LightboxThumbnailEmblaOptions = {
+		...thumbnailEmblaOptions,
+	};
+
 	useKeyboardNavigation({ opened, emblaRef, onClose });
 
 	useEffect(() => {
 		if (!opened) {
-			setCurrentIndex(carouselOptions?.initialSlide ?? 0);
+			setCurrentIndex(initialSlide);
+
+			return;
 		}
-	}, [opened, carouselOptions?.initialSlide]);
+
+		setCurrentIndex(initialSlide);
+
+		emblaRef.current?.scrollTo(initialSlide);
+
+		thumbnailsEmblaRef.current?.scrollTo(initialSlide);
+	}, [opened, initialSlide]);
+
+	useEffect(() => {
+		if (opened) {
+			thumbnailsEmblaRef.current?.scrollTo(currentIndex);
+		}
+	}, [opened, currentIndex]);
 
 	return {
 		mergedRef,
@@ -213,6 +256,7 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
 		handleEmblaApi,
+		handleThumbnailsEmblaApi,
 		handleSlideChange,
 		handleThumbnailClick,
 		handleOutsideClick,
@@ -220,5 +264,6 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		canUseAutoPlay,
 		toggleAutoPlay,
 		mergedCarouselOptions,
+		mergedThumbnailEmblaOptions,
 	};
 }

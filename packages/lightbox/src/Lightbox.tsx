@@ -18,6 +18,7 @@ import {
 	useProps,
 	useStyles,
 } from "@mantine/core";
+import type { EmblaOptionsType } from "embla-carousel";
 import { LightboxSlides } from "./components/LightboxSlides.js";
 import { LightboxThumbnails } from "./components/LightboxThumbnails.js";
 import { LightboxToolbar } from "./components/LightboxToolbar.js";
@@ -46,6 +47,9 @@ export type LightboxStylesNames =
 	| "autoplayButton"
 	| "counter"
 	| "thumbnails"
+	| "thumbnailsViewport"
+	| "thumbnailsContainer"
+	| "thumbnailSlide"
 	| "thumbnailButton"
 	| "thumbnailPlaceholder";
 
@@ -53,6 +57,8 @@ export type LightboxCarouselOptions = Omit<
 	CarouselProps,
 	"withKeyboardEvents" | "withIndicators"
 >;
+
+export type LightboxThumbnailEmblaOptions = EmblaOptionsType;
 
 export interface LightboxProps
 	extends BoxProps,
@@ -134,6 +140,11 @@ export interface LightboxProps
 	carouselOptions?: LightboxCarouselOptions;
 
 	/**
+	 * Configuration options used by the thumbnail strip Embla instance.
+	 */
+	thumbnailEmblaOptions?: LightboxThumbnailEmblaOptions;
+
+	/**
 	 * Props forwarded to the Overlay component that renders the backdrop.
 	 */
 	overlayProps?: OverlayProps;
@@ -206,6 +217,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		withZoom,
 		counterFormatter,
 		carouselOptions,
+		thumbnailEmblaOptions,
 		overlayProps,
 		transitionProps,
 		keepMounted,
@@ -232,6 +244,11 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	const _carouselOptions = {
 		...LIGHTBOX_DEFAULT_PROPS.carouselOptions,
 		...carouselOptions,
+	};
+
+	const _thumbnailEmblaOptions = {
+		...LIGHTBOX_DEFAULT_PROPS.thumbnailEmblaOptions,
+		...thumbnailEmblaOptions,
 	};
 
 	const _overlayProps = {
@@ -264,6 +281,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
 		handleEmblaApi,
+		handleThumbnailsEmblaApi,
 		handleSlideChange,
 		handleThumbnailClick,
 		handleOutsideClick,
@@ -271,6 +289,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		canUseAutoPlay,
 		toggleAutoPlay,
 		mergedCarouselOptions,
+		mergedThumbnailEmblaOptions,
 	} = useLightbox({
 		ref,
 		opened,
@@ -280,6 +299,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		returnFocus,
 		children,
 		carouselOptions: _carouselOptions,
+		thumbnailEmblaOptions: _thumbnailEmblaOptions,
 		counterFormatter,
 	});
 
@@ -354,7 +374,12 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 									<LightboxSlides />
 								</Carousel>
 
-								{withThumbnails && <LightboxThumbnails />}
+								{withThumbnails && (
+									<LightboxThumbnails
+										emblaOptions={mergedThumbnailEmblaOptions}
+										onEmblaApi={handleThumbnailsEmblaApi}
+									/>
+								)}
 							</Box>
 						</LightboxProvider>
 					</RemoveScroll>

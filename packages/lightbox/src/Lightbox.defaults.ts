@@ -12,6 +12,9 @@ export const LIGHTBOX_DEFAULT_PROPS = {
 	carouselOptions: {
 		controlSize: 36,
 	},
+	thumbnailEmblaOptions: {
+		dragFree: true,
+	},
 	overlayProps: {
 		fixed: true,
 		backgroundOpacity: 0.9,

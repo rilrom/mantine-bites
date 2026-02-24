@@ -91,6 +91,15 @@
 					"name": "boolean"
 				}
 			},
+			"thumbnailEmblaOptions": {
+				"defaultValue": null,
+				"description": "Configuration options used by the thumbnail strip Embla instance.",
+				"name": "thumbnailEmblaOptions",
+				"required": false,
+				"type": {
+					"name": "Partial<OptionsType>"
+				}
+			},
 			"transitionProps": {
 				"defaultValue": null,
 				"description": "Transition configuration applied to the lightbox content container.",
