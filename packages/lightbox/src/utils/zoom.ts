@@ -54,6 +54,14 @@ interface ClampZoomOffsetInput {
 	nextY: number;
 }
 
+interface InitialZoomOffsetInput {
+	containerRect: DOMRect;
+	imageRect: DOMRect;
+	zoomScale: number;
+	pointerClientX: number;
+	pointerClientY: number;
+}
+
 /**
  * Clamps a proposed zoom pan offset so the image cannot be panned beyond its
  * edges relative to the container at the given zoom scale.
@@ -76,6 +84,33 @@ export const clampZoomOffset = ({
 		x: Math.min(Math.max(nextX, -maxX), maxX),
 		y: Math.min(Math.max(nextY, -maxY), maxY),
 	};
+};
+
+/**
+ * Calculates the initial pan offset when zooming so the clicked/tapped point
+ * moves toward the viewport center, then clamps it to valid pan bounds.
+ */
+export const getInitialZoomOffset = ({
+	containerRect,
+	imageRect,
+	zoomScale,
+	pointerClientX,
+	pointerClientY,
+}: InitialZoomOffsetInput): ZoomOffset => {
+	const centerX = containerRect.left + containerRect.width / 2;
+	const centerY = containerRect.top + containerRect.height / 2;
+	const rawOffsetX = -(pointerClientX - centerX) * zoomScale;
+	const rawOffsetY = -(pointerClientY - centerY) * zoomScale;
+
+	return clampZoomOffset({
+		containerWidth: containerRect.width,
+		containerHeight: containerRect.height,
+		imageWidth: imageRect.width,
+		imageHeight: imageRect.height,
+		zoomScale,
+		nextX: rawOffsetX,
+		nextY: rawOffsetY,
+	});
 };
 
 /**

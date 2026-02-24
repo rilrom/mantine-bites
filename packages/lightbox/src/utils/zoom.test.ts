@@ -1,4 +1,8 @@
-import { canZoomImageElement, getTargetZoomScale } from "./zoom.js";
+import {
+	canZoomImageElement,
+	getInitialZoomOffset,
+	getTargetZoomScale,
+} from "./zoom.js";
 
 const createRect = (width: number, height: number): DOMRect =>
 	({
@@ -96,5 +100,69 @@ describe("zoom utilities", () => {
 				containerHeight: 2000,
 			}),
 		).toBeCloseTo(1.5);
+	});
+
+	it("should center zoom around pointer position when possible", () => {
+		expect(
+			getInitialZoomOffset({
+				containerRect: {
+					x: 0,
+					y: 0,
+					width: 800,
+					height: 600,
+					top: 0,
+					left: 0,
+					right: 800,
+					bottom: 600,
+					toJSON: () => ({}),
+				} as DOMRect,
+				imageRect: {
+					x: 0,
+					y: 0,
+					width: 1200,
+					height: 900,
+					top: 0,
+					left: 0,
+					right: 1200,
+					bottom: 900,
+					toJSON: () => ({}),
+				} as DOMRect,
+				zoomScale: 2,
+				pointerClientX: 500,
+				pointerClientY: 350,
+			}),
+		).toEqual({ x: -200, y: -100 });
+	});
+
+	it("should clamp initial pointer-based zoom offset to pan limits", () => {
+		expect(
+			getInitialZoomOffset({
+				containerRect: {
+					x: 0,
+					y: 0,
+					width: 800,
+					height: 600,
+					top: 0,
+					left: 0,
+					right: 800,
+					bottom: 600,
+					toJSON: () => ({}),
+				} as DOMRect,
+				imageRect: {
+					x: 0,
+					y: 0,
+					width: 1200,
+					height: 900,
+					top: 0,
+					left: 0,
+					right: 1200,
+					bottom: 900,
+					toJSON: () => ({}),
+				} as DOMRect,
+				zoomScale: 2,
+				pointerClientX: 0,
+				pointerClientY: 0,
+			}),
+		).toEqual({ x: 800, y: 600 });
 	});
 });

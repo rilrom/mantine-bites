@@ -5,6 +5,7 @@ import {
 	clampZoomOffset,
 	DEFAULT_ZOOM_SCALE,
 	getImageMaxZoomScale,
+	getInitialZoomOffset,
 	getPointerCoordinate,
 	getTargetZoomScale,
 	hasPointerMoved,
@@ -92,47 +93,72 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		setCanZoomCurrent(canZoomImageElement(image));
 	}, []);
 
-	const toggleZoom = useCallback(() => {
-		setIsZoomed((current) => {
-			if (current) {
-				setZoomOffset(ZERO_ZOOM_OFFSET);
-				setZoomScale(DEFAULT_ZOOM_SCALE);
-				return false;
-			}
+	const setZoomFromOrigin = useCallback(
+		(origin?: { clientX: number; clientY: number }) => {
+			setIsZoomed((current) => {
+				if (current) {
+					setZoomOffset(ZERO_ZOOM_OFFSET);
+					setZoomScale(DEFAULT_ZOOM_SCALE);
+					return false;
+				}
 
-			const activeContainer = activeZoomContainerRef.current;
+				const activeContainer = activeZoomContainerRef.current;
 
-			if (!activeContainer) {
-				return current;
-			}
+				if (!activeContainer) {
+					return current;
+				}
 
-			const image = activeContainer.querySelector("img");
+				const image = activeContainer.querySelector("img");
 
-			if (!(image instanceof HTMLImageElement)) {
-				return current;
-			}
+				if (!(image instanceof HTMLImageElement)) {
+					return current;
+				}
 
-			const containerRect = activeContainer.getBoundingClientRect();
-			const imageRect = image.getBoundingClientRect();
-			const targetScale = getTargetZoomScale({
-				image,
-				containerWidth: containerRect.width,
-				containerHeight: containerRect.height,
+				const containerRect = activeContainer.getBoundingClientRect();
+				const imageRect = image.getBoundingClientRect();
+				const targetScale = getTargetZoomScale({
+					image,
+					containerWidth: containerRect.width,
+					containerHeight: containerRect.height,
+				});
+				const maxZoomScale = getImageMaxZoomScale(image);
+
+				if (maxZoomScale <= 1.01 || targetScale <= 1.01) {
+					return current;
+				}
+
+				zoomBaseSizeRef.current = {
+					width: imageRect.width,
+					height: imageRect.height,
+				};
+				setZoomScale(targetScale);
+				setZoomOffset(
+					origin
+						? getInitialZoomOffset({
+								containerRect,
+								imageRect,
+								zoomScale: targetScale,
+								pointerClientX: origin.clientX,
+								pointerClientY: origin.clientY,
+							})
+						: ZERO_ZOOM_OFFSET,
+				);
+				return true;
 			});
-			const maxZoomScale = getImageMaxZoomScale(image);
+		},
+		[],
+	);
 
-			if (maxZoomScale <= 1.01 || targetScale <= 1.01) {
-				return current;
-			}
+	const toggleZoom = useCallback(() => {
+		setZoomFromOrigin();
+	}, [setZoomFromOrigin]);
 
-			zoomBaseSizeRef.current = {
-				width: imageRect.width,
-				height: imageRect.height,
-			};
-			setZoomScale(targetScale);
-			return true;
-		});
-	}, []);
+	const toggleZoomAt = useCallback(
+		(origin: { clientX: number; clientY: number }) => {
+			setZoomFromOrigin(origin);
+		},
+		[setZoomFromOrigin],
+	);
 
 	const handleZoomPointerDown = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
@@ -252,10 +278,10 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 			setIsDraggingZoom(false);
 
 			if (shouldToggleZoom) {
-				toggleZoom();
+				toggleZoomAt({ clientX: endX, clientY: endY });
 			}
 		},
-		[toggleZoom],
+		[toggleZoomAt],
 	);
 
 	useEffect(() => {
