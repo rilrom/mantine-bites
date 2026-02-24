@@ -11,8 +11,10 @@ import { useState } from 'react';
 const slides: ({ src: string; alt: string } | null)[] = [
   { src: 'https://picsum.photos/id/10/2400/1600', alt: 'Forest' },
   null,
-  { src: 'https://picsum.photos/id/30/2400/1600', alt: 'Plant' },
-  { src: 'https://picsum.photos/id/40/1200/800', alt: 'Leaves' },
+  { src: 'https://picsum.photos/id/30/2400/1600', alt: 'Mug' },
+  { src: 'https://picsum.photos/id/40/1200/800', alt: 'Cat' },
+  { src: 'https://picsum.photos/id/50/2400/1600', alt: 'Bird' },
+  { src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
 ];
 
 function Demo() {
@@ -26,7 +28,7 @@ function Demo() {
 
   return (
     <>
-      <SimpleGrid cols={{ base: 2, sm: 4 }}>
+      <SimpleGrid cols={{ base: 2, sm: 3 }}>
         {slides.map((slide, index) =>
           slide ? (
             <Image
@@ -34,7 +36,6 @@ function Demo() {
               src={slide.src}
               alt={slide.alt}
               radius="md"
-              style={{ cursor: 'pointer' }}
               onClick={() => open(index)}
             />
           ) : (
@@ -101,8 +102,10 @@ function Demo() {
 const slides: ({ src: string; alt: string } | null)[] = [
 	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
 	null,
-	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Plant" },
-	{ src: "https://picsum.photos/id/40/1200/800", alt: "Leaves" },
+	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
+	{ src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
+	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
+	{ src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
 ];
 
 function Demo() {
@@ -116,7 +119,7 @@ function Demo() {
 
 	return (
 		<>
-			<SimpleGrid cols={{ base: 2, sm: 4 }}>
+			<SimpleGrid cols={{ base: 2, sm: 3 }}>
 				{slides.map((slide, index) =>
 					slide ? (
 						<Image
@@ -124,7 +127,6 @@ function Demo() {
 							src={slide.src}
 							alt={slide.alt}
 							radius="md"
-							style={{ cursor: "pointer" }}
 							onClick={() => open(index)}
 						/>
 					) : (

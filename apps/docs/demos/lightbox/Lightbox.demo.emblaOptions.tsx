@@ -9,30 +9,33 @@ import { Image, SimpleGrid } from '@mantine/core';
 import { useState } from 'react';
 
 const images = [
-  { src: 'https://picsum.photos/id/10/2400/1600', alt: 'Forest' },
-  { src: 'https://picsum.photos/id/20/1200/800', alt: 'Bird' },
-  { src: 'https://picsum.photos/id/30/2400/1600', alt: 'Plant' },
-  { src: 'https://picsum.photos/id/40/1200/800', alt: 'Leaves' },
+  { src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
+  { src: "https://picsum.photos/id/20/1200/800", alt: "Books" },
+  { src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
+  { src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
+  { src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
+  { src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
 ];
 
 function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
+  const open = (index: number) => {
+    setInitialSlide(index);
+    setOpened(true);
+  };
+
   return (
     <>
-      <SimpleGrid cols={{ base: 2, sm: 4 }}>
+      <SimpleGrid cols={{ base: 2, sm: 3 }}>
         {images.map((img, index) => (
           <Image
             key={img.src}
             src={img.src}
             alt={img.alt}
             radius="md"
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              setInitialSlide(index);
-              setOpened(true);
-            }}
+            onClick={() => open(index)}
           />
         ))}
       </SimpleGrid>
@@ -42,7 +45,10 @@ function Demo() {
         onClose={() => setOpened(false)}
         carouselOptions={{
           initialSlide,
-          emblaOptions: { loop: true },
+          emblaOptions: {
+            loop: true,
+            dragFree: true,
+          },
         }}
       >
         {images.map((img) => (
@@ -58,29 +64,32 @@ function Demo() {
 
 const images = [
 	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
-	{ src: "https://picsum.photos/id/20/1200/800", alt: "Bird" },
-	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Plant" },
-	{ src: "https://picsum.photos/id/40/1200/800", alt: "Leaves" },
+	{ src: "https://picsum.photos/id/20/1200/800", alt: "Books" },
+	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
+	{ src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
+	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
+	{ src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
 ];
 
 function Demo() {
 	const [opened, setOpened] = useState(false);
 	const [initialSlide, setInitialSlide] = useState(0);
 
+	const open = (index: number) => {
+		setInitialSlide(index);
+		setOpened(true);
+	};
+
 	return (
 		<>
-			<SimpleGrid cols={{ base: 2, sm: 4 }}>
+			<SimpleGrid cols={{ base: 2, sm: 3 }}>
 				{images.map((img, index) => (
 					<Image
 						key={img.src}
 						src={img.src}
 						alt={img.alt}
 						radius="md"
-						style={{ cursor: "pointer" }}
-						onClick={() => {
-							setInitialSlide(index);
-							setOpened(true);
-						}}
+						onClick={() => open(index)}
 					/>
 				))}
 			</SimpleGrid>
@@ -90,7 +99,10 @@ function Demo() {
 				onClose={() => setOpened(false)}
 				carouselOptions={{
 					initialSlide,
-					emblaOptions: { loop: true },
+					emblaOptions: {
+						loop: true,
+						dragFree: true,
+					},
 				}}
 			>
 				{images.map((img) => (
@@ -106,7 +118,7 @@ function Demo() {
 	);
 }
 
-export const loop: MantineDemo = {
+export const emblaOptions: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

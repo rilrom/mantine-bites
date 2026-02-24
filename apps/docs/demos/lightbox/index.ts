@@ -1,8 +1,8 @@
 export { carouselOptions } from "./Lightbox.demo.carouselOptions";
+export { configurator } from "./Lightbox.demo.configurator";
 export { customCounter } from "./Lightbox.demo.customCounter";
+export { emblaOptions } from "./Lightbox.demo.emblaOptions";
 export { emblaPlugins } from "./Lightbox.demo.emblaPlugins";
-export { hideControls } from "./Lightbox.demo.hideControls";
-export { loop } from "./Lightbox.demo.loop";
 export { overlayProps } from "./Lightbox.demo.overlayProps";
 export { placeholderThumbnails } from "./Lightbox.demo.placeholderThumbnails";
 export { transitionProps } from "./Lightbox.demo.transitionProps";

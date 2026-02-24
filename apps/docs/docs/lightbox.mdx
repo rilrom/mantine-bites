@@ -18,64 +18,55 @@ import '@mantine/carousel/styles.css';
 import '@mantine-bites/lightbox/styles.css';
 ```
 
-## Do not forget to import styles
-
-You've followed the installation instructions above but it is still not working?
-
-- Lightbox isn't appearing.
-- Carousel slides are rendered vertically
-- No controls or indicators
-
-You've fallen into the trap of not importing the lightbox and carousel styles! To fix the issue, import the lightbox and carousel styles at the root of your application:
-
-```tsx
-import '@mantine/carousel/styles.css';
-import '@mantine-bites/lightbox/styles.css';
-```
-
 ## Usage
 
-`Lightbox` is a full-screen image viewer built on top of `@mantine/carousel`. It uses a compound component pattern — slides are declared as `Lightbox.Slide` children. Each slide can have an optional `thumbnail` prop that renders in the thumbnail strip. Use `carouselOptions={{ initialSlide }}` to control which slide is displayed when the lightbox opens — click any image in the grid below to see it in action.
+`@mantine-bites/lightbox` is built on top of [@mantine/carousel](https://mantine.dev/x/carousel/) which is built on top of [embla-carousel](https://www.embla-carousel.com/):
 
 <Demo data={demos.usage} />
 
+## Common options
+
+<Demo data={demos.configurator} />
+
 ## Carousel options
 
-`Lightbox` renders a [Carousel](https://mantine.dev/x/carousel/) component under the hood. You can pass any `Carousel` props via the `carouselOptions` prop — this includes `withControls`, `initialSlide`, `onSlideChange`, `controlSize`, `controlsOffset`, `emblaOptions`, and more.
+You can pass configuration options directly to `@mantine/carousel` with the `carouselOptions` prop. You can find carousel options in the [@mantine/carousel documentation](https://mantine.dev/x/carousel/).
+
+Example of passing `controlSize` and `controlsOffset` options:
 
 <Demo data={demos.carouselOptions} />
 
-## Embla options
+## Carousel embla options
 
-Embla options are passed through `carouselOptions.emblaOptions` and `thumbnailEmblaOptions`. These control carousel behavior such as `loop`, `dragFree`, `align` and more. See the [Embla Carousel options documentation](https://www.embla-carousel.com/api/options/) for the full list.
+You can pass configuration options directly to the embla carousel with the `carouselOptions.emblaOptions` prop. You can find embla options in the [embla options reference](https://www.embla-carousel.com/api/options/).
 
-## Loop
+Example of passing `loop` and `dragFree` options:
 
-By default, navigation stops at the first and last slide. To enable infinite looping, pass `emblaOptions: { loop: true }` via `carouselOptions`:
-
-<Demo data={demos.loop} />
+<Demo data={demos.emblaOptions} />
 
 ## Embla plugins
 
-`Lightbox` supports [Embla Carousel plugins](https://www.embla-carousel.com/plugins/) via `carouselOptions.plugins`. The example below uses the `embla-carousel-autoplay` plugin to automatically advance slides:
+`@mantine-bites/lightbox` supports [embla plugins](https://www.embla-carousel.com/plugins/) via `carouselOptions.plugins`. Note that plugins are not installed with the `@mantine-bites/lightbox` package so you will need to install them separately.
+
+Example of the [embla autoplay plugin](https://www.embla-carousel.com/plugins/autoplay/):
+
+<InstallScript packages="embla-carousel-autoplay@^8.5.2" />
 
 <Demo data={demos.emblaPlugins} />
 
-## Hide controls
-
-Strip the lightbox down to its essentials by hiding controls, thumbnails, and the counter. Pass `withControls: false` via `carouselOptions` and set `withThumbnails={false}` and `withCounter={false}` on the `Lightbox` component. Users can still navigate with arrow keys and swipe gestures.
-
-<Demo data={demos.hideControls} />
-
 ## Overlay
 
-Customize the backdrop using `overlayProps`. Props are passed directly to Mantine's [`Overlay`](https://mantine.dev/core/overlay/) component. Defaults are `color: '#18181B'`, `backgroundOpacity: 0.9`, `zIndex: 200`:
+Customize the backdrop using `overlayProps`. Props are passed directly to the `@mantine/core` [`Overlay`](https://mantine.dev/core/overlay/) component.
+
+Defaults are `color: '#18181B'`, `backgroundOpacity: 0.9`, `zIndex: 200`:
 
 <Demo data={demos.overlayProps} />
 
 ## Transition
 
-Customize the open/close animation using `transitionProps`. Props are passed to Mantine's [`Transition`](https://mantine.dev/core/transition/) component. Defaults are `transition: 'fade'`, `duration: 250`:
+Customize the open/close animation using `transitionProps`. Props are passed to the `@mantine/core` [`Transition`](https://mantine.dev/core/transition/) component.
+
+Defaults are `transition: 'fade'`, `duration: 250`:
 
 <Demo data={demos.transitionProps} />
 
@@ -90,19 +81,3 @@ When a `Lightbox.Slide` does not have a `thumbnail` prop, a placeholder icon is 
 Use the `counterFormatter` prop to customize how the slide counter is displayed. The function receives the current zero-based index and total slide count.
 
 <Demo data={demos.customCounter} />
-
-## Keyboard navigation
-
-The lightbox supports keyboard navigation out of the box:
-
-- **Left arrow** — previous slide
-- **Right arrow** — next slide
-- **Escape** — close lightbox
-
-## Accessibility
-
-- Close button includes `aria-label="Close lightbox"`
-- Fullscreen toggle includes `aria-label="Enter/exit fullscreen mode"`
-- Zoom toggle includes `aria-label="Zoom in/out"`
-- Navigation controls include appropriate `aria-label` attributes (configurable via `carouselOptions.previousControlProps` and `carouselOptions.nextControlProps`)
-- Thumbnail buttons include `aria-label="Go to slide N"` and `aria-current="true"` on the active thumbnail
