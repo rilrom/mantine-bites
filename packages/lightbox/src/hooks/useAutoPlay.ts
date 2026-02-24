@@ -6,6 +6,7 @@ interface UseAutoPlayOutput {
 	canUseAutoPlay: boolean;
 	isPlaying: boolean;
 	toggleAutoPlay: () => void;
+	notifyAutoPlayInteraction: () => void;
 	handleEmblaApiForAutoPlay: (embla: EmblaCarouselType) => void;
 }
 
@@ -68,10 +69,22 @@ export function useAutoPlay(): UseAutoPlayOutput {
 		}
 	}, [isPlaying]);
 
+	const notifyAutoPlayInteraction = useCallback(() => {
+		const embla = emblaInstanceRef.current;
+
+		if (!embla) {
+			return;
+		}
+
+		embla.emit("pointerDown");
+		embla.emit("pointerUp");
+	}, []);
+
 	return {
 		canUseAutoPlay,
 		isPlaying,
 		toggleAutoPlay,
+		notifyAutoPlayInteraction,
 		handleEmblaApiForAutoPlay,
 	};
 }

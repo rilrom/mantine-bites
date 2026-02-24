@@ -1,6 +1,7 @@
 import { render, screen } from "@mantine-tests/core";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import Autoplay from "embla-carousel-autoplay";
 import { Lightbox, type LightboxProps } from "./index.js";
 
 const defaultProps: LightboxProps = {
@@ -1096,5 +1097,49 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(screen.queryByLabelText("Pause autoplay")).not.toBeInTheDocument();
 
 		expect(screen.queryByLabelText("Play autoplay")).not.toBeInTheDocument();
+	});
+
+	it("should stop autoplay when zoom toolbar button is clicked and stopOnInteraction is true", async () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				carouselOptions={{
+					...defaultProps.carouselOptions,
+					plugins: [Autoplay({ delay: 2000, stopOnInteraction: true })],
+					emblaOptions: { loop: true },
+				}}
+			/>,
+		);
+
+		await waitFor(() =>
+			expect(screen.getByLabelText("Pause autoplay")).toBeInTheDocument(),
+		);
+
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+
+		await waitFor(() =>
+			expect(screen.getByLabelText("Play autoplay")).toBeInTheDocument(),
+		);
+	});
+
+	it("should keep autoplay running when zoom toolbar button is clicked and stopOnInteraction is false", async () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				carouselOptions={{
+					...defaultProps.carouselOptions,
+					plugins: [Autoplay({ delay: 2000, stopOnInteraction: false })],
+					emblaOptions: { loop: true },
+				}}
+			/>,
+		);
+
+		const initialAutoplayLabel = screen.queryByLabelText("Pause autoplay")
+			? "Pause autoplay"
+			: "Play autoplay";
+
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+
+		expect(screen.getByLabelText(initialAutoplayLabel)).toBeInTheDocument();
 	});
 });

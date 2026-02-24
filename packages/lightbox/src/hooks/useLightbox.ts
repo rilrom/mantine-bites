@@ -123,6 +123,7 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		canUseAutoPlay,
 		isPlaying,
 		toggleAutoPlay,
+		notifyAutoPlayInteraction,
 		handleEmblaApiForAutoPlay,
 	} = useAutoPlay();
 
@@ -174,6 +175,11 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		onClose();
 	}, [shouldCloseOnClickOutside, onClose]);
 
+	const handleToolbarZoomToggle = useCallback(() => {
+		notifyAutoPlayInteraction();
+		toggleZoom();
+	}, [notifyAutoPlayInteraction, toggleZoom]);
+
 	const mergedCarouselOptions = useCarouselOptions({
 		carouselOptions,
 		isZoomedRef,
@@ -201,7 +207,7 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		zoomScale,
 		canZoomCurrent,
 		activeZoomContainerRef,
-		toggleZoom,
+		toggleZoom: handleToolbarZoomToggle,
 		updateCanZoomAvailability,
 		handleZoomPointerDown,
 		handleZoomPointerMove,
