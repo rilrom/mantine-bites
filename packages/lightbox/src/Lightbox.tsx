@@ -293,6 +293,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	} = useLightbox({
 		ref,
 		opened,
+		withZoom,
 		onClose,
 		closeOnClickOutside,
 		trapFocus,

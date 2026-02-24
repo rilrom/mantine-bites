@@ -125,6 +125,15 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
 	});
 
+	it("should mark active slide as non-zoomable when withZoom={false}", () => {
+		render(<Lightbox {...defaultProps} withZoom={false} />);
+
+		const image = screen.getByAltText("Forest landscape");
+		const activeZoomContainer = image.closest("[data-active='true']");
+
+		expect(activeZoomContainer).toHaveAttribute("data-can-zoom", "false");
+	});
+
 	it("should disable zoom button when active slide has no image", () => {
 		render(
 			<Lightbox opened onClose={() => {}}>
@@ -672,6 +681,15 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		await userEvent.click(screen.getByAltText("Forest landscape"));
 
 		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
+	});
+
+	it("should not toggle zoom when clicking active slide image and withZoom={false}", async () => {
+		render(<Lightbox {...defaultProps} withZoom={false} />);
+
+		await userEvent.click(screen.getByAltText("Forest landscape"));
+
+		expect(screen.queryByLabelText("Zoom out")).not.toBeInTheDocument();
+		expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
 	});
 
 	it("should reset zoom when thumbnail is clicked", async () => {

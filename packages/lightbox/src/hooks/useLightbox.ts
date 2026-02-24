@@ -33,6 +33,7 @@ import { useZoom } from "./useZoom.js";
 interface UseLightboxInput {
 	ref: ForwardedRef<HTMLDivElement>;
 	opened: boolean;
+	withZoom: boolean | undefined;
 	onClose: () => void;
 	closeOnClickOutside: boolean | undefined;
 	trapFocus: boolean | undefined;
@@ -78,6 +79,7 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const {
 		ref,
 		opened,
+		withZoom,
 		onClose,
 		closeOnClickOutside,
 		trapFocus,
@@ -126,7 +128,10 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
-	} = useZoom({ opened });
+	} = useZoom({
+		opened,
+		withZoom: withZoom ?? LIGHTBOX_DEFAULT_PROPS.withZoom,
+	});
 
 	const {
 		canUseAutoPlay,

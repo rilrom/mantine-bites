@@ -16,6 +16,7 @@ import {
 
 interface UseZoomInput {
 	opened: boolean;
+	withZoom: boolean;
 }
 
 interface UseZoomOutput {
@@ -42,13 +43,13 @@ interface UseZoomOutput {
  * window resize.
  */
 export function useZoom(props: UseZoomInput): UseZoomOutput {
-	const { opened } = props;
+	const { opened, withZoom } = props;
 
 	const [isZoomed, setIsZoomed] = useState(false);
 	const [isDraggingZoom, setIsDraggingZoom] = useState(false);
 	const [zoomOffset, setZoomOffset] = useState<ZoomOffset>(ZERO_ZOOM_OFFSET);
 	const [zoomScale, setZoomScale] = useState(DEFAULT_ZOOM_SCALE);
-	const [canZoomCurrent, setCanZoomCurrent] = useState(true);
+	const [canZoomCurrent, setCanZoomCurrent] = useState(withZoom);
 
 	const isZoomedRef = useRef(false);
 	const activeZoomContainerRef = useRef<HTMLDivElement | null>(null);
@@ -76,6 +77,11 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 	}, []);
 
 	const updateCanZoomAvailability = useCallback(() => {
+		if (!withZoom) {
+			setCanZoomCurrent(false);
+			return;
+		}
+
 		const activeContainer = activeZoomContainerRef.current;
 
 		if (!activeContainer) {
@@ -91,7 +97,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		}
 
 		setCanZoomCurrent(canZoomImageElement(image));
-	}, []);
+	}, [withZoom]);
 
 	const setZoomFromOrigin = useCallback(
 		(origin?: { clientX: number; clientY: number }) => {
@@ -150,19 +156,27 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 	);
 
 	const toggleZoom = useCallback(() => {
+		if (!withZoom) {
+			return;
+		}
+
 		setZoomFromOrigin();
-	}, [setZoomFromOrigin]);
+	}, [setZoomFromOrigin, withZoom]);
 
 	const toggleZoomAt = useCallback(
 		(origin: { clientX: number; clientY: number }) => {
+			if (!withZoom) {
+				return;
+			}
+
 			setZoomFromOrigin(origin);
 		},
-		[setZoomFromOrigin],
+		[setZoomFromOrigin, withZoom],
 	);
 
 	const handleZoomPointerDown = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
-			if (!canZoomCurrent) {
+			if (!withZoom || !canZoomCurrent) {
 				return;
 			}
 
@@ -191,7 +205,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				moved: false,
 			};
 		},
-		[canZoomCurrent, isZoomed, zoomOffset.x, zoomOffset.y],
+		[withZoom, canZoomCurrent, isZoomed, zoomOffset.x, zoomOffset.y],
 	);
 
 	const handleZoomPointerMove = useCallback(
@@ -289,6 +303,16 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 			resetZoom();
 		}
 	}, [opened, resetZoom]);
+
+	useEffect(() => {
+		if (!withZoom) {
+			resetZoom();
+			setCanZoomCurrent(false);
+			return;
+		}
+
+		updateCanZoomAvailability();
+	}, [withZoom, resetZoom, updateCanZoomAvailability]);
 
 	useEffect(() => {
 		if (!opened) {
