@@ -22,10 +22,6 @@ import type {
 import type { LightboxSlideProps } from "../LightboxSlide.js";
 import type { ZoomOffset } from "../utils/zoom.js";
 import { useAutoPlay } from "./useAutoPlay.js";
-import {
-	type UseCarouselOptionsOutput,
-	useCarouselOptions,
-} from "./useCarouselOptions.js";
 import { useFullscreen } from "./useFullscreen.js";
 import { useKeyboardNavigation } from "./useKeyboardNavigation.js";
 import { useZoom } from "./useZoom.js";
@@ -71,7 +67,7 @@ interface UseLightboxOutput {
 	isPlaying: boolean;
 	canUseAutoPlay: boolean;
 	toggleAutoPlay: () => void;
-	mergedCarouselOptions: UseCarouselOptionsOutput;
+	mergedCarouselOptions: LightboxCarouselOptions;
 	mergedThumbnailEmblaOptions: LightboxThumbnailEmblaOptions;
 }
 
@@ -210,10 +206,28 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		toggleZoom();
 	}, [notifyAutoPlayInteraction, toggleZoom]);
 
-	const mergedCarouselOptions = useCarouselOptions({
-		carouselOptions,
-		isZoomedRef,
-	});
+	const mergedCarouselOptions: LightboxCarouselOptions = {
+		...carouselOptions,
+		emblaOptions: {
+			...carouselOptions?.emblaOptions,
+			watchDrag: (
+				emblaApi: EmblaCarouselType,
+				event: MouseEvent | TouchEvent,
+			) => {
+				if (isZoomedRef.current) {
+					return false;
+				}
+
+				const configuredWatchDrag = carouselOptions?.emblaOptions?.watchDrag;
+
+				if (typeof configuredWatchDrag === "function") {
+					return configuredWatchDrag(emblaApi, event);
+				}
+
+				return configuredWatchDrag ?? true;
+			},
+		},
+	};
 
 	const mergedThumbnailEmblaOptions: LightboxThumbnailEmblaOptions = {
 		...thumbnailEmblaOptions,
