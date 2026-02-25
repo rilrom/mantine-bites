@@ -241,6 +241,13 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		}
 	}, [opened, currentIndex]);
 
+	// If dragFree is enabled, we want to ensure the whole image is scrolled into viewport before zooming
+	useEffect(() => {
+		if (isZoomed) {
+			emblaRef.current?.scrollTo(currentIndex);
+		}
+	}, [isZoomed, currentIndex]);
+
 	return {
 		mergedRef,
 		slides,
