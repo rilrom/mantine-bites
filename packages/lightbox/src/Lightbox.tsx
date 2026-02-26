@@ -1,5 +1,6 @@
 import { Carousel, type CarouselProps } from "@mantine/carousel";
 import {
+	type BasePortalProps,
 	Box,
 	type BoxProps,
 	createVarsResolver,
@@ -9,12 +10,11 @@ import {
 	OptionalPortal,
 	Overlay,
 	type OverlayProps,
-	type PortalProps,
 	RemoveScroll,
 	type StylesApiProps,
 	Text,
 	Transition,
-	type TransitionProps,
+	type TransitionOverride,
 	useProps,
 	useStyles,
 } from "@mantine/core";
@@ -152,10 +152,7 @@ export interface LightboxProps
 	/**
 	 * Transition configuration applied to the lightbox content container.
 	 */
-	transitionProps?: Omit<
-		TransitionProps,
-		"mounted" | "keepMounted" | "children"
-	>;
+	transitionProps?: TransitionOverride;
 
 	/**
 	 * Renders the lightbox inside a React Portal instead of the current DOM hierarchy.
@@ -166,7 +163,7 @@ export interface LightboxProps
 	/**
 	 * Props forwarded to the Portal component when portal rendering is enabled.
 	 */
-	portalProps?: Omit<PortalProps, "withinPortal" | "children">;
+	portalProps?: BasePortalProps;
 }
 
 export type LightboxFactory = Factory<{
