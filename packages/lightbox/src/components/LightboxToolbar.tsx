@@ -8,66 +8,53 @@ import { ZoomIn } from "./ZoomIn.js";
 import { ZoomOut } from "./ZoomOut.js";
 
 export function LightboxToolbar() {
-	const {
-		getStyles,
-		withFullscreen,
-		withZoom,
-		isFullscreen,
-		onToggleFullscreen,
-		isZoomed,
-		canZoomCurrent,
-		onToggleZoom,
-		canUseAutoPlay,
-		isPlaying,
-		onToggleAutoPlay,
-		onClose,
-	} = useLightboxContext();
+	const ctx = useLightboxContext();
 
 	return (
-		<ActionIcon.Group {...getStyles("toolbar")}>
-			{withFullscreen && (
+		<ActionIcon.Group {...ctx.getStyles("toolbar")}>
+			{ctx.withFullscreen && (
 				<ActionIcon
 					variant="default"
 					size="lg"
-					onClick={onToggleFullscreen}
-					aria-label={`${isFullscreen ? "Exit" : "Enter"} fullscreen`}
-					{...getStyles("fullscreenButton")}
+					onClick={ctx.onToggleFullscreen}
+					aria-label={`${ctx.isFullscreen ? "Exit" : "Enter"} fullscreen`}
+					{...ctx.getStyles("fullscreenButton")}
 				>
-					{isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
+					{ctx.isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
 				</ActionIcon>
 			)}
 
-			{withZoom && (
+			{ctx.withZoom && (
 				<ActionIcon
 					variant="default"
 					size="lg"
-					onClick={onToggleZoom}
-					aria-label={isZoomed ? "Zoom out" : "Zoom in"}
-					disabled={!canZoomCurrent}
-					{...getStyles("zoomButton")}
+					onClick={ctx.onToggleZoom}
+					aria-label={ctx.isZoomed ? "Zoom out" : "Zoom in"}
+					disabled={!ctx.canZoomCurrent}
+					{...ctx.getStyles("zoomButton")}
 				>
-					{isZoomed ? <ZoomOut /> : <ZoomIn />}
+					{ctx.isZoomed ? <ZoomOut /> : <ZoomIn />}
 				</ActionIcon>
 			)}
 
-			{canUseAutoPlay && (
+			{ctx.canUseAutoPlay && (
 				<ActionIcon
 					variant="default"
 					size="lg"
-					onClick={onToggleAutoPlay}
-					aria-label={isPlaying ? "Pause autoplay" : "Play autoplay"}
-					{...getStyles("autoplayButton")}
+					onClick={ctx.onToggleAutoPlay}
+					aria-label={ctx.isPlaying ? "Pause autoplay" : "Play autoplay"}
+					{...ctx.getStyles("autoplayButton")}
 				>
-					{isPlaying ? <Pause /> : <Play />}
+					{ctx.isPlaying ? <Pause /> : <Play />}
 				</ActionIcon>
 			)}
 
 			<ActionIcon
 				variant="default"
 				size="lg"
-				onClick={onClose}
+				onClick={ctx.onClose}
 				aria-label="Close lightbox"
-				{...getStyles("closeButton")}
+				{...ctx.getStyles("closeButton")}
 			>
 				<CloseIcon />
 			</ActionIcon>

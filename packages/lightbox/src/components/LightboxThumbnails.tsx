@@ -1,47 +1,38 @@
 import { Box, UnstyledButton } from "@mantine/core";
-import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import { useThumbnails } from "../hooks/useThumbnails.js";
 import { useLightboxContext } from "../Lightbox.context.js";
 import { QuestionMark } from "./QuestionMark.js";
 
-interface LightboxThumbnailsProps {
-	emblaOptions: EmblaOptionsType | undefined;
-	onEmblaApi: (embla: EmblaCarouselType) => void;
-}
-
-export function LightboxThumbnails(props: LightboxThumbnailsProps) {
-	const { emblaOptions, onEmblaApi } = props;
-
-	const { getStyles, slides, currentIndex, onThumbnailClick } =
-		useLightboxContext();
+export function LightboxThumbnails() {
+	const ctx = useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
-		emblaOptions,
-		onEmblaApi,
+		emblaOptions: ctx.emblaOptions,
+		onEmblaApi: ctx.onEmblaApi,
 	});
 
 	return (
-		<Box {...getStyles("thumbnails")}>
-			<Box ref={setViewportRef} {...getStyles("thumbnailsViewport")}>
+		<Box {...ctx.getStyles("thumbnails")}>
+			<Box ref={setViewportRef} {...ctx.getStyles("thumbnailsViewport")}>
 				<Box
 					ref={containerRef}
-					{...getStyles("thumbnailsContainer")}
+					{...ctx.getStyles("thumbnailsContainer")}
 					data-overflow={hasOverflow || undefined}
 				>
-					{slides.map((slide, i) => {
+					{ctx.slides.map((slide, i) => {
 						const { thumbnail } = slide.props;
 
 						return (
-							<Box {...getStyles("thumbnailSlide")} key={slide.key ?? i}>
+							<Box {...ctx.getStyles("thumbnailSlide")} key={slide.key ?? i}>
 								<UnstyledButton
-									onClick={() => onThumbnailClick(i)}
+									onClick={() => ctx.onThumbnailClick(i)}
 									aria-label={`Go to slide ${i + 1}`}
-									aria-current={i === currentIndex ? "true" : undefined}
-									data-active={i === currentIndex || undefined}
-									{...getStyles("thumbnailButton")}
+									aria-current={i === ctx.currentIndex ? "true" : undefined}
+									data-active={i === ctx.currentIndex || undefined}
+									{...ctx.getStyles("thumbnailButton")}
 								>
 									{thumbnail ?? (
-										<Box {...getStyles("thumbnailPlaceholder")}>
+										<Box {...ctx.getStyles("thumbnailPlaceholder")}>
 											<QuestionMark />
 										</Box>
 									)}

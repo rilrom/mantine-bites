@@ -28,9 +28,11 @@ export type LightboxSlideFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxSlide = factory<LightboxSlideFactory>((props, ref) => {
+export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
+	const props = useProps("LightboxSlide", null, _props);
+
 	const { classNames, className, style, styles, vars, thumbnail, ...others } =
-		useProps("LightboxSlide", null, props);
+		props;
 
 	const ctx = useLightboxContext();
 

@@ -1,4 +1,5 @@
 import { createSafeContext, type GetStylesApi } from "@mantine/core";
+import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import type {
 	ReactElement,
 	PointerEvent as ReactPointerEvent,
@@ -13,6 +14,9 @@ export interface LightboxContext {
 	// Slides
 	slides: ReactElement<Pick<LightboxSlideProps, "children" | "thumbnail">>[];
 	currentIndex: number;
+	// Thumbnails
+	emblaOptions: EmblaOptionsType | undefined;
+	onEmblaApi: (embla: EmblaCarouselType) => void;
 	// Feature flags
 	withFullscreen: boolean | undefined;
 	withZoom: boolean | undefined;

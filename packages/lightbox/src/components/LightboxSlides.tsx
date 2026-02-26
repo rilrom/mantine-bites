@@ -5,22 +5,7 @@ import { useLightboxContext } from "../Lightbox.context.js";
 import { getZoomTransform } from "../utils/zoom.js";
 
 export function LightboxSlides() {
-	const {
-		getStyles,
-		slides,
-		currentIndex,
-		isZoomed,
-		isDraggingZoom,
-		canZoomCurrent,
-		zoomOffset,
-		zoomScale,
-		activeZoomContainerRef,
-		updateCanZoomAvailability,
-		handleZoomPointerDown,
-		handleZoomPointerMove,
-		handleZoomPointerEnd,
-		handleOutsideClick,
-	} = useLightboxContext();
+	const ctx = useLightboxContext();
 
 	const {
 		handleSlidePointerDown,
@@ -29,29 +14,33 @@ export function LightboxSlides() {
 		handleSlidePointerCancel,
 		handleSlideLoadCapture,
 	} = useSlideInteractions({
-		onClose: handleOutsideClick,
-		onZoomPointerDown: handleZoomPointerDown,
-		onZoomPointerMove: handleZoomPointerMove,
-		onZoomPointerEnd: handleZoomPointerEnd,
-		updateCanZoomAvailability,
+		onClose: ctx.handleOutsideClick,
+		onZoomPointerDown: ctx.handleZoomPointerDown,
+		onZoomPointerMove: ctx.handleZoomPointerMove,
+		onZoomPointerEnd: ctx.handleZoomPointerEnd,
+		updateCanZoomAvailability: ctx.updateCanZoomAvailability,
 	});
 
 	return (
 		<>
-			{slides.map((slide, index) => {
-				const isActive = index === currentIndex;
-				const isActiveAndZoomed = isActive && isZoomed;
+			{ctx.slides.map((slide, index) => {
+				const isActive = index === ctx.currentIndex;
+
+				const isActiveAndZoomed = isActive && ctx.isZoomed;
+
 				const slideProps = slide.props;
 
 				return cloneElement(slide, {
 					children: (
 						<Box
-							ref={isActive ? activeZoomContainerRef : undefined}
-							{...getStyles("zoomContainer")}
+							ref={isActive ? ctx.activeZoomContainerRef : undefined}
+							{...ctx.getStyles("zoomContainer")}
 							data-active={isActive || undefined}
 							data-zoomed={isActiveAndZoomed || undefined}
-							data-can-zoom={isActive ? String(canZoomCurrent) : undefined}
-							data-dragging={(isDraggingZoom && isActiveAndZoomed) || undefined}
+							data-can-zoom={isActive ? String(ctx.canZoomCurrent) : undefined}
+							data-dragging={
+								(ctx.isDraggingZoom && isActiveAndZoomed) || undefined
+							}
 							onPointerDown={isActive ? handleSlidePointerDown : undefined}
 							onPointerMove={isActive ? handleSlidePointerMove : undefined}
 							onPointerUp={isActive ? handleSlidePointerUp : undefined}
@@ -59,12 +48,12 @@ export function LightboxSlides() {
 							onLoadCapture={isActive ? handleSlideLoadCapture : undefined}
 						>
 							<Box
-								{...getStyles("zoomContent")}
+								{...ctx.getStyles("zoomContent")}
 								style={{
 									transform: getZoomTransform({
 										isZoomed: isActiveAndZoomed,
-										offset: zoomOffset,
-										scale: zoomScale,
+										offset: ctx.zoomOffset,
+										scale: ctx.zoomScale,
 									}),
 								}}
 							>

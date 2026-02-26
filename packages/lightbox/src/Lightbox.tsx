@@ -339,6 +339,8 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 								onClose,
 								handleOutsideClick,
 								onThumbnailClick: handleThumbnailClick,
+								emblaOptions: mergedThumbnailEmblaOptions,
+								onEmblaApi: handleThumbnailsEmblaApi,
 								canUseAutoPlay,
 								isPlaying,
 								onToggleAutoPlay: toggleAutoPlay,
@@ -370,12 +372,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 									<LightboxSlides />
 								</Carousel>
 
-								{withThumbnails && (
-									<LightboxThumbnails
-										emblaOptions={mergedThumbnailEmblaOptions}
-										onEmblaApi={handleThumbnailsEmblaApi}
-									/>
-								)}
+								{withThumbnails && <LightboxThumbnails />}
 							</Box>
 						</LightboxProvider>
 					</RemoveScroll>
