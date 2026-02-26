@@ -37,8 +37,17 @@ const defaultProps: LightboxProps = {
 
 let fullscreenElement: Element | null = null;
 
+const emitFullscreenChange = () => {
+	fireEvent(
+		document.documentElement,
+		new Event("fullscreenchange", { bubbles: true }),
+	);
+};
+
 const requestFullscreenMock = jest.fn(async function (this: Element) {
 	fullscreenElement = this;
+
+	emitFullscreenChange();
 });
 
 const exitFullscreenMock = jest.fn(async () => {
@@ -261,9 +270,9 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 	});
 
 	it("should exit browser fullscreen when fullscreen button is clicked in fullscreen mode", async () => {
-		fullscreenElement = document.documentElement;
-
 		render(<Lightbox {...defaultProps} withFullscreen />);
+
+		await userEvent.click(screen.getByLabelText("Enter fullscreen"));
 
 		await userEvent.click(screen.getByLabelText("Exit fullscreen"));
 
@@ -271,9 +280,13 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 	});
 
 	it("should exit browser fullscreen when lightbox closes", async () => {
-		fullscreenElement = document.documentElement;
-
 		const { rerender } = render(<Lightbox {...defaultProps} opened />);
+
+		await userEvent.click(screen.getByLabelText("Enter fullscreen"));
+
+		await waitFor(() =>
+			expect(screen.getByLabelText("Exit fullscreen")).toBeInTheDocument(),
+		);
 
 		rerender(<Lightbox {...defaultProps} opened={false} />);
 

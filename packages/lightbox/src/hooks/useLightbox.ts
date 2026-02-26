@@ -2,6 +2,7 @@ import type { CarouselProps } from "@mantine/carousel";
 import {
 	useFocusReturn,
 	useFocusTrap,
+	useFullscreen,
 	useHotkeys,
 	useMergedRef,
 } from "@mantine/hooks";
@@ -27,7 +28,7 @@ import type {
 import type { LightboxSlideProps } from "../LightboxSlide.js";
 import type { ZoomOffset } from "../utils/zoom.js";
 import { useAutoPlay } from "./useAutoPlay.js";
-import { useFullscreen } from "./useFullscreen.js";
+
 import { useZoom } from "./useZoom.js";
 
 interface UseLightboxInput {
@@ -50,7 +51,6 @@ interface UseLightboxOutput {
 	currentIndex: number;
 	counterText: string;
 	isFullscreen: boolean;
-	canUseFullscreen: boolean;
 	toggleFullscreen: () => void;
 	isZoomed: boolean;
 	isDraggingZoom: boolean;
@@ -110,9 +110,8 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	);
 	const initialSlide = carouselOptions?.initialSlide ?? 0;
 
-	const { isFullscreen, canUseFullscreen, toggleFullscreen } = useFullscreen({
-		opened,
-	});
+	const { fullscreen: isFullscreen, toggle: toggleFullscreen } =
+		useFullscreen();
 
 	useHotkeys([
 		["ArrowLeft", () => opened && emblaRef.current?.scrollPrev()],
@@ -263,6 +262,20 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		}
 	}, [opened, currentIndex]);
 
+	// If we are in fullscreen mode, we want to exit out of it when closing the lightbox
+	useEffect(() => {
+		if (
+			opened ||
+			typeof document === "undefined" ||
+			!document.fullscreenElement ||
+			typeof document.exitFullscreen !== "function"
+		) {
+			return;
+		}
+
+		void document.exitFullscreen();
+	}, [opened]);
+
 	// If dragFree is enabled, we want to ensure the whole image is scrolled into viewport before zooming
 	useEffect(() => {
 		if (isZoomed) {
@@ -276,7 +289,6 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 		currentIndex,
 		counterText,
 		isFullscreen,
-		canUseFullscreen,
 		toggleFullscreen,
 		isZoomed,
 		isDraggingZoom,

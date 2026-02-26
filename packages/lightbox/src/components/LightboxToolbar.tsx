@@ -13,7 +13,6 @@ export function LightboxToolbar() {
 		withFullscreen,
 		withZoom,
 		isFullscreen,
-		canUseFullscreen,
 		onToggleFullscreen,
 		isZoomed,
 		canZoomCurrent,
@@ -32,7 +31,6 @@ export function LightboxToolbar() {
 					size="lg"
 					onClick={onToggleFullscreen}
 					aria-label={`${isFullscreen ? "Exit" : "Enter"} fullscreen`}
-					disabled={!canUseFullscreen}
 					{...getStyles("fullscreenButton")}
 				>
 					{isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
