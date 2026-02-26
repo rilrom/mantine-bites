@@ -1,5 +1,10 @@
 import type { CarouselProps } from "@mantine/carousel";
-import { useFocusReturn, useFocusTrap, useMergedRef } from "@mantine/hooks";
+import {
+	useFocusReturn,
+	useFocusTrap,
+	useHotkeys,
+	useMergedRef,
+} from "@mantine/hooks";
 import type { EmblaCarouselType } from "embla-carousel";
 import {
 	Children,
@@ -23,7 +28,6 @@ import type { LightboxSlideProps } from "../LightboxSlide.js";
 import type { ZoomOffset } from "../utils/zoom.js";
 import { useAutoPlay } from "./useAutoPlay.js";
 import { useFullscreen } from "./useFullscreen.js";
-import { useKeyboardNavigation } from "./useKeyboardNavigation.js";
 import { useZoom } from "./useZoom.js";
 
 interface UseLightboxInput {
@@ -109,6 +113,12 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const { isFullscreen, canUseFullscreen, toggleFullscreen } = useFullscreen({
 		opened,
 	});
+
+	useHotkeys([
+		["ArrowLeft", () => opened && emblaRef.current?.scrollPrev()],
+		["ArrowRight", () => opened && emblaRef.current?.scrollNext()],
+		["Escape", () => opened && onClose()],
+	]);
 
 	const {
 		isZoomed,
@@ -232,8 +242,6 @@ export function useLightbox(props: UseLightboxInput): UseLightboxOutput {
 	const mergedThumbnailEmblaOptions: LightboxThumbnailEmblaOptions = {
 		...thumbnailEmblaOptions,
 	};
-
-	useKeyboardNavigation({ opened, emblaRef, onClose });
 
 	useEffect(() => {
 		if (!opened) {
