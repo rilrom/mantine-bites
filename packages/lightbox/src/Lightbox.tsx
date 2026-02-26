@@ -12,13 +12,13 @@ import {
 	type OverlayProps,
 	RemoveScroll,
 	type StylesApiProps,
-	Text,
 	Transition,
 	type TransitionOverride,
 	useProps,
 	useStyles,
 } from "@mantine/core";
 import type { EmblaOptionsType } from "embla-carousel";
+import { LightboxCounter } from "./components/LightboxCounter.js";
 import { LightboxSlides } from "./components/LightboxSlides.js";
 import { LightboxThumbnails } from "./components/LightboxThumbnails.js";
 import { LightboxToolbar } from "./components/LightboxToolbar.js";
@@ -321,6 +321,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 								getStyles,
 								slides,
 								currentIndex,
+								counterText,
 								withFullscreen,
 								withZoom,
 								isFullscreen,
@@ -352,11 +353,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 							>
 								<LightboxToolbar />
 
-								{withCounter && (
-									<Text size="sm" {...getStyles("counter")}>
-										{counterText}
-									</Text>
-								)}
+								{withCounter && <LightboxCounter />}
 
 								<Carousel
 									includeGapInSize={false}

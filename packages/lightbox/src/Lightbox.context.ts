@@ -14,6 +14,8 @@ export interface LightboxContext {
 	// Slides
 	slides: ReactElement<Pick<LightboxSlideProps, "children" | "thumbnail">>[];
 	currentIndex: number;
+	// Counter
+	counterText: string;
 	// Thumbnails
 	emblaOptions: EmblaOptionsType | undefined;
 	onEmblaApi: (embla: EmblaCarouselType) => void;
