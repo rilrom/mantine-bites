@@ -1,4 +1,4 @@
-import type { PointerEvent as ReactPointerEvent, SyntheticEvent } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { useCallback, useRef } from "react";
 import {
 	createOutsideClosePointerState,
@@ -6,14 +6,10 @@ import {
 	type OutsideClosePointerState,
 	shouldCloseFromOutsidePointerState,
 	updateOutsideClosePointerState,
-} from "../utils/zoom.js";
+} from "../utils/pointer.js";
 
 interface UseSlideInteractionsInput {
 	onClose: () => void;
-	onZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	onZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	onZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	updateCanZoomAvailability: () => void;
 }
 
 interface UseSlideInteractionsOutput {
@@ -21,27 +17,12 @@ interface UseSlideInteractionsOutput {
 	handleSlidePointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleSlidePointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleSlidePointerCancel: (event: ReactPointerEvent<HTMLDivElement>) => void;
-	handleSlideLoadCapture: (event: SyntheticEvent<HTMLDivElement>) => void;
 }
 
-/**
- * Combines outside-content close detection with zoom pointer event delegation
- * for a single lightbox slide element.
- *
- * Tracks whether each pointer press originated outside `[data-lightbox-slide-content]`
- * and closes the lightbox on release if the pointer did not drag. Zoom pointer
- * events are forwarded to the provided zoom handlers throughout.
- */
 export function useSlideInteractions(
 	props: UseSlideInteractionsInput,
 ): UseSlideInteractionsOutput {
-	const {
-		onClose,
-		onZoomPointerDown,
-		onZoomPointerMove,
-		onZoomPointerEnd,
-		updateCanZoomAvailability,
-	} = props;
+	const { onClose } = props;
 
 	const outsideClosePointerRef = useRef<OutsideClosePointerState | null>(null);
 
@@ -58,10 +39,8 @@ export function useSlideInteractions(
 				clientY: event.clientY,
 				startedOutsideContent: !startedInsideContent,
 			});
-
-			onZoomPointerDown(event);
 		},
-		[onZoomPointerDown],
+		[],
 	);
 
 	const handleSlidePointerMove = useCallback(
@@ -80,16 +59,12 @@ export function useSlideInteractions(
 					},
 				);
 			}
-
-			onZoomPointerMove(event);
 		},
-		[onZoomPointerMove],
+		[],
 	);
 
 	const handleSlidePointerUp = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
-			onZoomPointerEnd(event);
-
 			const outsideClosePointer = outsideClosePointerRef.current;
 
 			if (
@@ -113,31 +88,17 @@ export function useSlideInteractions(
 				onClose();
 			}
 		},
-		[onClose, onZoomPointerEnd],
+		[onClose],
 	);
 
-	const handleSlidePointerCancel = useCallback(
-		(event: ReactPointerEvent<HTMLDivElement>) => {
-			outsideClosePointerRef.current = null;
-			onZoomPointerEnd(event);
-		},
-		[onZoomPointerEnd],
-	);
-
-	const handleSlideLoadCapture = useCallback(
-		(event: SyntheticEvent<HTMLDivElement>) => {
-			if (event.target instanceof HTMLImageElement) {
-				updateCanZoomAvailability();
-			}
-		},
-		[updateCanZoomAvailability],
-	);
+	const handleSlidePointerCancel = useCallback(() => {
+		outsideClosePointerRef.current = null;
+	}, []);
 
 	return {
 		handleSlidePointerDown,
 		handleSlidePointerMove,
 		handleSlidePointerUp,
 		handleSlidePointerCancel,
-		handleSlideLoadCapture,
 	};
 }

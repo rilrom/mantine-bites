@@ -11,11 +11,6 @@ Full-screen image lightbox with thumbnails, controls, and carousel navigation.
 
 ## Roadmap
 
-- [x] Fix mobile UI quirks.
-- [x] Autoplay option.
-- [x] Zoom option.
-- [x] Fullscreen option.
-- [ ] Iframes.
-- [ ] Videos.
-- [ ] Maps.
-- [ ] Documentation examples (Next.js Image, Mantine Image etc).
+- [ ] Autoplay option.
+- [ ] Zoom option.
+- [ ] Fullscreen option.

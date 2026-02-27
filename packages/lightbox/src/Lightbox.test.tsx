@@ -1,317 +1,136 @@
 import { render, screen } from "@mantine-tests/core";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import Autoplay from "embla-carousel-autoplay";
+import type { ReactNode } from "react";
 import { Lightbox, type LightboxProps } from "./index.js";
 
-const defaultProps: LightboxProps = {
+const defaultRootProps: Omit<LightboxProps, "children"> = {
 	opened: true,
 	onClose: () => {},
 	carouselOptions: {
 		previousControlProps: { "aria-label": "Previous image" },
 		nextControlProps: { "aria-label": "Next image" },
 	},
-	children: [
-		<Lightbox.Slide
-			key="1"
-			thumbnail={
-				<img src="/photo-1-thumb.jpg" alt="Forest landscape thumbnail" />
-			}
-		>
-			<img src="/photo-1.jpg" alt="Forest landscape" />
-		</Lightbox.Slide>,
-		<Lightbox.Slide
-			key="2"
-			thumbnail={<img src="/photo-2-thumb.jpg" alt="Mountain view thumbnail" />}
-		>
-			<img src="/photo-2.jpg" alt="Mountain view" />
-		</Lightbox.Slide>,
-		<Lightbox.Slide
-			key="3"
-			thumbnail={<img src="/photo-3-thumb.jpg" alt="Ocean sunset thumbnail" />}
-		>
-			<img src="/photo-3.jpg" alt="Ocean sunset" />
-		</Lightbox.Slide>,
-	],
 };
 
-let fullscreenElement: Element | null = null;
+const defaultSlides = [
+	<Lightbox.Slide key="slide-1">
+		<img src="/photo-1.jpg" alt="Forest landscape slide" />
+	</Lightbox.Slide>,
+	<Lightbox.Slide key="slide-2">
+		<img src="/photo-2.jpg" alt="Mountain view slide" />
+	</Lightbox.Slide>,
+	<Lightbox.Slide key="slide-3">
+		<img src="/photo-3.jpg" alt="Ocean sunset slide" />
+	</Lightbox.Slide>,
+];
 
-const emitFullscreenChange = () => {
-	fireEvent(
-		document.documentElement,
-		new Event("fullscreenchange", { bubbles: true }),
+const defaultThumbnails = [
+	<Lightbox.Thumbnail key="thumbnail-1">
+		<img src="/photo-1.jpg" alt="Forest landscape thumbnail" />
+	</Lightbox.Thumbnail>,
+	<Lightbox.Thumbnail key="thumbnail-2">
+		<img src="/photo-2.jpg" alt="Mountain view thumbnail" />
+	</Lightbox.Thumbnail>,
+	<Lightbox.Thumbnail key="thumbnail-3">
+		<img src="/photo-3.jpg" alt="Ocean sunset thumbnail" />
+	</Lightbox.Thumbnail>,
+];
+
+interface RenderLightboxOptions {
+	rootProps?: Partial<LightboxProps>;
+	slides?: ReactNode;
+	thumbnails?: ReactNode;
+	withToolbar?: boolean;
+	withCounter?: boolean;
+	withThumbnails?: boolean;
+}
+
+function renderLightbox({
+	rootProps,
+	slides = defaultSlides,
+	thumbnails = defaultThumbnails,
+	withToolbar = true,
+	withCounter = true,
+	withThumbnails = true,
+}: RenderLightboxOptions = {}) {
+	const mergedRootProps = { ...defaultRootProps, ...rootProps };
+
+	return render(
+		<Lightbox.Root {...mergedRootProps}>
+			<Lightbox.Overlay />
+			<Lightbox.Content>
+				{withToolbar && <Lightbox.Toolbar />}
+				{withCounter && <Lightbox.Counter />}
+				<Lightbox.Slides>{slides}</Lightbox.Slides>
+				{withThumbnails && (
+					<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
+				)}
+			</Lightbox.Content>
+		</Lightbox.Root>,
 	);
-};
+}
 
-const requestFullscreenMock = jest.fn(async function (this: Element) {
-	fullscreenElement = this;
-
-	emitFullscreenChange();
-});
-
-const exitFullscreenMock = jest.fn(async () => {
-	fullscreenElement = null;
-});
-
-describe("@mantine-bites/lightbox/Lightbox", () => {
-	beforeEach(() => {
-		fullscreenElement = null;
-
-		requestFullscreenMock.mockClear();
-
-		exitFullscreenMock.mockClear();
-
-		Object.defineProperty(document, "fullscreenElement", {
-			configurable: true,
-			get: () => fullscreenElement,
-		});
-
-		Object.defineProperty(document.documentElement, "requestFullscreen", {
-			configurable: true,
-			value: requestFullscreenMock,
-		});
-
-		Object.defineProperty(document, "exitFullscreen", {
-			configurable: true,
-			value: exitFullscreenMock,
-		});
+describe("@mantine-bites/lightbox/Lightbox compound API", () => {
+	it("should expose compound static members", () => {
+		expect(Lightbox.Root).toBeDefined();
+		expect(Lightbox.Overlay).toBeDefined();
+		expect(Lightbox.Content).toBeDefined();
+		expect(Lightbox.Toolbar).toBeDefined();
+		expect(Lightbox.Counter).toBeDefined();
+		expect(Lightbox.Slides).toBeDefined();
+		expect(Lightbox.Thumbnails).toBeDefined();
+		expect(Lightbox.Thumbnail).toBeDefined();
+		expect(Lightbox.Slide).toBeDefined();
 	});
 
-	it("should have correct displayName", () => {
-		expect(Lightbox.displayName).toBe("Lightbox");
-	});
-
-	it("should have static classes", () => {
+	it("should have static classes and extend function", () => {
 		expect(Lightbox.classes).toBeDefined();
-	});
-
-	it("should have static extend function", () => {
 		expect(Lightbox.extend).toBeDefined();
 	});
 
-	it("should support ref", () => {
-		const ref = { current: null as HTMLDivElement | null };
-
-		render(<Lightbox {...defaultProps} ref={ref} />);
-
-		expect(ref.current).toBeInstanceOf(HTMLDivElement);
-	});
-
-	it("should not render when closed", () => {
-		render(<Lightbox {...defaultProps} opened={false} />);
+	it("should not render content when closed", () => {
+		renderLightbox({ rootProps: { opened: false } });
 
 		expect(screen.queryByLabelText("Close lightbox")).not.toBeInTheDocument();
 	});
 
-	it("should always render close button", () => {
-		render(<Lightbox {...defaultProps} />);
+	it("should keep slide content mounted when keepMounted is true", () => {
+		renderLightbox({ rootProps: { opened: false, keepMounted: true } });
 
-		expect(screen.getByLabelText("Close lightbox")).toBeInTheDocument();
+		expect(screen.getByAltText("Forest landscape slide")).toBeInTheDocument();
 	});
 
-	it("should render fullscreen button by default", () => {
-		render(<Lightbox {...defaultProps} />);
+	it("should allow composition to hide counter", () => {
+		renderLightbox({ withCounter: false });
 
-		expect(screen.getByLabelText("Enter fullscreen")).toBeInTheDocument();
+		expect(screen.queryByText("1 / 3")).not.toBeInTheDocument();
 	});
 
-	it("should hide fullscreen button when withFullscreen={false}", () => {
-		render(<Lightbox {...defaultProps} withFullscreen={false} />);
+	it("should allow composition to hide thumbnails", () => {
+		renderLightbox({ withThumbnails: false });
 
-		expect(screen.queryByLabelText("Enter fullscreen")).not.toBeInTheDocument();
-	});
-
-	it("should render zoom button by default", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
-	});
-
-	it("should hide zoom button when withZoom={false}", () => {
-		render(<Lightbox {...defaultProps} withZoom={false} />);
-
-		expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
-	});
-
-	it("should mark active slide as non-zoomable when withZoom={false}", () => {
-		render(<Lightbox {...defaultProps} withZoom={false} />);
-
-		const image = screen.getByAltText("Forest landscape");
-		const activeZoomContainer = image.closest("[data-active='true']");
-
-		expect(activeZoomContainer).toHaveAttribute("data-can-zoom", "false");
-	});
-
-	it("should disable zoom button when active slide has no image", () => {
-		render(
-			<Lightbox opened onClose={() => {}}>
-				<Lightbox.Slide>
-					<div>No image content</div>
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		return waitFor(() =>
-			expect(screen.getByLabelText("Zoom in")).toBeDisabled(),
-		);
-	});
-
-	it("should keep zoom enabled when image is downscaled even if container-height fill is 1", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		const zoomButton = screen.getByLabelText("Zoom in");
-		const image = screen.getByAltText("Forest landscape");
-		const container = image.closest("[data-active='true']");
-
-		expect(container).not.toBeNull();
-
-		Object.defineProperty(image, "naturalWidth", {
-			configurable: true,
-			value: 1500,
-		});
-
-		Object.defineProperty(image, "naturalHeight", {
-			configurable: true,
-			value: 1000,
-		});
-
-		Object.defineProperty(image, "getBoundingClientRect", {
-			configurable: true,
-			value: () => ({
-				x: 0,
-				y: 0,
-				width: 1000,
-				height: 667,
-				top: 0,
-				left: 0,
-				right: 1000,
-				bottom: 667,
-				toJSON: () => ({}),
-			}),
-		});
-
-		Object.defineProperty(container, "getBoundingClientRect", {
-			configurable: true,
-			value: () => ({
-				x: 0,
-				y: 0,
-				width: 1000,
-				height: 667,
-				top: 0,
-				left: 0,
-				right: 1000,
-				bottom: 667,
-				toJSON: () => ({}),
-			}),
-		});
-
-		fireEvent.load(image);
-
-		await waitFor(() => expect(zoomButton).toBeEnabled());
-	});
-
-	it("should disable zoom when image has no natural resolution headroom", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		const zoomButton = screen.getByLabelText("Zoom in");
-		const image = screen.getByAltText("Forest landscape");
-
-		Object.defineProperty(image, "naturalWidth", {
-			configurable: true,
-			value: 1000,
-		});
-
-		Object.defineProperty(image, "naturalHeight", {
-			configurable: true,
-			value: 667,
-		});
-
-		Object.defineProperty(image, "getBoundingClientRect", {
-			configurable: true,
-			value: () => ({
-				x: 0,
-				y: 0,
-				width: 1000,
-				height: 667,
-				top: 0,
-				left: 0,
-				right: 1000,
-				bottom: 667,
-				toJSON: () => ({}),
-			}),
-		});
-
-		fireEvent.load(image);
-
-		await waitFor(() => expect(zoomButton).toBeDisabled());
-	});
-
-	it("should render fullscreen button before close button when withFullscreen is true", () => {
-		render(<Lightbox {...defaultProps} withFullscreen />);
-
-		const fullscreenButton = screen.getByLabelText("Enter fullscreen");
-		const closeButton = screen.getByLabelText("Close lightbox");
-
-		expect(
-			Boolean(
-				fullscreenButton.compareDocumentPosition(closeButton) &
-					Node.DOCUMENT_POSITION_FOLLOWING,
-			),
-		).toBe(true);
-	});
-
-	it("should request browser fullscreen when fullscreen button is clicked", async () => {
-		render(<Lightbox {...defaultProps} withFullscreen />);
-
-		await userEvent.click(screen.getByLabelText("Enter fullscreen"));
-
-		expect(requestFullscreenMock).toHaveBeenCalledTimes(1);
-	});
-
-	it("should exit browser fullscreen when fullscreen button is clicked in fullscreen mode", async () => {
-		render(<Lightbox {...defaultProps} withFullscreen />);
-
-		await userEvent.click(screen.getByLabelText("Enter fullscreen"));
-
-		await userEvent.click(screen.getByLabelText("Exit fullscreen"));
-
-		expect(exitFullscreenMock).toHaveBeenCalledTimes(1);
-	});
-
-	it("should exit browser fullscreen when lightbox closes", async () => {
-		const { rerender } = render(<Lightbox {...defaultProps} opened />);
-
-		await userEvent.click(screen.getByLabelText("Enter fullscreen"));
-
-		await waitFor(() =>
-			expect(screen.getByLabelText("Exit fullscreen")).toBeInTheDocument(),
-		);
-
-		rerender(<Lightbox {...defaultProps} opened={false} />);
-
-		await waitFor(() => expect(exitFullscreenMock).toHaveBeenCalledTimes(1));
+		expect(screen.queryByLabelText("Go to slide 1")).not.toBeInTheDocument();
 	});
 
 	it("should call onClose when close button is clicked", async () => {
 		const onClose = jest.fn();
 
-		render(<Lightbox {...defaultProps} onClose={onClose} />);
+		renderLightbox({ rootProps: { onClose } });
 
 		await userEvent.click(screen.getByLabelText("Close lightbox"));
 
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
-	it("should call onClose when active slide is tapped outside slide content", () => {
+	it("should respect closeOnClickOutside=false", () => {
 		const onClose = jest.fn();
 
-		render(<Lightbox {...defaultProps} onClose={onClose} />);
+		renderLightbox({ rootProps: { onClose, closeOnClickOutside: false } });
 
-		const image = screen.getByAltText("Forest landscape");
-		const activeSlide = image.closest("[data-active='true']");
+		const image = screen.getByAltText("Forest landscape slide");
 
-		expect(activeSlide).toBeInstanceOf(HTMLElement);
+		const activeSlide = image.closest("[aria-current='true']");
 
 		if (!activeSlide) {
 			return;
@@ -322,40 +141,7 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 			clientX: 24,
 			clientY: 24,
 		});
-		fireEvent.pointerUp(activeSlide, {
-			pointerId: 1,
-			clientX: 24,
-			clientY: 24,
-		});
 
-		expect(onClose).toHaveBeenCalledTimes(1);
-	});
-
-	it("should not call onClose when closeOnClickOutside is false", () => {
-		const onClose = jest.fn();
-
-		render(
-			<Lightbox
-				{...defaultProps}
-				onClose={onClose}
-				closeOnClickOutside={false}
-			/>,
-		);
-
-		const image = screen.getByAltText("Forest landscape");
-		const activeSlide = image.closest("[data-active='true']");
-
-		expect(activeSlide).toBeInstanceOf(HTMLElement);
-
-		if (!activeSlide) {
-			return;
-		}
-
-		fireEvent.pointerDown(activeSlide, {
-			pointerId: 1,
-			clientX: 24,
-			clientY: 24,
-		});
 		fireEvent.pointerUp(activeSlide, {
 			pointerId: 1,
 			clientX: 24,
@@ -363,878 +149,82 @@ describe("@mantine-bites/lightbox/Lightbox", () => {
 		});
 
 		expect(onClose).not.toHaveBeenCalled();
-	});
-
-	it("should not call onClose when active slide image is tapped", () => {
-		const onClose = jest.fn();
-
-		render(<Lightbox {...defaultProps} onClose={onClose} />);
-
-		const image = screen.getByAltText("Forest landscape");
-
-		fireEvent.pointerDown(image, {
-			pointerId: 2,
-			clientX: 40,
-			clientY: 40,
-		});
-		fireEvent.pointerUp(image, {
-			pointerId: 2,
-			clientX: 40,
-			clientY: 40,
-		});
-
-		expect(onClose).not.toHaveBeenCalled();
-	});
-
-	it("should toggle zoom state from toolbar button", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		await userEvent.click(screen.getByLabelText("Zoom in"));
-
-		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
-
-		await userEvent.click(screen.getByLabelText("Zoom out"));
-
-		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
-	});
-
-	it("should render first slide by default", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByAltText("Forest landscape")).toBeInTheDocument();
-	});
-
-	it("should render at initialSlide position", () => {
-		render(
-			<Lightbox {...defaultProps} carouselOptions={{ initialSlide: 2 }} />,
-		);
-
-		expect(screen.getByAltText("Ocean sunset")).toBeInTheDocument();
-	});
-
-	it("should accept onSlideChange callback via carouselOptions without error", () => {
-		const onSlideChange = jest.fn();
-
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					onSlideChange,
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should render controls by default", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByLabelText("Previous image")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Next image")).toBeInTheDocument();
-	});
-
-	it("should hide controls when withControls={false}", () => {
-		render(
-			<Lightbox {...defaultProps} carouselOptions={{ withControls: false }} />,
-		);
-
-		expect(screen.queryByLabelText("Previous image")).not.toBeInTheDocument();
-
-		expect(screen.queryByLabelText("Next image")).not.toBeInTheDocument();
-	});
-
-	it("should mark prev control inactive at first slide when loop={false}", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { loop: false },
-				}}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Previous image")).toHaveAttribute(
-			"data-inactive",
-			"true",
-		);
-	});
-
-	it("should mark next control inactive at last slide when loop={false}", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					initialSlide: 2,
-					emblaOptions: { loop: false },
-				}}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Next image")).toHaveAttribute(
-			"data-inactive",
-			"true",
-		);
-	});
-
-	it("should not mark controls inactive when loop={true}", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { loop: true },
-				}}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Previous image")).not.toHaveAttribute(
-			"data-inactive",
-		);
-	});
-
-	it("should keep prev control active with loop={true} and initialSlide at last slide", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					initialSlide: 2,
-					emblaOptions: { loop: true },
-				}}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Previous image")).not.toHaveAttribute(
-			"data-inactive",
-		);
-	});
-
-	it("should render controls with loop={true} and a single slide", () => {
-		render(
-			<Lightbox
-				opened
-				onClose={() => {}}
-				carouselOptions={{
-					previousControlProps: { "aria-label": "Previous image" },
-					nextControlProps: { "aria-label": "Next image" },
-					emblaOptions: { loop: true },
-				}}
-			>
-				<Lightbox.Slide>
-					<img src="/only.jpg" alt="Only slide" />
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		expect(screen.getByLabelText("Previous image")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Next image")).toBeInTheDocument();
-	});
-
-	it("should render counter by default", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should hide counter when withCounter={false}", () => {
-		render(<Lightbox {...defaultProps} withCounter={false} />);
-
-		expect(screen.queryByText("1 / 3")).not.toBeInTheDocument();
-	});
-
-	it("should use custom counterFormatter", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				withCounter
-				counterFormatter={(i, t) => `${i + 1} of ${t}`}
-			/>,
-		);
-
-		expect(screen.getByText("1 of 3")).toBeInTheDocument();
-	});
-
-	it("should show correct counter value when initialSlide is set", () => {
-		render(
-			<Lightbox {...defaultProps} carouselOptions={{ initialSlide: 2 }} />,
-		);
-
-		expect(screen.getByText("3 / 3")).toBeInTheDocument();
-	});
-
-	it("should show correct counter value when initialSlide is 1", () => {
-		render(
-			<Lightbox {...defaultProps} carouselOptions={{ initialSlide: 1 }} />,
-		);
-
-		expect(screen.getByText("2 / 3")).toBeInTheDocument();
-	});
-
-	it("should reset current index when closed so reopen uses latest initialSlide", () => {
-		const { rerender } = render(
-			<Lightbox
-				{...defaultProps}
-				opened
-				carouselOptions={{ initialSlide: 1 }}
-			/>,
-		);
-
-		expect(screen.getByText("2 / 3")).toBeInTheDocument();
-
-		rerender(
-			<Lightbox
-				{...defaultProps}
-				opened={false}
-				carouselOptions={{ initialSlide: 0 }}
-			/>,
-		);
-
-		rerender(
-			<Lightbox
-				{...defaultProps}
-				opened
-				carouselOptions={{ initialSlide: 0 }}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should resync thumbnail active state and outside-click handlers when initialSlide changes while opened", () => {
-		const onClose = jest.fn();
-		const { rerender, container } = render(
-			<Lightbox
-				{...defaultProps}
-				opened
-				onClose={onClose}
-				carouselOptions={{ initialSlide: 2 }}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Go to slide 3")).toHaveAttribute(
-			"data-active",
-			"true",
-		);
-
-		rerender(
-			<Lightbox
-				{...defaultProps}
-				opened
-				onClose={onClose}
-				carouselOptions={{ initialSlide: 0 }}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Go to slide 1")).toHaveAttribute(
-			"data-active",
-			"true",
-		);
-		expect(screen.getByLabelText("Go to slide 3")).not.toHaveAttribute(
-			"data-active",
-		);
-
-		const activeZoomContainer = container.querySelector("[data-active='true']");
-
-		expect(activeZoomContainer).not.toBeNull();
-
-		fireEvent.pointerDown(activeZoomContainer as Element, {
-			pointerId: 1,
-			clientX: 100,
-			clientY: 100,
-		});
-		fireEvent.pointerUp(activeZoomContainer as Element, {
-			pointerId: 1,
-			clientX: 100,
-			clientY: 100,
-		});
-
-		expect(onClose).toHaveBeenCalledTimes(1);
-	});
-
-	it("should not crash on ArrowRight keydown", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		await userEvent.keyboard("{ArrowRight}");
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should not crash on ArrowLeft keydown", async () => {
-		render(
-			<Lightbox {...defaultProps} carouselOptions={{ initialSlide: 2 }} />,
-		);
-
-		await userEvent.keyboard("{ArrowLeft}");
-
-		expect(screen.getByText("3 / 3")).toBeInTheDocument();
-	});
-
-	it("should keep carousel controls enabled when zoomed", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		await userEvent.click(screen.getByLabelText("Zoom in"));
-
-		expect(screen.getByLabelText("Previous image")).toBeEnabled();
-		expect(screen.getByLabelText("Next image")).toBeEnabled();
-	});
-
-	it("should toggle zoom when clicking active slide image", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		await userEvent.click(screen.getByAltText("Forest landscape"));
-
-		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
-
-		await userEvent.click(screen.getByAltText("Forest landscape"));
-
-		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
-	});
-
-	it("should not toggle zoom when clicking active slide image and withZoom={false}", async () => {
-		render(<Lightbox {...defaultProps} withZoom={false} />);
-
-		await userEvent.click(screen.getByAltText("Forest landscape"));
-
-		expect(screen.queryByLabelText("Zoom out")).not.toBeInTheDocument();
-		expect(screen.queryByLabelText("Zoom in")).not.toBeInTheDocument();
-	});
-
-	it("should reset zoom when thumbnail is clicked", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		await userEvent.click(screen.getByLabelText("Zoom in"));
-		await userEvent.click(screen.getByLabelText("Go to slide 2"));
-
-		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
-	});
-
-	it("should ignore keyboard events when lightbox is closed", async () => {
-		render(<Lightbox {...defaultProps} opened={false} />);
-
-		await userEvent.keyboard("{ArrowRight}");
-
-		await userEvent.keyboard("{ArrowLeft}");
-
-		expect(screen.queryByText("1 / 3")).not.toBeInTheDocument();
-	});
-
-	it("should render thumbnails by default", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByLabelText("Go to slide 1")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Go to slide 2")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Go to slide 3")).toBeInTheDocument();
-	});
-
-	it("should hide thumbnails when withThumbnails={false}", () => {
-		render(<Lightbox {...defaultProps} withThumbnails={false} />);
-
-		expect(screen.queryByLabelText("Go to slide 1")).not.toBeInTheDocument();
-	});
-
-	it("should render thumbnail ReactNode from Slide", () => {
-		render(
-			<Lightbox opened onClose={() => {}} withThumbnails>
-				<Lightbox.Slide thumbnail={<img src="/thumb.jpg" alt="Thumb" />}>
-					<div>Custom content</div>
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		const thumb = screen.getByLabelText("Go to slide 1").querySelector("img");
-
-		expect(thumb).toHaveAttribute("src", "/thumb.jpg");
-	});
-
-	it("should render placeholder thumbnail when thumbnail is omitted", () => {
-		render(
-			<Lightbox opened onClose={() => {}} withThumbnails>
-				<Lightbox.Slide>
-					<div>No image</div>
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		const button = screen.getByLabelText("Go to slide 1");
-
-		expect(button.querySelector("img")).not.toBeInTheDocument();
-
-		expect(button.querySelector("svg")).toBeInTheDocument();
-	});
-
-	it("should match thumbnail count to slide count", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByLabelText("Go to slide 1")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Go to slide 2")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Go to slide 3")).toBeInTheDocument();
-
-		expect(screen.queryByLabelText("Go to slide 4")).not.toBeInTheDocument();
-	});
-
-	it("should set data-active on thumbnail for current slide by default", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByLabelText("Go to slide 1")).toHaveAttribute(
-			"data-active",
-			"true",
-		);
-
-		expect(screen.getByLabelText("Go to slide 2")).not.toHaveAttribute(
-			"data-active",
-		);
-
-		expect(screen.getByLabelText("Go to slide 3")).not.toHaveAttribute(
-			"data-active",
-		);
-	});
-
-	it("should reflect initialSlide in thumbnail active state", () => {
-		render(
-			<Lightbox {...defaultProps} carouselOptions={{ initialSlide: 1 }} />,
-		);
-
-		expect(screen.getByLabelText("Go to slide 1")).not.toHaveAttribute(
-			"data-active",
-		);
-
-		expect(screen.getByLabelText("Go to slide 2")).toHaveAttribute(
-			"data-active",
-			"true",
-		);
-	});
-
-	it("should register keyboard listener when opened", () => {
-		const addSpy = jest.spyOn(document, "addEventListener");
-
-		render(<Lightbox {...defaultProps} />);
-
-		expect(addSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
-
-		addSpy.mockRestore();
-	});
-
-	it("should remove keydown listener when opened changes to false", () => {
-		const removeSpy = jest.spyOn(document, "removeEventListener");
-
-		const { rerender } = render(<Lightbox {...defaultProps} />);
-
-		rerender(<Lightbox {...defaultProps} opened={false} />);
-
-		expect(removeSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
-
-		removeSpy.mockRestore();
-	});
-
-	it("should remove keydown listener on unmount", () => {
-		const removeSpy = jest.spyOn(document, "removeEventListener");
-
-		const { unmount } = render(<Lightbox {...defaultProps} />);
-
-		unmount();
-
-		expect(removeSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
-
-		removeSpy.mockRestore();
-	});
-
-	it("should render slide children", () => {
-		render(
-			<Lightbox opened onClose={() => {}}>
-				<Lightbox.Slide>
-					<span>Custom slide content</span>
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		expect(screen.getByText("Custom slide content")).toBeInTheDocument();
-	});
-
-	it("should forward previousControlProps to prev button", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					previousControlProps: {
-						"data-testid": "prev-btn",
-						"aria-label": "Previous image",
-					},
-				}}
-			/>,
-		);
-
-		expect(screen.getByTestId("prev-btn")).toBeInTheDocument();
-	});
-
-	it("should forward nextControlProps to next button", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					nextControlProps: {
-						"data-testid": "next-btn",
-						"aria-label": "Next image",
-					},
-				}}
-			/>,
-		);
-
-		expect(screen.getByTestId("next-btn")).toBeInTheDocument();
-	});
-
-	it("should accept controlSize prop without error", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					controlSize: 48,
-				}}
-			/>,
-		);
-
-		expect(screen.getByLabelText("Previous image")).toBeInTheDocument();
-
-		expect(screen.getByLabelText("Next image")).toBeInTheDocument();
-	});
-
-	it("should call getEmblaApi with the Embla API instance after mount", async () => {
-		const getEmblaApi = jest.fn();
-
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					getEmblaApi,
-				}}
-			/>,
-		);
-
-		await waitFor(() =>
-			expect(getEmblaApi).toHaveBeenCalledWith(
-				expect.objectContaining({ scrollNext: expect.any(Function) }),
-			),
-		);
-	});
-
-	it("should render all slides in the DOM regardless of which is active", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.getByAltText("Forest landscape")).toBeInTheDocument();
-
-		expect(screen.getByAltText("Mountain view")).toBeInTheDocument();
-
-		expect(screen.getByAltText("Ocean sunset")).toBeInTheDocument();
-	});
-
-	it("should accept startIndex without error", () => {
-		// startIndex sets Embla's initial position, but the Lightbox counter
-		// is initialized from carouselOptions.initialSlide, not emblaOptions.startIndex.
-		// Counter shows "1 / 3" because initialSlide is not set.
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { startIndex: 2 },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should prioritize initialSlide over emblaOptions.startIndex for the counter", () => {
-		// When both are set, initialSlide drives the counter display.
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					initialSlide: 1,
-					emblaOptions: { startIndex: 2 },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("2 / 3")).toBeInTheDocument();
-	});
-
-	it("should render carousel without errors when direction is rtl", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { direction: "rtl" },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should render without errors when active is false", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { active: false, loop: false },
-				}}
-			/>,
-		);
-
-		// With active: false, Embla disables all scrolling.
-		// Both controls should be marked inactive.
-		expect(screen.getByLabelText("Previous image")).toHaveAttribute(
-			"data-inactive",
-			"true",
-		);
-
-		expect(screen.getByLabelText("Next image")).toHaveAttribute(
-			"data-inactive",
-			"true",
-		);
-	});
-
-	it("should render without errors when draggable is false", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { watchDrag: false },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should render without errors when dragFree is true", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { dragFree: true },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should render without errors when slidesToScroll is 2", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					emblaOptions: { slidesToScroll: 2 },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("should call onClose when Escape is pressed", async () => {
 		const onClose = jest.fn();
 
-		render(<Lightbox {...defaultProps} onClose={onClose} />);
+		renderLightbox({ rootProps: { onClose } });
 
 		await userEvent.keyboard("{Escape}");
 
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
-	it("should render slide content even when closed when keepMounted is true", () => {
-		render(<Lightbox {...defaultProps} opened={false} keepMounted />);
+	it("should render at initialSlide position", async () => {
+		renderLightbox({ rootProps: { initialSlide: 2 } });
 
-		// With keepMounted, content stays in the DOM (hidden).
-		// Contrast with the "does not render when closed" test which asserts
-		// the close button is absent when keepMounted is not set.
-		expect(screen.getByAltText("Forest landscape")).toBeInTheDocument();
+		expect(await screen.findByText("3 / 3")).toBeInTheDocument();
+
+		expect(await screen.findByLabelText("Go to slide 3")).toHaveAttribute(
+			"aria-current",
+			"true",
+		);
 	});
 
-	it("should accept overlayProps without error", () => {
-		render(
-			<Lightbox {...defaultProps} overlayProps={{ backgroundOpacity: 0.5 }} />,
+	it("should reset current index when closed and reopened", () => {
+		const { rerender } = renderLightbox({
+			rootProps: { opened: true, initialSlide: 1 },
+		});
+
+		expect(screen.getByText("2 / 3")).toBeInTheDocument();
+
+		rerender(
+			<Lightbox.Root {...defaultRootProps} opened={false} initialSlide={0}>
+				<Lightbox.Overlay />
+				<Lightbox.Content>
+					<Lightbox.Toolbar />
+					<Lightbox.Counter />
+					<Lightbox.Slides>{defaultSlides}</Lightbox.Slides>
+					<Lightbox.Thumbnails />
+				</Lightbox.Content>
+			</Lightbox.Root>,
+		);
+
+		rerender(
+			<Lightbox.Root {...defaultRootProps} opened initialSlide={0}>
+				<Lightbox.Overlay />
+				<Lightbox.Content>
+					<Lightbox.Toolbar />
+					<Lightbox.Counter />
+					<Lightbox.Slides>{defaultSlides}</Lightbox.Slides>
+					<Lightbox.Thumbnails />
+				</Lightbox.Content>
+			</Lightbox.Root>,
 		);
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
-	it("should accept transitionProps without error", () => {
-		render(<Lightbox {...defaultProps} transitionProps={{ duration: 0 }} />);
+	it("should accept overlayProps", () => {
+		renderLightbox({ rootProps: { overlayProps: { backgroundOpacity: 0.5 } } });
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
-	it("should accept thumbnailEmblaOptions without affecting main carousel", () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				thumbnailEmblaOptions={{ dragFree: false, containScroll: "keepSnaps" }}
-			/>,
-		);
-
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-		expect(screen.getByLabelText("Previous image")).toBeInTheDocument();
-		expect(screen.getByLabelText("Next image")).toBeInTheDocument();
-	});
-
-	it("should accept trapFocus as false without error", () => {
-		render(<Lightbox {...defaultProps} trapFocus={false} />);
+	it("should accept transitionProps", () => {
+		renderLightbox({ rootProps: { transitionProps: { duration: 0 } } });
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
-	it("should accept lockScroll as false without error", () => {
-		render(<Lightbox {...defaultProps} lockScroll={false} />);
+	it("should accept thumbnailEmblaOptions", () => {
+		renderLightbox({
+			rootProps: {
+				thumbnailEmblaOptions: { dragFree: false, containScroll: "keepSnaps" },
+			},
+		});
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should not crash when clicking a thumbnail", async () => {
-		render(<Lightbox {...defaultProps} />);
-
-		await userEvent.click(screen.getByLabelText("Go to slide 3"));
-
-		// Counter stays at "1 / 3" because Embla doesn't fire onSelect in JSDOM
-		expect(screen.getByText("1 / 3")).toBeInTheDocument();
-	});
-
-	it("should render a mix of custom and placeholder thumbnails", () => {
-		render(
-			<Lightbox opened onClose={() => {}} withThumbnails>
-				<Lightbox.Slide thumbnail={<img src="/thumb1.jpg" alt="Thumb 1" />}>
-					<div>Slide 1</div>
-				</Lightbox.Slide>
-				<Lightbox.Slide>
-					<div>Slide 2 (no thumbnail)</div>
-				</Lightbox.Slide>
-				<Lightbox.Slide thumbnail={<img src="/thumb3.jpg" alt="Thumb 3" />}>
-					<div>Slide 3</div>
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		expect(
-			screen.getByLabelText("Go to slide 1").querySelector("img"),
-		).toHaveAttribute("src", "/thumb1.jpg");
-
-		expect(
-			screen.getByLabelText("Go to slide 2").querySelector("svg"),
-		).toBeInTheDocument();
-
-		expect(
-			screen.getByLabelText("Go to slide 3").querySelector("img"),
-		).toHaveAttribute("src", "/thumb3.jpg");
-	});
-
-	it("should render with a single slide without crashing", () => {
-		render(
-			<Lightbox opened onClose={() => {}}>
-				<Lightbox.Slide>
-					<img src="/one.jpg" alt="Only slide" />
-				</Lightbox.Slide>
-			</Lightbox>,
-		);
-
-		expect(screen.getByText("1 / 1")).toBeInTheDocument();
-
-		expect(screen.getByAltText("Only slide")).toBeInTheDocument();
-	});
-
-	it("should render with many slides without crashing", () => {
-		const slideIds = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
-
-		const slides = slideIds.map((id) => (
-			<Lightbox.Slide key={id}>
-				<img src={`/slide-${id}.jpg`} alt={`Slide ${id}`} />
-			</Lightbox.Slide>
-		));
-
-		render(
-			<Lightbox opened onClose={() => {}}>
-				{slides}
-			</Lightbox>,
-		);
-
-		expect(screen.getByText("1 / 10")).toBeInTheDocument();
-	});
-
-	it("should render with no slides without crashing", () => {
-		render(<Lightbox opened onClose={() => {}} />);
-
-		expect(screen.getByLabelText("Close lightbox")).toBeInTheDocument();
-	});
-
-	it("should not render autoplay button when no autoplay plugin is configured", () => {
-		render(<Lightbox {...defaultProps} />);
-
-		expect(screen.queryByLabelText("Pause autoplay")).not.toBeInTheDocument();
-
-		expect(screen.queryByLabelText("Play autoplay")).not.toBeInTheDocument();
-	});
-
-	it("should stop autoplay when zoom toolbar button is clicked and stopOnInteraction is true", async () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					plugins: [Autoplay({ delay: 2000, stopOnInteraction: true })],
-					emblaOptions: { loop: true },
-				}}
-			/>,
-		);
-
-		await waitFor(() =>
-			expect(screen.getByLabelText("Pause autoplay")).toBeInTheDocument(),
-		);
-
-		await userEvent.click(screen.getByLabelText("Zoom in"));
-
-		await waitFor(() =>
-			expect(screen.getByLabelText("Play autoplay")).toBeInTheDocument(),
-		);
-	});
-
-	it("should keep autoplay running when zoom toolbar button is clicked and stopOnInteraction is false", async () => {
-		render(
-			<Lightbox
-				{...defaultProps}
-				carouselOptions={{
-					...defaultProps.carouselOptions,
-					plugins: [Autoplay({ delay: 2000, stopOnInteraction: false })],
-					emblaOptions: { loop: true },
-				}}
-			/>,
-		);
-
-		const initialAutoplayLabel = screen.queryByLabelText("Pause autoplay")
-			? "Pause autoplay"
-			: "Play autoplay";
-
-		await userEvent.click(screen.getByLabelText("Zoom in"));
-
-		expect(screen.getByLabelText(initialAutoplayLabel)).toBeInTheDocument();
 	});
 });

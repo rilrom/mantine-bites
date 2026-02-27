@@ -2,11 +2,15 @@ import { Text } from "@mantine/core";
 import { useLightboxContext } from "../Lightbox.context.js";
 
 export function LightboxCounter() {
-	const ctx = useLightboxContext();
+	const { counterText, getStyles } = useLightboxContext();
+
+	if (!counterText) {
+		return null;
+	}
 
 	return (
-		<Text size="sm" {...ctx.getStyles("counter")}>
-			{ctx.counterText}
+		<Text size="sm" {...getStyles("counter")}>
+			{counterText}
 		</Text>
 	);
 }

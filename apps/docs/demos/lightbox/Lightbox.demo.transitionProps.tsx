@@ -40,18 +40,32 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox
+      <Lightbox.Root
         opened={opened}
         onClose={() => setOpened(false)}
-        carouselOptions={{ initialSlide }}
-        transitionProps={{ transition: 'slide-up', duration: 400 }}
+        initialSlide={initialSlide}
+        transitionProps={{ transition: "slide-up", duration: 400 }}
       >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+        <Lightbox.Overlay />
+        <Lightbox.Content>
+          <Lightbox.Toolbar />
+          <Lightbox.Counter />
+          <Lightbox.Slides>
+            {images.map((img) => (
+              <Lightbox.Slide key={img.src}>
+                <img src={img.src} alt={img.alt} />
+              </Lightbox.Slide>
+            ))}
+          </Lightbox.Slides>
+          <Lightbox.Thumbnails>
+            {images.map((img) => (
+              <Lightbox.Slide key={img.src}>
+                <img src={img.src} alt={img.alt} />
+              </Lightbox.Slide>
+            ))}
+          </Lightbox.Thumbnails>
+        </Lightbox.Content>
+      </Lightbox.Root>
     </>
   );
 }
@@ -89,21 +103,32 @@ function Demo() {
 				))}
 			</SimpleGrid>
 
-			<Lightbox
+			<Lightbox.Root
 				opened={opened}
 				onClose={() => setOpened(false)}
-				carouselOptions={{ initialSlide }}
+				initialSlide={initialSlide}
 				transitionProps={{ transition: "slide-up", duration: 400 }}
 			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+				<Lightbox.Overlay />
+				<Lightbox.Content>
+					<Lightbox.Toolbar />
+					<Lightbox.Counter />
+					<Lightbox.Slides>
+						{images.map((img) => (
+							<Lightbox.Slide key={img.src}>
+								<img src={img.src} alt={img.alt} />
+							</Lightbox.Slide>
+						))}
+					</Lightbox.Slides>
+					<Lightbox.Thumbnails>
+						{images.map((img) => (
+							<Lightbox.Slide key={img.src}>
+								<img src={img.src} alt={img.alt} />
+							</Lightbox.Slide>
+						))}
+					</Lightbox.Thumbnails>
+				</Lightbox.Content>
+			</Lightbox.Root>
 		</>
 	);
 }

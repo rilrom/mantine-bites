@@ -1,73 +1,35 @@
-import { Box } from "@mantine/core";
-import { cloneElement } from "react";
-import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
+import { Carousel } from "@mantine/carousel";
+import type { ReactNode } from "react";
+import React from "react";
 import { useLightboxContext } from "../Lightbox.context.js";
-import { getZoomTransform } from "../utils/zoom.js";
+import { LightboxSlideProvider } from "./LightboxSlide.context.js";
 
-export function LightboxSlides() {
-	const ctx = useLightboxContext();
+export interface LightboxSlidesProps {
+	children?: ReactNode;
+}
 
-	const {
-		handleSlidePointerDown,
-		handleSlidePointerMove,
-		handleSlidePointerUp,
-		handleSlidePointerCancel,
-		handleSlideLoadCapture,
-	} = useSlideInteractions({
-		onClose: ctx.handleOutsideClick,
-		onZoomPointerDown: ctx.handleZoomPointerDown,
-		onZoomPointerMove: ctx.handleZoomPointerMove,
-		onZoomPointerEnd: ctx.handleZoomPointerEnd,
-		updateCanZoomAvailability: ctx.updateCanZoomAvailability,
-	});
+export function LightboxSlides(props: LightboxSlidesProps) {
+	const { children } = props;
+
+	const { mergedCarouselOptions, onCarouselEmblaApi, getStyles } =
+		useLightboxContext();
 
 	return (
-		<>
-			{ctx.slides.map((slide, index) => {
-				const isActive = index === ctx.currentIndex;
-
-				const isActiveAndZoomed = isActive && ctx.isZoomed;
-
-				const slideProps = slide.props;
-
-				return cloneElement(slide, {
-					children: (
-						<Box
-							ref={isActive ? ctx.activeZoomContainerRef : undefined}
-							{...ctx.getStyles("zoomContainer")}
-							data-active={isActive || undefined}
-							data-zoomed={isActiveAndZoomed || undefined}
-							data-can-zoom={isActive ? String(ctx.canZoomCurrent) : undefined}
-							data-dragging={
-								(ctx.isDraggingZoom && isActiveAndZoomed) || undefined
-							}
-							onPointerDown={isActive ? handleSlidePointerDown : undefined}
-							onPointerMove={isActive ? handleSlidePointerMove : undefined}
-							onPointerUp={isActive ? handleSlidePointerUp : undefined}
-							onPointerCancel={isActive ? handleSlidePointerCancel : undefined}
-							onLoadCapture={isActive ? handleSlideLoadCapture : undefined}
-						>
-							<Box
-								{...ctx.getStyles("zoomContent")}
-								style={{
-									transform: getZoomTransform({
-										isZoomed: isActiveAndZoomed,
-										offset: ctx.zoomOffset,
-										scale: ctx.zoomScale,
-									}),
-								}}
-							>
-								<Box
-									style={{ display: "contents" }}
-									data-lightbox-slide-content
-								>
-									{slideProps.children}
-								</Box>
-							</Box>
-						</Box>
-					),
-				});
-			})}
-		</>
+		<Carousel
+			includeGapInSize={false}
+			slideSize="100%"
+			height="100%"
+			{...mergedCarouselOptions}
+			{...getStyles("slides")}
+			withIndicators={false}
+			withKeyboardEvents={false}
+			getEmblaApi={onCarouselEmblaApi}
+		>
+			{React.Children.map(children, (child, index) => (
+				<LightboxSlideProvider key={child?.toString()} value={{ index }}>
+					{child}
+				</LightboxSlideProvider>
+			))}
+		</Carousel>
 	);
 }

@@ -1,14 +1,12 @@
-import { Box, Button, Center, Flex, Image, Loader } from "@mantine/core";
+import { Box, Button, Center, Image, Loader } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import Autoplay from "embla-carousel-autoplay";
 import {
 	type ImgHTMLAttributes,
 	type PropsWithChildren,
 	type SyntheticEvent,
-	useRef,
 	useState,
 } from "react";
-import { Lightbox } from "./index.js";
+import { Lightbox, type LightboxProps } from "./index.js";
 
 export default { title: "Lightbox" };
 
@@ -24,26 +22,6 @@ const Container = (props: PropsWithChildren) => {
 	const { children } = props;
 
 	return <Box p={40}>{children}</Box>;
-};
-
-const PlaceholderCard = ({ children }: PropsWithChildren) => {
-	return (
-		<Flex
-			align="center"
-			justify="center"
-			c="dimmed"
-			fz={24}
-			ta="center"
-			p="2rem"
-			maw={600}
-			mx="1rem"
-			bg="var(--mantine-color-default)"
-			bd="1px dashed var(--mantine-color-default-border)"
-			bdrs="md"
-		>
-			{children}
-		</Flex>
-	);
 };
 
 interface ImgWithLoaderProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -87,6 +65,30 @@ const ImgWithLoader = (props: ImgWithLoaderProps) => {
 	);
 };
 
+interface DemoLightboxProps extends LightboxProps {
+	children: PropsWithChildren["children"];
+}
+
+function DemoLightbox({ children, ...props }: DemoLightboxProps) {
+	return (
+		<Lightbox.Root {...props}>
+			<Lightbox.Overlay />
+			<Lightbox.Content>
+				<Lightbox.Toolbar />
+				<Lightbox.Counter />
+				<Lightbox.Slides>{children}</Lightbox.Slides>
+				<Lightbox.Thumbnails>
+					{sampleImages.map((img) => (
+						<Lightbox.Thumbnail key={img.src}>
+							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+						</Lightbox.Thumbnail>
+					))}
+				</Lightbox.Thumbnails>
+			</Lightbox.Content>
+		</Lightbox.Root>
+	);
+}
+
 export const Default = () => {
 	const [opened, { open, close }] = useDisclosure(false);
 
@@ -94,18 +96,13 @@ export const Default = () => {
 		<Container>
 			<Button onClick={open}>Open</Button>
 
-			<Lightbox opened={opened} onClose={close}>
+			<DemoLightbox opened={opened} onClose={close} initialSlide={1}>
 				{sampleImages.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={
-							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
-						}
-					>
+					<Lightbox.Slide key={img.src}>
 						<ImgWithLoader src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
-			</Lightbox>
+			</DemoLightbox>
 		</Container>
 	);
 };
@@ -117,7 +114,7 @@ export const WithLoop = () => {
 		<Container>
 			<Button onClick={open}>Open</Button>
 
-			<Lightbox
+			<DemoLightbox
 				opened={opened}
 				onClose={close}
 				carouselOptions={{
@@ -127,93 +124,11 @@ export const WithLoop = () => {
 				}}
 			>
 				{sampleImages.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={
-							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
-						}
-					>
+					<Lightbox.Slide key={img.src}>
 						<ImgWithLoader src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
-			</Lightbox>
-		</Container>
-	);
-};
-
-export const WithPlaceholderThumbnails = () => {
-	const [opened, { open, close }] = useDisclosure(false);
-
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-
-			<Lightbox opened={opened} onClose={close}>
-				<Lightbox.Slide
-					thumbnail={
-						<ImgWithLoader
-							src={sampleImages[0]?.src}
-							alt={sampleImages[0]?.alt}
-							type="thumbnail"
-						/>
-					}
-				>
-					<ImgWithLoader
-						src={sampleImages[0]?.src}
-						alt={sampleImages[0]?.alt}
-					/>
-				</Lightbox.Slide>
-
-				<Lightbox.Slide>
-					<PlaceholderCard>
-						Text-only slide with a placeholder thumbnail image
-					</PlaceholderCard>
-				</Lightbox.Slide>
-
-				<Lightbox.Slide
-					thumbnail={
-						<ImgWithLoader
-							src={sampleImages[1]?.src}
-							alt={sampleImages[1]?.alt}
-							type="thumbnail"
-						/>
-					}
-				>
-					<ImgWithLoader
-						src={sampleImages[1]?.src}
-						alt={sampleImages[1]?.alt}
-					/>
-				</Lightbox.Slide>
-
-				<Lightbox.Slide
-					thumbnail={
-						<ImgWithLoader
-							src={sampleImages[2]?.src}
-							alt={sampleImages[2]?.alt}
-							type="thumbnail"
-						/>
-					}
-				>
-					<PlaceholderCard>
-						Text-only slide with a thumbnail image
-					</PlaceholderCard>
-				</Lightbox.Slide>
-
-				<Lightbox.Slide
-					thumbnail={
-						<ImgWithLoader
-							src={sampleImages[3]?.src}
-							alt={sampleImages[3]?.alt}
-							type="thumbnail"
-						/>
-					}
-				>
-					<ImgWithLoader
-						src={sampleImages[3]?.src}
-						alt={sampleImages[3]?.alt}
-					/>
-				</Lightbox.Slide>
-			</Lightbox>
+			</DemoLightbox>
 		</Container>
 	);
 };
@@ -225,56 +140,17 @@ export const WithCustomCounter = () => {
 		<Container>
 			<Button onClick={open}>Open</Button>
 
-			<Lightbox
+			<DemoLightbox
 				opened={opened}
 				onClose={close}
 				counterFormatter={(index, total) => `Image ${index + 1} of ${total}`}
 			>
 				{sampleImages.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={
-							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
-						}
-					>
+					<Lightbox.Slide key={img.src}>
 						<ImgWithLoader src={img.src} alt={img.alt} />
 					</Lightbox.Slide>
 				))}
-			</Lightbox>
-		</Container>
-	);
-};
-
-export const WithAutoPlay = () => {
-	const [opened, { open, close }] = useDisclosure(false);
-
-	const autoplay = useRef(Autoplay());
-
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-
-			<Lightbox
-				opened={opened}
-				onClose={close}
-				carouselOptions={{
-					plugins: [autoplay.current],
-					emblaOptions: {
-						loop: true,
-					},
-				}}
-			>
-				{sampleImages.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={
-							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
-						}
-					>
-						<ImgWithLoader src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+			</DemoLightbox>
 		</Container>
 	);
 };

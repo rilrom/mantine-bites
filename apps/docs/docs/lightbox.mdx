@@ -24,36 +24,6 @@ import '@mantine-bites/lightbox/styles.css';
 
 <Demo data={demos.usage} />
 
-## Common options
-
-<Demo data={demos.configurator} />
-
-## Carousel options
-
-You can pass configuration options directly to `@mantine/carousel` with the `carouselOptions` prop. You can find carousel options in the [@mantine/carousel documentation](https://mantine.dev/x/carousel/).
-
-Example of passing `controlSize` and `controlsOffset` options:
-
-<Demo data={demos.carouselOptions} />
-
-## Carousel embla options
-
-You can pass configuration options directly to the embla carousel with the `carouselOptions.emblaOptions` prop. You can find embla options in the [embla options reference](https://www.embla-carousel.com/api/options/).
-
-Example of passing `loop` and `dragFree` options:
-
-<Demo data={demos.emblaOptions} />
-
-## Embla plugins
-
-`@mantine-bites/lightbox` supports [embla plugins](https://www.embla-carousel.com/plugins/) via `carouselOptions.plugins`. Note that plugins are not installed with the `@mantine-bites/lightbox` package so you will need to install them separately.
-
-Example of the [embla autoplay plugin](https://www.embla-carousel.com/plugins/autoplay/):
-
-<InstallScript packages="embla-carousel-autoplay@^8.5.2" />
-
-<Demo data={demos.emblaPlugins} />
-
 ## Overlay
 
 Customize the backdrop using `overlayProps`. Props are passed directly to the `@mantine/core` [`Overlay`](https://mantine.dev/core/overlay/) component.
@@ -69,12 +39,6 @@ Customize the open/close animation using `transitionProps`. Props are passed to 
 Defaults are `transition: 'fade'`, `duration: 250`:
 
 <Demo data={demos.transitionProps} />
-
-## Placeholder thumbnails
-
-When a `Lightbox.Slide` does not have a `thumbnail` prop, a placeholder icon is rendered in the thumbnail strip. This is useful for slides that contain non-image content.
-
-<Demo data={demos.placeholderThumbnails} />
 
 ## Custom counter format
 

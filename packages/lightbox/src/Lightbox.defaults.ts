@@ -1,9 +1,5 @@
 export const LIGHTBOX_DEFAULT_PROPS = {
 	closeOnClickOutside: true,
-	withThumbnails: true,
-	withCounter: true,
-	withFullscreen: true,
-	withZoom: true,
 	keepMounted: false,
 	trapFocus: true,
 	lockScroll: true,

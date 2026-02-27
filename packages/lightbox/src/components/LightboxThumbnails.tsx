@@ -1,45 +1,40 @@
-import { Box, UnstyledButton } from "@mantine/core";
+import { Box } from "@mantine/core";
+import type { ReactNode } from "react";
+import React from "react";
 import { useThumbnails } from "../hooks/useThumbnails.js";
 import { useLightboxContext } from "../Lightbox.context.js";
-import { QuestionMark } from "./QuestionMark.js";
+import { LightboxThumbnailProvider } from "./LightboxThumbnail.context.js";
 
-export function LightboxThumbnails() {
-	const ctx = useLightboxContext();
+export interface LightboxThumbnailsProps {
+	children?: ReactNode;
+}
+
+export function LightboxThumbnails(props: LightboxThumbnailsProps) {
+	const { children } = props;
+
+	const { emblaOptions, getStyles, onEmblaApi } = useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
-		emblaOptions: ctx.emblaOptions,
-		onEmblaApi: ctx.onEmblaApi,
+		emblaOptions: emblaOptions,
+		onEmblaApi: onEmblaApi,
 	});
 
 	return (
-		<Box {...ctx.getStyles("thumbnails")}>
-			<Box ref={setViewportRef} {...ctx.getStyles("thumbnailsViewport")}>
+		<Box {...getStyles("thumbnails")}>
+			<Box ref={setViewportRef} {...getStyles("thumbnailsViewport")}>
 				<Box
 					ref={containerRef}
-					{...ctx.getStyles("thumbnailsContainer")}
+					{...getStyles("thumbnailsContainer")}
 					data-overflow={hasOverflow || undefined}
 				>
-					{ctx.slides.map((slide, i) => {
-						const { thumbnail } = slide.props;
-
-						return (
-							<Box {...ctx.getStyles("thumbnailSlide")} key={slide.key ?? i}>
-								<UnstyledButton
-									onClick={() => ctx.onThumbnailClick(i)}
-									aria-label={`Go to slide ${i + 1}`}
-									aria-current={i === ctx.currentIndex ? "true" : undefined}
-									data-active={i === ctx.currentIndex || undefined}
-									{...ctx.getStyles("thumbnailButton")}
-								>
-									{thumbnail ?? (
-										<Box {...ctx.getStyles("thumbnailPlaceholder")}>
-											<QuestionMark />
-										</Box>
-									)}
-								</UnstyledButton>
-							</Box>
-						);
-					})}
+					{React.Children.map(children, (child, index) => (
+						<LightboxThumbnailProvider
+							key={child?.toString()}
+							value={{ index }}
+						>
+							{child}
+						</LightboxThumbnailProvider>
+					))}
 				</Box>
 			</Box>
 		</Box>
