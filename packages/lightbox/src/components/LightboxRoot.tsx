@@ -1,3 +1,4 @@
+import type { CarouselProps } from "@mantine/carousel";
 import {
 	createVarsResolver,
 	factory,
@@ -7,7 +8,14 @@ import {
 	useProps,
 	useStyles,
 } from "@mantine/core";
-import { useLightbox } from "../hooks/useLightbox.js";
+import {
+	useFocusReturn,
+	useFocusTrap,
+	useHotkeys,
+	useMergedRef,
+} from "@mantine/hooks";
+import type { EmblaCarouselType } from "embla-carousel";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { LightboxProvider } from "../Lightbox.context.js";
 import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 import type { LightboxFactory, LightboxProps } from "../Lightbox.js";
@@ -72,44 +80,122 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		vars,
 	});
 
-	const mergedOptions = {
-		overlayProps: {
-			...LIGHTBOX_DEFAULT_PROPS.overlayProps,
-			...overlayProps,
-		},
-		transitionProps: {
-			...LIGHTBOX_DEFAULT_PROPS.transitionProps,
-			...transitionProps,
-		},
+	const mergedOverlayProps = {
+		...LIGHTBOX_DEFAULT_PROPS.overlayProps,
+		...overlayProps,
 	};
 
-	const {
-		mergedRef,
-		currentIndex,
-		counterText,
-		handleEmblaApi,
-		handleThumbnailsEmblaApi,
-		handleThumbnailClick,
-		handleOutsideClick,
-		mergedCarouselOptions,
-		mergedThumbnailEmblaOptions,
-	} = useLightbox({
-		ref,
-		opened,
-		onClose,
-		closeOnClickOutside,
-		trapFocus,
-		returnFocus,
-		initialSlide,
-		carouselOptions,
-		thumbnailEmblaOptions,
-		counterFormatter,
-	});
+	const mergedTransitionProps = {
+		...LIGHTBOX_DEFAULT_PROPS.transitionProps,
+		...transitionProps,
+	};
+
+	const mergedCarouselOptions = useMemo<CarouselProps>(
+		() => ({
+			...LIGHTBOX_DEFAULT_PROPS.carouselOptions,
+			...carouselOptions,
+			initialSlide,
+		}),
+		[carouselOptions, initialSlide],
+	);
+
+	const mergedThumbnailEmblaOptions = useMemo(
+		() => ({
+			...LIGHTBOX_DEFAULT_PROPS.thumbnailEmblaOptions,
+			...thumbnailEmblaOptions,
+		}),
+		[thumbnailEmblaOptions],
+	);
+
+	const shouldTrapFocus = trapFocus ?? LIGHTBOX_DEFAULT_PROPS.trapFocus;
+	const shouldReturnFocus = returnFocus ?? LIGHTBOX_DEFAULT_PROPS.returnFocus;
+	const shouldCloseOnClickOutside =
+		closeOnClickOutside ?? LIGHTBOX_DEFAULT_PROPS.closeOnClickOutside;
+
+	const focusTrapRef = useFocusTrap(opened && shouldTrapFocus);
+	const mergedRef = useMergedRef(ref, focusTrapRef);
+	useFocusReturn({ opened, shouldReturnFocus });
+
+	const slidesEmblaRef = useRef<EmblaCarouselType | null>(null);
+	const thumbnailsEmblaRef = useRef<EmblaCarouselType | null>(null);
+
+	const [currentIndex, setCurrentIndex] = useState(
+		mergedCarouselOptions?.initialSlide ?? 0,
+	);
+	const [total, setTotal] = useState<number | null>(null);
+
+	useHotkeys([
+		["ArrowLeft", () => opened && slidesEmblaRef.current?.scrollPrev()],
+		["ArrowRight", () => opened && slidesEmblaRef.current?.scrollNext()],
+		["Escape", () => opened && onClose()],
+	]);
+
+	const counterText = useMemo(() => {
+		if (total === null) {
+			return null;
+		}
+
+		if (counterFormatter) {
+			return counterFormatter(currentIndex, total);
+		}
+
+		return `${currentIndex + 1} / ${total}`;
+	}, [counterFormatter, currentIndex, total]);
+
+	const handleEmblaApi = useCallback(
+		(embla: EmblaCarouselType) => {
+			slidesEmblaRef.current = embla;
+
+			const onInit = (api: EmblaCarouselType) => {
+				setTotal(api.slideNodes().length);
+				mergedCarouselOptions.getEmblaApi?.(api);
+			};
+
+			const onSelect = (api: EmblaCarouselType) => {
+				setCurrentIndex(api.selectedScrollSnap());
+				thumbnailsEmblaRef.current?.scrollTo(api.selectedScrollSnap());
+			};
+
+			const onDestroy = () => {
+				setCurrentIndex(mergedCarouselOptions?.initialSlide ?? 0);
+				setTotal(null);
+				thumbnailsEmblaRef.current = null;
+				slidesEmblaRef.current = null;
+			};
+
+			onInit(embla);
+
+			embla.on("select", onSelect);
+			embla.on("destroy", onDestroy);
+		},
+		[mergedCarouselOptions],
+	);
+
+	const handleThumbnailsEmblaApi = useCallback(
+		(embla: EmblaCarouselType) => {
+			thumbnailsEmblaRef.current = embla;
+
+			embla.scrollTo(currentIndex);
+		},
+		[currentIndex],
+	);
+
+	const handleThumbnailClick = useCallback((index: number) => {
+		slidesEmblaRef.current?.scrollTo(index);
+	}, []);
+
+	const handleOutsideClick = useCallback(() => {
+		if (!shouldCloseOnClickOutside) {
+			return;
+		}
+
+		onClose();
+	}, [shouldCloseOnClickOutside, onClose]);
 
 	return (
 		<OptionalPortal {...portalProps} withinPortal={withinPortal}>
 			<Transition
-				{...mergedOptions.transitionProps}
+				{...mergedTransitionProps}
 				mounted={opened}
 				keepMounted={keepMounted}
 			>
@@ -119,7 +205,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 							value={{
 								getStyles,
 								transitionStyles,
-								overlayProps: mergedOptions.overlayProps,
+								overlayProps: mergedOverlayProps,
 								mergedRef,
 								mergedCarouselOptions,
 								onCarouselEmblaApi: handleEmblaApi,
