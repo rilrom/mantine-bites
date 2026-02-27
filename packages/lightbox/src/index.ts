@@ -2,6 +2,7 @@ export {
 	LightboxContent,
 	type LightboxContentProps,
 } from "./components/LightboxContent.js";
+export { LightboxControls } from "./components/LightboxControls.js";
 export { LightboxCounter } from "./components/LightboxCounter.js";
 export { LightboxOverlay } from "./components/LightboxOverlay.js";
 export { LightboxRoot } from "./components/LightboxRoot.js";
@@ -19,11 +20,13 @@ export {
 export { LightboxThumbnails } from "./components/LightboxThumbnails.js";
 export { LightboxToolbar } from "./components/LightboxToolbar.js";
 export type {
-	LightboxCarouselOptions,
 	LightboxCssVariables,
 	LightboxFactory,
+	LightboxModalProps,
+	LightboxPortalProps,
 	LightboxProps,
+	LightboxSlideCarouselProps,
 	LightboxStylesNames,
-	LightboxThumbnailCarouselOptions,
+	LightboxThumbnailCarouselProps,
 } from "./Lightbox.js";
 export { Lightbox } from "./Lightbox.js";

@@ -13,20 +13,49 @@
   z-index: var(--lightbox-z-index);
 }
 
-.carouselSlides {
+.slides {
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  position: relative;
 }
 
-.carouselSlide {
+.slidesViewport {
+  overflow: hidden;
+  height: 100%;
+}
+
+.slidesContainer {
+  display: flex;
+  height: 100%;
+}
+
+.control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: var(--lightbox-control-size);
+  height: var(--lightbox-control-size);
+
+  &[data-direction="prev"] {
+    left: var(--mantine-spacing-md);
+  }
+
+  &[data-direction="next"] {
+    right: var(--mantine-spacing-md);
+  }
+}
+
+.slide {
+  flex: 0 0 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
   line-height: 1;
 
-	img {
+  img {
     max-width: 100%;
     max-height: 100%;
     width: auto;

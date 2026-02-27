@@ -7,10 +7,6 @@ import { Lightbox, type LightboxProps } from "./index.js";
 const defaultRootProps: Omit<LightboxProps, "children"> = {
 	opened: true,
 	onClose: () => {},
-	carouselOptions: {
-		previousControlProps: { "aria-label": "Previous image" },
-		nextControlProps: { "aria-label": "Next image" },
-	},
 };
 
 const defaultSlides = [
@@ -43,6 +39,7 @@ interface RenderLightboxOptions {
 	thumbnails?: ReactNode;
 	withToolbar?: boolean;
 	withCounter?: boolean;
+	withControls?: boolean;
 	withThumbnails?: boolean;
 }
 
@@ -52,6 +49,7 @@ function renderLightbox({
 	thumbnails = defaultThumbnails,
 	withToolbar = true,
 	withCounter = true,
+	withControls = true,
 	withThumbnails = true,
 }: RenderLightboxOptions = {}) {
 	const mergedRootProps = { ...defaultRootProps, ...rootProps };
@@ -63,6 +61,7 @@ function renderLightbox({
 				{withToolbar && <Lightbox.Toolbar />}
 				{withCounter && <Lightbox.Counter />}
 				<Lightbox.Slides>{slides}</Lightbox.Slides>
+				{withControls && <Lightbox.Controls />}
 				{withThumbnails && (
 					<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
 				)}
@@ -78,6 +77,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		expect(Lightbox.Content).toBeDefined();
 		expect(Lightbox.Toolbar).toBeDefined();
 		expect(Lightbox.Counter).toBeDefined();
+		expect(Lightbox.Controls).toBeDefined();
 		expect(Lightbox.Slides).toBeDefined();
 		expect(Lightbox.Thumbnails).toBeDefined();
 		expect(Lightbox.Thumbnail).toBeDefined();
@@ -96,7 +96,9 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 	});
 
 	it("should keep slide content mounted when keepMounted is true", () => {
-		renderLightbox({ rootProps: { opened: false, keepMounted: true } });
+		renderLightbox({
+			rootProps: { opened: false, modalProps: { keepMounted: true } },
+		});
 
 		expect(screen.getByAltText("Forest landscape slide")).toBeInTheDocument();
 	});
@@ -126,7 +128,9 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 	it("should respect closeOnClickOutside=false", () => {
 		const onClose = jest.fn();
 
-		renderLightbox({ rootProps: { onClose, closeOnClickOutside: false } });
+		renderLightbox({
+			rootProps: { onClose, modalProps: { closeOnClickOutside: false } },
+		});
 
 		const image = screen.getByAltText("Forest landscape slide");
 
@@ -218,13 +222,32 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
-	it("should accept thumbnailCarouselOptions", () => {
+	it("should accept thumbnailCarouselProps", () => {
 		renderLightbox({
 			rootProps: {
-				thumbnailCarouselOptions: { dragFree: false, containScroll: "keepSnaps" },
+				thumbnailCarouselProps: {
+					emblaOptions: {
+						dragFree: false,
+						containScroll: "keepSnaps",
+					},
+				},
 			},
 		});
 
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
+	});
+
+	it("should render prev and next controls", () => {
+		renderLightbox();
+
+		expect(screen.getByLabelText("Previous slide")).toBeInTheDocument();
+		expect(screen.getByLabelText("Next slide")).toBeInTheDocument();
+	});
+
+	it("should allow composition to hide controls", () => {
+		renderLightbox({ withControls: false });
+
+		expect(screen.queryByLabelText("Previous slide")).not.toBeInTheDocument();
+		expect(screen.queryByLabelText("Next slide")).not.toBeInTheDocument();
 	});
 });

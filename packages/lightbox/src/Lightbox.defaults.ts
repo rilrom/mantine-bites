@@ -1,15 +1,21 @@
 export const LIGHTBOX_DEFAULT_PROPS = {
-	closeOnClickOutside: true,
-	keepMounted: false,
-	trapFocus: true,
-	lockScroll: true,
-	returnFocus: true,
-	withinPortal: true,
-	carouselOptions: {
+	modalProps: {
+		closeOnClickOutside: true,
+		keepMounted: false,
+		trapFocus: true,
+		lockScroll: true,
+		returnFocus: true,
+	},
+	portalProps: {
+		withinPortal: true,
+	},
+	slideCarouselProps: {
 		controlSize: 36,
 	},
-	thumbnailCarouselOptions: {
-		dragFree: true,
+	thumbnailCarouselProps: {
+		emblaOptions: {
+			dragFree: true,
+		},
 	},
 	overlayProps: {
 		fixed: true,

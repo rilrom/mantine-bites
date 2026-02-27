@@ -1,6 +1,7 @@
-import { Carousel } from "@mantine/carousel";
+import { Box } from "@mantine/core";
+import useEmblaCarousel from "embla-carousel-react";
 import type { ReactNode } from "react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useLightboxContext } from "../Lightbox.context.js";
 import { LightboxSlideProvider } from "./LightboxSlide.context.js";
 
@@ -11,25 +12,31 @@ export interface LightboxSlidesProps {
 export function LightboxSlides(props: LightboxSlidesProps) {
 	const { children } = props;
 
-	const { carouselOptions, onSlidesCarouselInit, getStyles } =
+	const { slideCarouselProps, onSlidesCarouselInit, getStyles } =
 		useLightboxContext();
 
+	const [emblaRef, emblaApi] = useEmblaCarousel(
+		slideCarouselProps.emblaOptions,
+	);
+
+	useEffect(() => {
+		if (emblaApi) {
+			onSlidesCarouselInit(emblaApi);
+		}
+	}, [emblaApi, onSlidesCarouselInit]);
+
 	return (
-		<Carousel
-			includeGapInSize={false}
-			slideSize="100%"
-			height="100%"
-			{...carouselOptions}
-			{...getStyles("carouselSlides")}
-			withIndicators={false}
-			withKeyboardEvents={false}
-			getEmblaApi={onSlidesCarouselInit}
-		>
-			{React.Children.map(children, (child, index) => (
-				<LightboxSlideProvider key={child?.toString()} value={{ index }}>
-					{child}
-				</LightboxSlideProvider>
-			))}
-		</Carousel>
+		<Box {...getStyles("slides")}>
+			<Box ref={emblaRef} {...getStyles("slidesViewport")}>
+				<Box {...getStyles("slidesContainer")}>
+					{React.Children.map(children, (child, index) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: index is the semantic slide position
+						<LightboxSlideProvider key={index} value={{ index }}>
+							{child}
+						</LightboxSlideProvider>
+					))}
+				</Box>
+			</Box>
+		</Box>
 	);
 }

@@ -77,6 +77,7 @@ function DemoLightbox({ children, ...props }: DemoLightboxProps) {
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
 				<Lightbox.Slides>{children}</Lightbox.Slides>
+				<Lightbox.Controls />
 				<Lightbox.Thumbnails>
 					{sampleImages.map((img) => (
 						<Lightbox.Thumbnail key={img.src}>
@@ -117,10 +118,8 @@ export const WithLoop = () => {
 			<DemoLightbox
 				opened={opened}
 				onClose={close}
-				carouselOptions={{
-					emblaOptions: {
-						loop: true,
-					},
+				slideCarouselProps={{
+					emblaOptions: { loop: true },
 				}}
 			>
 				{sampleImages.map((img) => (
@@ -143,7 +142,9 @@ export const WithCustomCounter = () => {
 			<DemoLightbox
 				opened={opened}
 				onClose={close}
-				counterFormatter={(index, total) => `Image ${index + 1} of ${total}`}
+				slideCarouselProps={{
+					counterFormatter: (index, total) => `Image ${index + 1} of ${total}`,
+				}}
 			>
 				{sampleImages.map((img) => (
 					<Lightbox.Slide key={img.src}>

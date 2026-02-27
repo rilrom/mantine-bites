@@ -12,11 +12,11 @@ export interface LightboxThumbnailsProps {
 export function LightboxThumbnails(props: LightboxThumbnailsProps) {
 	const { children } = props;
 
-	const { thumbnailsCarouselOptions, getStyles, onThumbnailsCarouselInit } =
+	const { thumbnailCarouselProps, getStyles, onThumbnailsCarouselInit } =
 		useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
-		emblaOptions: thumbnailsCarouselOptions,
+		emblaOptions: thumbnailCarouselProps.emblaOptions,
 		onEmblaApi: onThumbnailsCarouselInit,
 	});
 
@@ -29,10 +29,8 @@ export function LightboxThumbnails(props: LightboxThumbnailsProps) {
 					data-overflow={hasOverflow || undefined}
 				>
 					{React.Children.map(children, (child, index) => (
-						<LightboxThumbnailProvider
-							key={child?.toString()}
-							value={{ index }}
-						>
+						// biome-ignore lint/suspicious/noArrayIndexKey: index is the semantic thumbnail position
+						<LightboxThumbnailProvider key={index} value={{ index }}>
 							{child}
 						</LightboxThumbnailProvider>
 					))}
