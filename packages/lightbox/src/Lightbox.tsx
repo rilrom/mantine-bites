@@ -28,8 +28,8 @@ export type LightboxCssVariables = {
 export type LightboxStylesNames =
 	| "root"
 	| "overlay"
-	| "slides"
-	| "slide"
+	| "carouselSlides"
+	| "carouselSlide"
 	| "toolbar"
 	| "closeButton"
 	| "counter"

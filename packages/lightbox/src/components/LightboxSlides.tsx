@@ -20,7 +20,7 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 			slideSize="100%"
 			height="100%"
 			{...mergedCarouselOptions}
-			{...getStyles("slides")}
+			{...getStyles("carouselSlides")}
 			withIndicators={false}
 			withKeyboardEvents={false}
 			getEmblaApi={onSlidesEmblaApi}

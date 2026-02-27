@@ -12,7 +12,7 @@ import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
 import { useLightboxContext } from "../Lightbox.context.js";
 import { useLightboxSlideContext } from "./LightboxSlide.context.js";
 
-export type LightboxSlideStylesNames = "slide";
+export type LightboxSlideStylesNames = "carouselSlide";
 
 export interface LightboxSlideProps
 	extends BoxProps,
@@ -29,7 +29,7 @@ export type LightboxSlideFactory = Factory<{
 export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 	const props = useProps("LightboxSlide", null, _props);
 
-	const { className, style, classNames, styles, children, ...others } = props;
+	const { className, style, classNames, styles, vars, children, ...others } = props;
 
 	const { currentIndex, getStyles, handleOutsideClick } = useLightboxContext();
 
@@ -54,7 +54,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 			onPointerMove={isActive ? handleSlidePointerMove : undefined}
 			onPointerUp={isActive ? handleSlidePointerUp : undefined}
 			onPointerCancel={isActive ? handleSlidePointerCancel : undefined}
-			{...getStyles("slide", {
+			{...getStyles("carouselSlide", {
 				className,
 				style,
 				classNames,

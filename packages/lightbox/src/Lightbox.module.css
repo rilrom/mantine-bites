@@ -13,13 +13,13 @@
   z-index: var(--lightbox-z-index);
 }
 
-.slides {
+.carouselSlides {
   flex: 1;
   overflow: hidden;
   min-height: 0;
 }
 
-.slide {
+.carouselSlide {
   display: flex;
   align-items: center;
   justify-content: center;
