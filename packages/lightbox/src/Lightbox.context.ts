@@ -14,14 +14,14 @@ export interface LightboxContext {
 	overlayProps: OverlayProps;
 	mergedRef: (node: HTMLDivElement | null) => void;
 	mergedCarouselOptions: LightboxCarouselOptions;
-	onCarouselEmblaApi: CarouselProps["getEmblaApi"];
+	onSlidesEmblaApi: CarouselProps["getEmblaApi"];
 	// Slides
 	currentIndex: number;
 	// Counter
 	counterText: string | null;
 	// Thumbnails
-	emblaOptions: EmblaOptionsType | undefined;
-	onEmblaApi: (embla: EmblaCarouselType) => void;
+	thumbnailsEmblaOptions: EmblaOptionsType | undefined;
+	onThumbnailsEmblaApi: (embla: EmblaCarouselType) => void;
 	// Handlers
 	onClose: () => void;
 	handleOutsideClick: () => void;

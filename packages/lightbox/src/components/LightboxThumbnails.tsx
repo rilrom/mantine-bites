@@ -12,11 +12,12 @@ export interface LightboxThumbnailsProps {
 export function LightboxThumbnails(props: LightboxThumbnailsProps) {
 	const { children } = props;
 
-	const { emblaOptions, getStyles, onEmblaApi } = useLightboxContext();
+	const { thumbnailsEmblaOptions, getStyles, onThumbnailsEmblaApi } =
+		useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
-		emblaOptions: emblaOptions,
-		onEmblaApi: onEmblaApi,
+		emblaOptions: thumbnailsEmblaOptions,
+		onEmblaApi: onThumbnailsEmblaApi,
 	});
 
 	return (

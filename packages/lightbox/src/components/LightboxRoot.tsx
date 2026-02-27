@@ -142,7 +142,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		return `${currentIndex + 1} / ${total}`;
 	}, [counterFormatter, currentIndex, total]);
 
-	const handleEmblaApi = useCallback(
+	const handleSlidesEmblaApi = useCallback(
 		(embla: EmblaCarouselType) => {
 			slidesEmblaRef.current = embla;
 
@@ -208,11 +208,11 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 								overlayProps: mergedOverlayProps,
 								mergedRef,
 								mergedCarouselOptions,
-								onCarouselEmblaApi: handleEmblaApi,
+								onSlidesEmblaApi: handleSlidesEmblaApi,
 								currentIndex,
 								counterText,
-								emblaOptions: mergedThumbnailEmblaOptions,
-								onEmblaApi: handleThumbnailsEmblaApi,
+								thumbnailsEmblaOptions: mergedThumbnailEmblaOptions,
+								onThumbnailsEmblaApi: handleThumbnailsEmblaApi,
 								onClose,
 								handleOutsideClick,
 								onThumbnailClick: handleThumbnailClick,
