@@ -31,7 +31,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 
 	const { className, style, classNames, styles, vars, children, ...others } = props;
 
-	const { currentIndex, getStyles, handleOutsideClick } = useLightboxContext();
+	const { currentIndex, getStyles, onOutsideClick } = useLightboxContext();
 
 	const { index } = useLightboxSlideContext();
 
@@ -41,7 +41,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 		handleSlidePointerUp,
 		handleSlidePointerCancel,
 	} = useSlideInteractions({
-		onClose: handleOutsideClick,
+		onClose: onOutsideClick,
 	});
 
 	const isActive = index === currentIndex;

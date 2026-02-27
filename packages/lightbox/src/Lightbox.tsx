@@ -44,7 +44,7 @@ export type LightboxCarouselOptions = Omit<
 	"withKeyboardEvents" | "withIndicators"
 >;
 
-export type LightboxThumbnailEmblaOptions = EmblaOptionsType;
+export type LightboxThumbnailCarouselOptions = EmblaOptionsType;
 
 export interface LightboxProps
 	extends BoxProps,
@@ -60,7 +60,7 @@ export interface LightboxProps
 	initialSlide?: number;
 	counterFormatter?: (index: number, total: number) => string;
 	carouselOptions?: LightboxCarouselOptions;
-	thumbnailEmblaOptions?: LightboxThumbnailEmblaOptions;
+	thumbnailCarouselOptions?: LightboxThumbnailCarouselOptions;
 	overlayProps?: OverlayProps;
 	transitionProps?: TransitionOverride;
 	withinPortal?: boolean;

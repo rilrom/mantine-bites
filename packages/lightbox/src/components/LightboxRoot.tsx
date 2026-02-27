@@ -56,7 +56,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		initialSlide,
 		counterFormatter,
 		carouselOptions,
-		thumbnailEmblaOptions,
+		thumbnailCarouselOptions,
 		overlayProps,
 		transitionProps,
 		keepMounted,
@@ -99,12 +99,12 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		[carouselOptions, initialSlide],
 	);
 
-	const mergedThumbnailEmblaOptions = useMemo(
+	const mergedThumbnailCarouselOptions = useMemo(
 		() => ({
-			...LIGHTBOX_DEFAULT_PROPS.thumbnailEmblaOptions,
-			...thumbnailEmblaOptions,
+			...LIGHTBOX_DEFAULT_PROPS.thumbnailCarouselOptions,
+			...thumbnailCarouselOptions,
 		}),
-		[thumbnailEmblaOptions],
+		[thumbnailCarouselOptions],
 	);
 
 	const shouldTrapFocus = trapFocus ?? LIGHTBOX_DEFAULT_PROPS.trapFocus;
@@ -122,7 +122,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 	const [currentIndex, setCurrentIndex] = useState(
 		mergedCarouselOptions?.initialSlide ?? 0,
 	);
-	const [total, setTotal] = useState<number | null>(null);
+	const [slideCount, setSlideCount] = useState<number | null>(null);
 
 	useHotkeys([
 		["ArrowLeft", () => opened && slidesEmblaRef.current?.scrollPrev()],
@@ -130,48 +130,48 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		["Escape", () => opened && onClose()],
 	]);
 
-	const counterText = useMemo(() => {
-		if (total === null) {
+	const counterLabel = useMemo(() => {
+		if (slideCount === null) {
 			return null;
 		}
 
 		if (counterFormatter) {
-			return counterFormatter(currentIndex, total);
+			return counterFormatter(currentIndex, slideCount);
 		}
 
-		return `${currentIndex + 1} / ${total}`;
-	}, [counterFormatter, currentIndex, total]);
+		return `${currentIndex + 1} / ${slideCount}`;
+	}, [counterFormatter, currentIndex, slideCount]);
 
-	const handleSlidesEmblaApi = useCallback(
+	const handleSlidesCarouselInit = useCallback(
 		(embla: EmblaCarouselType) => {
 			slidesEmblaRef.current = embla;
 
-			const onInit = (api: EmblaCarouselType) => {
-				setTotal(api.slideNodes().length);
+			const handleCarouselInit = (api: EmblaCarouselType) => {
+				setSlideCount(api.slideNodes().length);
 				mergedCarouselOptions.getEmblaApi?.(api);
 			};
 
-			const onSelect = (api: EmblaCarouselType) => {
+			const handleSlideSelect = (api: EmblaCarouselType) => {
 				setCurrentIndex(api.selectedScrollSnap());
 				thumbnailsEmblaRef.current?.scrollTo(api.selectedScrollSnap());
 			};
 
-			const onDestroy = () => {
+			const handleCarouselDestroy = () => {
 				setCurrentIndex(mergedCarouselOptions?.initialSlide ?? 0);
-				setTotal(null);
+				setSlideCount(null);
 				thumbnailsEmblaRef.current = null;
 				slidesEmblaRef.current = null;
 			};
 
-			onInit(embla);
+			handleCarouselInit(embla);
 
-			embla.on("select", onSelect);
-			embla.on("destroy", onDestroy);
+			embla.on("select", handleSlideSelect);
+			embla.on("destroy", handleCarouselDestroy);
 		},
 		[mergedCarouselOptions],
 	);
 
-	const handleThumbnailsEmblaApi = useCallback(
+	const handleThumbnailsCarouselInit = useCallback(
 		(embla: EmblaCarouselType) => {
 			thumbnailsEmblaRef.current = embla;
 
@@ -207,14 +207,14 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 								transitionStyles,
 								overlayProps: mergedOverlayProps,
 								mergedRef,
-								mergedCarouselOptions,
-								onSlidesEmblaApi: handleSlidesEmblaApi,
+								carouselOptions: mergedCarouselOptions,
+								onSlidesCarouselInit: handleSlidesCarouselInit,
 								currentIndex,
-								counterText,
-								thumbnailsEmblaOptions: mergedThumbnailEmblaOptions,
-								onThumbnailsEmblaApi: handleThumbnailsEmblaApi,
+								counterLabel,
+								thumbnailsCarouselOptions: mergedThumbnailCarouselOptions,
+								onThumbnailsCarouselInit: handleThumbnailsCarouselInit,
 								onClose,
-								handleOutsideClick,
+								onOutsideClick: handleOutsideClick,
 								onThumbnailClick: handleThumbnailClick,
 							}}
 						>

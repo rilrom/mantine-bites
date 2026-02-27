@@ -8,18 +8,18 @@ import {
 	useState,
 } from "react";
 
-interface UseThumbnailsInput {
+interface UseThumbnailsProps {
 	emblaOptions: EmblaOptionsType | undefined;
 	onEmblaApi: (embla: EmblaCarouselType) => void;
 }
 
-interface UseThumbnailsOutput {
+interface UseThumbnailsReturn {
 	setViewportRef: (node: HTMLDivElement | null) => void;
 	containerRef: RefObject<HTMLDivElement | null>;
 	hasOverflow: boolean;
 }
 
-export function useThumbnails(props: UseThumbnailsInput): UseThumbnailsOutput {
+export function useThumbnails(props: UseThumbnailsProps): UseThumbnailsReturn {
 	const { emblaOptions, onEmblaApi } = props;
 
 	const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);

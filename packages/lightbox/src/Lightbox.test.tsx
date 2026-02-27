@@ -218,10 +218,10 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
-	it("should accept thumbnailEmblaOptions", () => {
+	it("should accept thumbnailCarouselOptions", () => {
 		renderLightbox({
 			rootProps: {
-				thumbnailEmblaOptions: { dragFree: false, containScroll: "keepSnaps" },
+				thumbnailCarouselOptions: { dragFree: false, containScroll: "keepSnaps" },
 			},
 		});
 

@@ -24,6 +24,6 @@ export type {
 	LightboxFactory,
 	LightboxProps,
 	LightboxStylesNames,
-	LightboxThumbnailEmblaOptions,
+	LightboxThumbnailCarouselOptions,
 } from "./Lightbox.js";
 export { Lightbox } from "./Lightbox.js";

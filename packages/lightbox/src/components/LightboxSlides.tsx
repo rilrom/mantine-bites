@@ -11,7 +11,7 @@ export interface LightboxSlidesProps {
 export function LightboxSlides(props: LightboxSlidesProps) {
 	const { children } = props;
 
-	const { mergedCarouselOptions, onSlidesEmblaApi, getStyles } =
+	const { carouselOptions, onSlidesCarouselInit, getStyles } =
 		useLightboxContext();
 
 	return (
@@ -19,11 +19,11 @@ export function LightboxSlides(props: LightboxSlidesProps) {
 			includeGapInSize={false}
 			slideSize="100%"
 			height="100%"
-			{...mergedCarouselOptions}
+			{...carouselOptions}
 			{...getStyles("carouselSlides")}
 			withIndicators={false}
 			withKeyboardEvents={false}
-			getEmblaApi={onSlidesEmblaApi}
+			getEmblaApi={onSlidesCarouselInit}
 		>
 			{React.Children.map(children, (child, index) => (
 				<LightboxSlideProvider key={child?.toString()} value={{ index }}>

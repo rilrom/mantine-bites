@@ -13,18 +13,18 @@ export interface LightboxContext {
 	transitionStyles: CSSProperties;
 	overlayProps: OverlayProps;
 	mergedRef: (node: HTMLDivElement | null) => void;
-	mergedCarouselOptions: LightboxCarouselOptions;
-	onSlidesEmblaApi: CarouselProps["getEmblaApi"];
+	carouselOptions: LightboxCarouselOptions;
+	onSlidesCarouselInit: CarouselProps["getEmblaApi"];
 	// Slides
 	currentIndex: number;
 	// Counter
-	counterText: string | null;
+	counterLabel: string | null;
 	// Thumbnails
-	thumbnailsEmblaOptions: EmblaOptionsType | undefined;
-	onThumbnailsEmblaApi: (embla: EmblaCarouselType) => void;
+	thumbnailsCarouselOptions: EmblaOptionsType | undefined;
+	onThumbnailsCarouselInit: (embla: EmblaCarouselType) => void;
 	// Handlers
 	onClose: () => void;
-	handleOutsideClick: () => void;
+	onOutsideClick: () => void;
 	onThumbnailClick: (index: number) => void;
 }
 

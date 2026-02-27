@@ -8,11 +8,11 @@ import {
 	updateOutsideClosePointerState,
 } from "../utils/pointer.js";
 
-interface UseSlideInteractionsInput {
+interface UseSlideInteractionsProps {
 	onClose: () => void;
 }
 
-interface UseSlideInteractionsOutput {
+interface UseSlideInteractionsReturn {
 	handleSlidePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleSlidePointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleSlidePointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void;
@@ -20,8 +20,8 @@ interface UseSlideInteractionsOutput {
 }
 
 export function useSlideInteractions(
-	props: UseSlideInteractionsInput,
-): UseSlideInteractionsOutput {
+	props: UseSlideInteractionsProps,
+): UseSlideInteractionsReturn {
 	const { onClose } = props;
 
 	const outsideClosePointerRef = useRef<OutsideClosePointerState | null>(null);
