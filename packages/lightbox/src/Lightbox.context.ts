@@ -1,31 +1,17 @@
-import {
-	createSafeContext,
-	type GetStylesApi,
-	type OverlayProps,
-} from "@mantine/core";
+import { createSafeContext, type GetStylesApi } from "@mantine/core";
 import type { EmblaCarouselType } from "embla-carousel";
-import type { CSSProperties } from "react";
-import type {
-	LightboxFactory,
-	LightboxSlideCarouselProps,
-	LightboxThumbnailCarouselProps,
-} from "./Lightbox.js";
+import type { LightboxFactory } from "./Lightbox.js";
 
 export interface LightboxContext {
 	getStyles: GetStylesApi<LightboxFactory>;
-	transitionStyles: CSSProperties;
-	overlayProps: OverlayProps;
-	mergedRef: (node: HTMLDivElement | null) => void;
-	slideCarouselProps: LightboxSlideCarouselProps;
-	onSlidesCarouselInit: (embla: EmblaCarouselType) => void;
-	// Slides
+	opened: boolean;
 	currentIndex: number;
-	// Counter
-	counterLabel: string | null;
-	// Thumbnails
-	thumbnailCarouselProps: LightboxThumbnailCarouselProps;
+	slideCount: number | null;
+	onSlidesCarouselInit: (
+		embla: EmblaCarouselType,
+		initialIndex: number,
+	) => void;
 	onThumbnailsCarouselInit: (embla: EmblaCarouselType) => void;
-	// Handlers
 	onClose: () => void;
 	onOutsideClick: () => void;
 	onThumbnailClick: (index: number) => void;

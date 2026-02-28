@@ -1,22 +1,34 @@
-import { ActionIcon } from "@mantine/core";
+import { ActionIcon, useProps } from "@mantine/core";
+import type { CSSProperties } from "react";
 import { useLightboxContext } from "../Lightbox.context.js";
-import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 
-export function LightboxControls() {
-	const { slideCarouselProps, onScrollPrev, onScrollNext, getStyles } =
-		useLightboxContext();
+export interface LightboxControlsProps {
+	/** Size of the prev/next navigation buttons in px, `36` by default */
+	size?: number;
+}
 
-	const controlSize =
-		slideCarouselProps.controlSize ??
-		LIGHTBOX_DEFAULT_PROPS.slideCarouselProps.controlSize;
+const defaultProps: Partial<LightboxControlsProps> = {
+	size: 36,
+};
+
+export function LightboxControls(_props: LightboxControlsProps) {
+	const props = useProps("LightboxControls", defaultProps, _props);
+
+	const { size } = props;
+
+	const { onScrollPrev, onScrollNext, getStyles } = useLightboxContext();
+
+	const controlSizeStyle = {
+		"--lightbox-control-size": `${size}px`,
+	} as CSSProperties;
 
 	return (
 		<>
 			<ActionIcon
-				{...getStyles("control")}
+				{...getStyles("control", { style: controlSizeStyle })}
 				data-direction="prev"
 				aria-label="Previous slide"
-				size={controlSize}
+				size={size}
 				variant="default"
 				onClick={onScrollPrev}
 			>
@@ -36,10 +48,10 @@ export function LightboxControls() {
 				</svg>
 			</ActionIcon>
 			<ActionIcon
-				{...getStyles("control")}
+				{...getStyles("control", { style: controlSizeStyle })}
 				data-direction="next"
 				aria-label="Next slide"
-				size={controlSize}
+				size={size}
 				variant="default"
 				onClick={onScrollNext}
 			>

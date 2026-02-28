@@ -7,23 +7,14 @@ import type {
 	StylesApiProps,
 	TransitionOverride,
 } from "@mantine/core";
-import type { EmblaOptionsType } from "embla-carousel";
-import { LightboxContent } from "./components/LightboxContent.js";
-import { LightboxControls } from "./components/LightboxControls.js";
-import { LightboxCounter } from "./components/LightboxCounter.js";
-import { LightboxOverlay } from "./components/LightboxOverlay.js";
-import { LightboxRoot } from "./components/LightboxRoot.js";
-import { LightboxSlide } from "./components/LightboxSlide.js";
-import { LightboxSlides } from "./components/LightboxSlides.js";
-import { LightboxThumbnail } from "./components/LightboxThumbnail.js";
-import { LightboxThumbnails } from "./components/LightboxThumbnails.js";
-import { LightboxToolbar } from "./components/LightboxToolbar.js";
-import classes from "./Lightbox.module.css";
-
-export type LightboxCssVariables = {
-	root: "--lightbox-z-index" | "--lightbox-control-size";
-	overlay: "--lightbox-z-index" | "--overlay-z-index";
-};
+import type { LightboxControls } from "./components/LightboxControls.js";
+import type { LightboxCounter } from "./components/LightboxCounter.js";
+import type { LightboxRoot } from "./components/LightboxRoot.js";
+import type { LightboxSlide } from "./components/LightboxSlide.js";
+import type { LightboxSlides } from "./components/LightboxSlides.js";
+import type { LightboxThumbnail } from "./components/LightboxThumbnail.js";
+import type { LightboxThumbnails } from "./components/LightboxThumbnails.js";
+import type { LightboxToolbar } from "./components/LightboxToolbar.js";
 
 export type LightboxStylesNames =
 	| "root"
@@ -42,62 +33,38 @@ export type LightboxStylesNames =
 	| "thumbnailSlide"
 	| "thumbnailButton";
 
-export interface LightboxModalProps {
-	/** Whether to keep the lightbox content mounted when closed, `false` by default */
-	keepMounted?: boolean;
-	/** Whether to close the lightbox when clicking outside the content, `true` by default */
-	closeOnClickOutside?: boolean;
-	/** Whether to trap focus inside the lightbox while open, `true` by default */
-	trapFocus?: boolean;
-	/** Whether to return focus to the trigger element on close, `true` by default */
-	returnFocus?: boolean;
-	/** Whether to lock page scroll while the lightbox is open, `true` by default */
-	lockScroll?: boolean;
-}
-
-export interface LightboxPortalProps extends BasePortalProps {
-	/** Whether to render the lightbox inside a portal, `true` by default */
-	withinPortal?: boolean;
-}
-
-export interface LightboxSlideCarouselProps {
-	/** Size of the prev/next navigation buttons in px, `36` by default */
-	controlSize?: number;
-	/** Custom formatter for the counter label */
-	counterFormatter?: (index: number, total: number) => string;
-	/** Options passed directly to the Embla slide carousel */
-	emblaOptions?: EmblaOptionsType;
-}
-
-export interface LightboxThumbnailCarouselProps {
-	/** Options passed directly to the Embla thumbnail carousel */
-	emblaOptions?: EmblaOptionsType;
-}
-
 export interface LightboxProps
 	extends BoxProps,
 		StylesApiProps<LightboxFactory>,
 		ElementProps<"div"> {
+	/** Whether the lightbox is open */
 	opened: boolean;
+	/** Called when the lightbox requests to close */
 	onClose: () => void;
-	initialSlide?: number;
-	modalProps?: LightboxModalProps;
-	portalProps?: LightboxPortalProps;
-	slideCarouselProps?: LightboxSlideCarouselProps;
-	thumbnailCarouselProps?: LightboxThumbnailCarouselProps;
-	overlayProps?: OverlayProps;
+	/** Whether to close when clicking outside the content, `true` by default */
+	closeOnClickOutside?: boolean;
+	/** Whether to keep content mounted when closed, `false` by default */
+	keepMounted?: boolean;
+	/** Whether to trap focus while open, `true` by default */
+	trapFocus?: boolean;
+	/** Whether to return focus to the trigger on close, `true` by default */
+	returnFocus?: boolean;
+	/** Whether to lock page scroll while open, `true` by default */
+	lockScroll?: boolean;
+	/** Whether to render inside a portal, `true` by default */
+	withinPortal?: boolean;
+	/** Props passed to the `Transition` component */
 	transitionProps?: TransitionOverride;
+	/** Props passed to the `Overlay` component */
+	overlayProps?: OverlayProps;
 }
 
 export type LightboxFactory = Factory<{
 	props: LightboxProps;
 	ref: HTMLDivElement;
 	stylesNames: LightboxStylesNames;
-	vars: LightboxCssVariables;
 	staticComponents: {
 		Root: typeof LightboxRoot;
-		Overlay: typeof LightboxOverlay;
-		Content: typeof LightboxContent;
 		Toolbar: typeof LightboxToolbar;
 		Counter: typeof LightboxCounter;
 		Controls: typeof LightboxControls;
@@ -107,20 +74,3 @@ export type LightboxFactory = Factory<{
 		Slide: typeof LightboxSlide;
 	};
 }>;
-
-export const Lightbox = LightboxRoot;
-
-Lightbox.displayName = "Lightbox";
-
-Lightbox.classes = classes;
-
-Lightbox.Root = LightboxRoot;
-Lightbox.Overlay = LightboxOverlay;
-Lightbox.Content = LightboxContent;
-Lightbox.Toolbar = LightboxToolbar;
-Lightbox.Counter = LightboxCounter;
-Lightbox.Controls = LightboxControls;
-Lightbox.Slides = LightboxSlides;
-Lightbox.Thumbnails = LightboxThumbnails;
-Lightbox.Thumbnail = LightboxThumbnail;
-Lightbox.Slide = LightboxSlide;

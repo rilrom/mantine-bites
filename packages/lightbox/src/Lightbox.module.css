@@ -6,11 +6,7 @@
   height: 100dvh;
   width: 100dvw;
   color: var(--mantine-color-white);
-  z-index: var(--lightbox-z-index);
-}
-
-.overlay {
-  z-index: var(--lightbox-z-index);
+  z-index: 200;
 }
 
 .slides {

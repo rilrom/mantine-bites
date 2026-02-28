@@ -1,4 +1,5 @@
-import { Box } from "@mantine/core";
+import { Box, useProps } from "@mantine/core";
+import type { EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import type { ReactNode } from "react";
 import React, { useEffect } from "react";
@@ -6,24 +7,36 @@ import { useLightboxContext } from "../Lightbox.context.js";
 import { LightboxSlideProvider } from "./LightboxSlide.context.js";
 
 export interface LightboxSlidesProps {
+	/** Initial slide index, `0` by default */
+	initialSlide?: number;
+	/** Options passed directly to the Embla slide carousel */
+	emblaOptions?: EmblaOptionsType;
 	children?: ReactNode;
 }
 
-export function LightboxSlides(props: LightboxSlidesProps) {
-	const { children } = props;
+const defaultProps: Partial<LightboxSlidesProps> = {
+	initialSlide: 0,
+};
 
-	const { slideCarouselProps, onSlidesCarouselInit, getStyles } =
-		useLightboxContext();
+export function LightboxSlides(_props: LightboxSlidesProps) {
+	const props = useProps("LightboxSlides", defaultProps, _props);
 
-	const [emblaRef, emblaApi] = useEmblaCarousel(
-		slideCarouselProps.emblaOptions,
-	);
+	const { initialSlide = 0, emblaOptions, children } = props;
+
+	const { onSlidesCarouselInit, getStyles } = useLightboxContext();
+
+	const mergedEmblaOptions: EmblaOptionsType = {
+		...emblaOptions,
+		startIndex: initialSlide,
+	};
+
+	const [emblaRef, emblaApi] = useEmblaCarousel(mergedEmblaOptions);
 
 	useEffect(() => {
 		if (emblaApi) {
-			onSlidesCarouselInit(emblaApi);
+			onSlidesCarouselInit(emblaApi, initialSlide);
 		}
-	}, [emblaApi, onSlidesCarouselInit]);
+	}, [emblaApi, onSlidesCarouselInit, initialSlide]);
 
 	return (
 		<Box {...getStyles("slides")}>

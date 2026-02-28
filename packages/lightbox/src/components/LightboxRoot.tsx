@@ -1,7 +1,9 @@
 import {
-	createVarsResolver,
+	Box,
 	factory,
+	getDefaultZIndex,
 	OptionalPortal,
+	Overlay,
 	RemoveScroll,
 	Transition,
 	useProps,
@@ -13,37 +15,37 @@ import {
 	useHotkeys,
 	useMergedRef,
 } from "@mantine/hooks";
-import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
-import { useCallback, useMemo, useRef, useState } from "react";
+import type { EmblaCarouselType } from "embla-carousel";
+import { useCallback, useRef, useState } from "react";
 import { LightboxProvider } from "../Lightbox.context.js";
-import { LIGHTBOX_DEFAULT_PROPS } from "../Lightbox.defaults.js";
 import type { LightboxFactory, LightboxProps } from "../Lightbox.js";
 import classes from "../Lightbox.module.css";
+import { LightboxControls } from "./LightboxControls.js";
+import { LightboxCounter } from "./LightboxCounter.js";
+import { LightboxSlide } from "./LightboxSlide.js";
+import { LightboxSlides } from "./LightboxSlides.js";
+import { LightboxThumbnail } from "./LightboxThumbnail.js";
+import { LightboxThumbnails } from "./LightboxThumbnails.js";
+import { LightboxToolbar } from "./LightboxToolbar.js";
 
 const defaultProps: Partial<LightboxProps> = {
-	modalProps: LIGHTBOX_DEFAULT_PROPS.modalProps,
-	portalProps: LIGHTBOX_DEFAULT_PROPS.portalProps,
-	overlayProps: LIGHTBOX_DEFAULT_PROPS.overlayProps,
-	transitionProps: LIGHTBOX_DEFAULT_PROPS.transitionProps,
-	thumbnailCarouselProps: LIGHTBOX_DEFAULT_PROPS.thumbnailCarouselProps,
+	closeOnClickOutside: true,
+	keepMounted: false,
+	trapFocus: true,
+	lockScroll: true,
+	returnFocus: true,
+	withinPortal: true,
+	transitionProps: {
+		transition: "fade",
+		duration: 250,
+	},
+	overlayProps: {
+		fixed: true,
+		backgroundOpacity: 0.9,
+		color: "#18181B",
+		zIndex: getDefaultZIndex("modal"),
+	},
 };
-
-const varsResolver = createVarsResolver<LightboxFactory>(
-	(_, { overlayProps, slideCarouselProps }) => ({
-		root: {
-			"--lightbox-z-index": String(
-				overlayProps?.zIndex ?? LIGHTBOX_DEFAULT_PROPS.overlayProps.zIndex,
-			),
-			"--lightbox-control-size": `${slideCarouselProps?.controlSize ?? LIGHTBOX_DEFAULT_PROPS.slideCarouselProps.controlSize}px`,
-		},
-		overlay: {
-			"--lightbox-z-index": String(
-				overlayProps?.zIndex ?? LIGHTBOX_DEFAULT_PROPS.overlayProps.zIndex,
-			),
-			"--overlay-z-index": "var(--lightbox-z-index)",
-		},
-	}),
-);
 
 export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 	const props = useProps("Lightbox", defaultProps, _props);
@@ -58,20 +60,21 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		unstyled,
 		vars,
 		children,
-		initialSlide,
-		modalProps,
-		portalProps,
-		slideCarouselProps,
-		thumbnailCarouselProps,
-		overlayProps,
+		closeOnClickOutside,
+		keepMounted,
+		trapFocus,
+		lockScroll,
+		returnFocus,
+		withinPortal,
 		transitionProps,
+		overlayProps,
+		...others
 	} = props;
 
 	const getStyles = useStyles<LightboxFactory>({
 		name: "Lightbox",
 		classes,
 		props,
-		varsResolver,
 		className,
 		style,
 		classNames,
@@ -80,54 +83,12 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		vars,
 	});
 
-	const {
-		keepMounted = LIGHTBOX_DEFAULT_PROPS.modalProps.keepMounted,
-		closeOnClickOutside = LIGHTBOX_DEFAULT_PROPS.modalProps.closeOnClickOutside,
-		trapFocus = LIGHTBOX_DEFAULT_PROPS.modalProps.trapFocus,
-		lockScroll = LIGHTBOX_DEFAULT_PROPS.modalProps.lockScroll,
-		returnFocus = LIGHTBOX_DEFAULT_PROPS.modalProps.returnFocus,
-	} = modalProps ?? {};
-
-	const {
-		withinPortal = LIGHTBOX_DEFAULT_PROPS.portalProps.withinPortal,
-		...restPortalProps
-	} = portalProps ?? {};
-
-	const mergedOverlayProps = {
-		...LIGHTBOX_DEFAULT_PROPS.overlayProps,
-		...overlayProps,
-	};
-
-	const mergedTransitionProps = {
-		...LIGHTBOX_DEFAULT_PROPS.transitionProps,
+	const _transitionProps = {
+		...defaultProps.transitionProps,
 		...transitionProps,
 	};
 
-	const mergedSlideCarouselProps = useMemo(
-		() => ({
-			...slideCarouselProps,
-			controlSize:
-				slideCarouselProps?.controlSize ??
-				LIGHTBOX_DEFAULT_PROPS.slideCarouselProps.controlSize,
-			emblaOptions: {
-				...slideCarouselProps?.emblaOptions,
-				startIndex: initialSlide,
-			},
-		}),
-		[slideCarouselProps, initialSlide],
-	);
-
-	const mergedThumbnailCarouselProps = useMemo(
-		() => ({
-			emblaOptions: {
-				...LIGHTBOX_DEFAULT_PROPS.thumbnailCarouselProps.emblaOptions,
-				...thumbnailCarouselProps?.emblaOptions,
-			},
-		}),
-		[thumbnailCarouselProps],
-	);
-
-	const { counterFormatter } = slideCarouselProps ?? {};
+	const _overlayProps = { ...defaultProps.overlayProps, ...overlayProps };
 
 	const focusTrapRef = useFocusTrap(opened && trapFocus);
 	const mergedRef = useMergedRef(ref, focusTrapRef);
@@ -136,7 +97,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 	const slidesEmblaRef = useRef<EmblaCarouselType | null>(null);
 	const thumbnailsEmblaRef = useRef<EmblaCarouselType | null>(null);
 
-	const [currentIndex, setCurrentIndex] = useState(initialSlide ?? 0);
+	const [currentIndex, setCurrentIndex] = useState(0);
 	const [slideCount, setSlideCount] = useState<number | null>(null);
 
 	useHotkeys([
@@ -145,24 +106,13 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		["Escape", () => opened && onClose()],
 	]);
 
-	const counterLabel = useMemo(() => {
-		if (slideCount === null) {
-			return null;
-		}
-
-		if (counterFormatter) {
-			return counterFormatter(currentIndex, slideCount);
-		}
-
-		return `${currentIndex + 1} / ${slideCount}`;
-	}, [counterFormatter, currentIndex, slideCount]);
-
 	const handleSlidesCarouselInit = useCallback(
-		(embla: EmblaCarouselType) => {
+		(embla: EmblaCarouselType, initialIndex: number) => {
 			slidesEmblaRef.current = embla;
 
 			const handleCarouselInit = (api: EmblaCarouselType) => {
 				setSlideCount(api.slideNodes().length);
+				setCurrentIndex(initialIndex);
 			};
 
 			const handleSlideSelect = (api: EmblaCarouselType) => {
@@ -171,7 +121,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 			};
 
 			const handleCarouselDestroy = () => {
-				setCurrentIndex(initialSlide ?? 0);
+				setCurrentIndex(0);
 				setSlideCount(null);
 				thumbnailsEmblaRef.current = null;
 				slidesEmblaRef.current = null;
@@ -182,7 +132,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 			embla.on("select", handleSlideSelect);
 			embla.on("destroy", handleCarouselDestroy);
 		},
-		[initialSlide],
+		[],
 	);
 
 	const handleThumbnailsCarouselInit = useCallback(
@@ -215,25 +165,21 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 	}, [closeOnClickOutside, onClose]);
 
 	return (
-		<OptionalPortal {...restPortalProps} withinPortal={withinPortal}>
-			<Transition
-				{...mergedTransitionProps}
-				mounted={opened}
-				keepMounted={keepMounted}
-			>
-				{(transitionStyles) => (
-					<RemoveScroll enabled={lockScroll}>
+		<OptionalPortal withinPortal={withinPortal}>
+			<RemoveScroll enabled={lockScroll && opened}>
+				<Transition
+					{..._transitionProps}
+					mounted={opened}
+					keepMounted={keepMounted}
+				>
+					{(transitionStyles) => (
 						<LightboxProvider
 							value={{
 								getStyles,
-								transitionStyles,
-								overlayProps: mergedOverlayProps,
-								mergedRef,
-								slideCarouselProps: mergedSlideCarouselProps,
-								onSlidesCarouselInit: handleSlidesCarouselInit,
+								opened,
 								currentIndex,
-								counterLabel,
-								thumbnailCarouselProps: mergedThumbnailCarouselProps,
+								slideCount,
+								onSlidesCarouselInit: handleSlidesCarouselInit,
 								onThumbnailsCarouselInit: handleThumbnailsCarouselInit,
 								onClose,
 								onOutsideClick: handleOutsideClick,
@@ -242,11 +188,21 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 								onScrollNext: handleScrollNext,
 							}}
 						>
-							{children}
+							<Overlay
+								{..._overlayProps}
+								{...getStyles("overlay", { style: transitionStyles })}
+							/>
+							<Box
+								ref={mergedRef}
+								{...getStyles("root", { style: transitionStyles })}
+								{...others}
+							>
+								{children}
+							</Box>
 						</LightboxProvider>
-					</RemoveScroll>
-				)}
-			</Transition>
+					)}
+				</Transition>
+			</RemoveScroll>
 		</OptionalPortal>
 	);
 });
@@ -254,3 +210,12 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 LightboxRoot.displayName = "LightboxRoot";
 
 LightboxRoot.classes = classes;
+
+LightboxRoot.Root = LightboxRoot;
+LightboxRoot.Toolbar = LightboxToolbar;
+LightboxRoot.Counter = LightboxCounter;
+LightboxRoot.Controls = LightboxControls;
+LightboxRoot.Slides = LightboxSlides;
+LightboxRoot.Thumbnails = LightboxThumbnails;
+LightboxRoot.Thumbnail = LightboxThumbnail;
+LightboxRoot.Slide = LightboxSlide;

@@ -6,7 +6,7 @@ import {
 	type SyntheticEvent,
 	useState,
 } from "react";
-import { Lightbox, type LightboxProps } from "./index.js";
+import { Lightbox } from "./index.js";
 
 export default { title: "Lightbox" };
 
@@ -18,11 +18,9 @@ const sampleImages = [
 	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Desk" },
 ];
 
-const Container = (props: PropsWithChildren) => {
-	const { children } = props;
-
-	return <Box p={40}>{children}</Box>;
-};
+const Container = (props: PropsWithChildren) => (
+	<Box p={40}>{props.children}</Box>
+);
 
 interface ImgWithLoaderProps extends ImgHTMLAttributes<HTMLImageElement> {
 	type?: "default" | "thumbnail";
@@ -30,15 +28,13 @@ interface ImgWithLoaderProps extends ImgHTMLAttributes<HTMLImageElement> {
 
 const ImgWithLoader = (props: ImgWithLoaderProps) => {
 	const { type = "default", src, alt, style, onLoad, onError, ...rest } = props;
-
 	const [loading, setLoading] = useState(true);
 
-	const handleLoad = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+	const handleLoad = (e: SyntheticEvent<HTMLImageElement>) => {
 		setLoading(false);
 		onLoad?.(e);
 	};
-
-	const handleError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+	const handleError = (e: SyntheticEvent<HTMLImageElement>) => {
 		setLoading(false);
 		onError?.(e);
 	};
@@ -50,7 +46,6 @@ const ImgWithLoader = (props: ImgWithLoaderProps) => {
 					<Loader size={type === "thumbnail" ? 18 : 36} />
 				</Center>
 			)}
-
 			<Image
 				{...rest}
 				src={src}
@@ -65,30 +60,17 @@ const ImgWithLoader = (props: ImgWithLoaderProps) => {
 	);
 };
 
-interface DemoLightboxProps extends LightboxProps {
-	children: PropsWithChildren["children"];
-}
+const thumbnails = sampleImages.map((img) => (
+	<Lightbox.Thumbnail key={img.src}>
+		<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+	</Lightbox.Thumbnail>
+));
 
-function DemoLightbox({ children, ...props }: DemoLightboxProps) {
-	return (
-		<Lightbox.Root {...props}>
-			<Lightbox.Overlay />
-			<Lightbox.Content>
-				<Lightbox.Toolbar />
-				<Lightbox.Counter />
-				<Lightbox.Slides>{children}</Lightbox.Slides>
-				<Lightbox.Controls />
-				<Lightbox.Thumbnails>
-					{sampleImages.map((img) => (
-						<Lightbox.Thumbnail key={img.src}>
-							<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
-						</Lightbox.Thumbnail>
-					))}
-				</Lightbox.Thumbnails>
-			</Lightbox.Content>
-		</Lightbox.Root>
-	);
-}
+const slides = sampleImages.map((img) => (
+	<Lightbox.Slide key={img.src}>
+		<ImgWithLoader src={img.src} alt={img.alt} />
+	</Lightbox.Slide>
+));
 
 export const Default = () => {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -96,14 +78,13 @@ export const Default = () => {
 	return (
 		<Container>
 			<Button onClick={open}>Open</Button>
-
-			<DemoLightbox opened={opened} onClose={close} initialSlide={1}>
-				{sampleImages.map((img) => (
-					<Lightbox.Slide key={img.src}>
-						<ImgWithLoader src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</DemoLightbox>
+			<Lightbox.Root opened={opened} onClose={close}>
+				<Lightbox.Toolbar />
+				<Lightbox.Counter />
+				<Lightbox.Slides initialSlide={1}>{slides}</Lightbox.Slides>
+				<Lightbox.Controls />
+				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
+			</Lightbox.Root>
 		</Container>
 	);
 };
@@ -114,20 +95,15 @@ export const WithLoop = () => {
 	return (
 		<Container>
 			<Button onClick={open}>Open</Button>
-
-			<DemoLightbox
-				opened={opened}
-				onClose={close}
-				slideCarouselProps={{
-					emblaOptions: { loop: true },
-				}}
-			>
-				{sampleImages.map((img) => (
-					<Lightbox.Slide key={img.src}>
-						<ImgWithLoader src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</DemoLightbox>
+			<Lightbox.Root opened={opened} onClose={close}>
+				<Lightbox.Toolbar />
+				<Lightbox.Counter />
+				<Lightbox.Slides emblaOptions={{ loop: true }}>
+					{slides}
+				</Lightbox.Slides>
+				<Lightbox.Controls />
+				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
+			</Lightbox.Root>
 		</Container>
 	);
 };
@@ -138,20 +114,13 @@ export const WithCustomCounter = () => {
 	return (
 		<Container>
 			<Button onClick={open}>Open</Button>
-
-			<DemoLightbox
-				opened={opened}
-				onClose={close}
-				slideCarouselProps={{
-					counterFormatter: (index, total) => `Image ${index + 1} of ${total}`,
-				}}
-			>
-				{sampleImages.map((img) => (
-					<Lightbox.Slide key={img.src}>
-						<ImgWithLoader src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</DemoLightbox>
+			<Lightbox.Root opened={opened} onClose={close}>
+				<Lightbox.Toolbar />
+				<Lightbox.Counter formatter={(i, t) => `Image ${i + 1} of ${t}`} />
+				<Lightbox.Slides>{slides}</Lightbox.Slides>
+				<Lightbox.Controls />
+				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
+			</Lightbox.Root>
 		</Container>
 	);
 };
