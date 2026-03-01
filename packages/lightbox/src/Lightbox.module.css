@@ -35,12 +35,34 @@
 }
 
 .control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  width: var(--lightbox-control-size);
-  height: var(--lightbox-control-size);
+  min-width: var(--lightbox-control-size);
+  min-height: var(--lightbox-control-size);
+  border-radius: var(--lightbox-control-size);
+  pointer-events: all;
+  background-color: var(--mantine-color-white);
+  color: var(--mantine-color-black);
+  box-shadow: var(--mantine-shadow-md);
+  border: 1px solid var(--mantine-color-gray-3);
+  transition: opacity 100ms ease;
+
+  @mixin light {
+    opacity: 0.85;
+  }
+
+  @mixin dark {
+    opacity: 0.65;
+  }
+
+  @mixin hover {
+    opacity: 1;
+  }
 
   &[data-direction='prev'] {
     left: var(--mantine-spacing-md);

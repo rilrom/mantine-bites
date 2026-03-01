@@ -1,4 +1,10 @@
-import { ActionIcon, useProps } from "@mantine/core";
+import {
+	AccordionChevron,
+	rem,
+	UnstyledButton,
+	useDirection,
+	useProps,
+} from "@mantine/core";
 import { useLightboxContext } from "../Lightbox.context.js";
 
 export interface LightboxControlsProps {
@@ -18,59 +24,37 @@ export function LightboxControls(_props: LightboxControlsProps) {
 	const { onScrollPrev, onScrollNext, getStyles, orientation } =
 		useLightboxContext();
 
-	const prevPoints =
-		orientation === "vertical" ? "18 15 12 9 6 15" : "15 18 9 12 15 6";
-	const nextPoints =
-		orientation === "vertical" ? "6 9 12 15 18 9" : "9 18 15 12 9 6";
+	const { dir } = useDirection();
+
+	const prevRotation =
+		orientation === "horizontal" ? 90 * (dir === "ltr" ? 1 : -1) : -180;
+	const nextRotation =
+		orientation === "horizontal" ? 90 * (dir === "ltr" ? -1 : 1) : 0;
 
 	return (
 		<>
-			<ActionIcon
-				{...getStyles("control")}
+			<UnstyledButton
+				{...getStyles("control", {
+					style: { "--lightbox-control-size": rem(size) },
+				})}
 				data-direction="prev"
 				aria-label="Previous slide"
-				size={size}
-				variant="default"
 				onClick={onScrollPrev}
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="60%"
-					height="60%"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					aria-hidden="true"
-				>
-					<polyline points={prevPoints} />
-				</svg>
-			</ActionIcon>
-			<ActionIcon
-				{...getStyles("control")}
+				<AccordionChevron style={{ transform: `rotate(${prevRotation}deg)` }} />
+			</UnstyledButton>
+			<UnstyledButton
+				{...getStyles("control", {
+					style: {
+						"--lightbox-control-size": rem(size),
+					} as React.CSSProperties,
+				})}
 				data-direction="next"
 				aria-label="Next slide"
-				size={size}
-				variant="default"
 				onClick={onScrollNext}
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="60%"
-					height="60%"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					aria-hidden="true"
-				>
-					<polyline points={nextPoints} />
-				</svg>
-			</ActionIcon>
+				<AccordionChevron style={{ transform: `rotate(${nextRotation}deg)` }} />
+			</UnstyledButton>
 		</>
 	);
 }
