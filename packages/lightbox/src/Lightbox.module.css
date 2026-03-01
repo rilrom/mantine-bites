@@ -42,22 +42,15 @@
   min-height: var(--lightbox-control-size);
   border-radius: var(--lightbox-control-size);
   pointer-events: all;
-  background-color: var(--mantine-color-white);
-  color: var(--mantine-color-black);
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-5));
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
   box-shadow: var(--mantine-shadow-md);
-  border: 1px solid var(--mantine-color-gray-3);
-  transition: opacity 100ms ease;
-
-  @mixin light {
-    opacity: 0.85;
-  }
-
-  @mixin dark {
-    opacity: 0.65;
-  }
+  border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  transition: background-color 100ms ease, border-color 100ms ease;
 
   @mixin hover {
-    opacity: 1;
+    background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-4));
+    border-color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-3));
   }
 
   &[data-direction='prev'] {
