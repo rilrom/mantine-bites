@@ -100,6 +100,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 
 	it("should not render content when closed", () => {
 		renderLightbox({ rootProps: { opened: false } });
+
 		expect(screen.queryByLabelText("Close lightbox")).not.toBeInTheDocument();
 	});
 
@@ -107,57 +108,77 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		renderLightbox({
 			rootProps: { opened: false, keepMounted: true },
 		});
+
 		expect(screen.getByAltText("Forest landscape slide")).toBeInTheDocument();
 	});
 
 	it("should allow composition to hide counter", () => {
 		renderLightbox({ withCounter: false });
+
 		expect(screen.queryByText("1 / 3")).not.toBeInTheDocument();
 	});
 
 	it("should allow composition to hide thumbnails", () => {
 		renderLightbox({ withThumbnails: false });
+
 		expect(screen.queryByLabelText("Go to slide 1")).not.toBeInTheDocument();
 	});
 
 	it("should call onClose when close button is clicked", async () => {
 		const onClose = jest.fn();
+
 		renderLightbox({ rootProps: { onClose } });
+
 		await userEvent.click(screen.getByLabelText("Close lightbox"));
+
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
 	it("should respect closeOnClickOutside=false", () => {
 		const onClose = jest.fn();
+
 		renderLightbox({
 			rootProps: { onClose, closeOnClickOutside: false },
 		});
+
 		const image = screen.getByAltText("Forest landscape slide");
+
 		const activeSlide = image.closest("[aria-current='true']");
-		if (!activeSlide) return;
+
+		if (!activeSlide) {
+			return;
+		}
+
 		fireEvent.pointerDown(activeSlide, {
 			pointerId: 1,
 			clientX: 24,
 			clientY: 24,
 		});
+
 		fireEvent.pointerUp(activeSlide, {
 			pointerId: 1,
 			clientX: 24,
 			clientY: 24,
 		});
+
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it("should call onClose when Escape is pressed", async () => {
 		const onClose = jest.fn();
+
 		renderLightbox({ rootProps: { onClose } });
+
 		await userEvent.keyboard("{Escape}");
+
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
 	it("should render at initialSlide position", async () => {
 		renderLightbox({ slidesProps: { initialSlide: 2 } });
+
 		expect(await screen.findByText("3 / 3")).toBeInTheDocument();
+
 		expect(await screen.findByLabelText("Go to slide 3")).toHaveAttribute(
 			"aria-current",
 			"true",
@@ -169,6 +190,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 			rootProps: { opened: true },
 			slidesProps: { initialSlide: 1 },
 		});
+
 		expect(screen.getByText("2 / 3")).toBeInTheDocument();
 
 		rerender(
@@ -188,11 +210,13 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 				<Lightbox.Thumbnails />
 			</Lightbox.Root>,
 		);
+
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("should accept overlayProps", () => {
 		renderLightbox({ rootProps: { overlayProps: { backgroundOpacity: 0.5 } } });
+
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
@@ -202,18 +226,23 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 				emblaOptions: { dragFree: false, containScroll: "keepSnaps" },
 			},
 		});
+
 		expect(screen.getByText("1 / 3")).toBeInTheDocument();
 	});
 
 	it("should render prev and next controls", () => {
 		renderLightbox();
+
 		expect(screen.getByLabelText("Previous slide")).toBeInTheDocument();
+
 		expect(screen.getByLabelText("Next slide")).toBeInTheDocument();
 	});
 
 	it("should allow composition to hide controls", () => {
 		renderLightbox({ withControls: false });
+
 		expect(screen.queryByLabelText("Previous slide")).not.toBeInTheDocument();
+
 		expect(screen.queryByLabelText("Next slide")).not.toBeInTheDocument();
 	});
 
@@ -221,11 +250,13 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		renderLightbox({
 			counterProps: { formatter: (i, t) => `Image ${i + 1} of ${t}` },
 		});
+
 		expect(screen.getByText("Image 1 of 3")).toBeInTheDocument();
 	});
 
 	it("should set data-orientation='horizontal' by default", () => {
 		renderLightbox();
+
 		expect(document.querySelector("[data-orientation]")).toHaveAttribute(
 			"data-orientation",
 			"horizontal",
@@ -234,6 +265,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 
 	it("should set data-orientation='vertical' when orientation is vertical", () => {
 		renderLightbox({ rootProps: { orientation: "vertical" } });
+
 		expect(document.querySelector("[data-orientation]")).toHaveAttribute(
 			"data-orientation",
 			"vertical",
@@ -242,15 +274,17 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 
 	it("should render up and down chevrons when orientation is vertical", () => {
 		renderLightbox({ rootProps: { orientation: "vertical" } });
+
 		const prevButton = screen.getByLabelText("Previous slide");
+
 		const nextButton = screen.getByLabelText("Next slide");
-		expect(prevButton.querySelector("polyline")).toHaveAttribute(
-			"points",
-			"18 15 12 9 6 15",
-		);
-		expect(nextButton.querySelector("polyline")).toHaveAttribute(
-			"points",
-			"6 9 12 15 18 9",
-		);
+
+		expect(prevButton.querySelector("svg")).toHaveStyle({
+			transform: "rotate(-180deg)",
+		});
+
+		expect(nextButton.querySelector("svg")).toHaveStyle({
+			transform: "rotate(0deg)",
+		});
 	});
 });
