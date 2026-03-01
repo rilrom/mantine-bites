@@ -113,13 +113,13 @@
   }
 }
 
-.thumbnailSlide {
+.thumbnail {
   flex: 0 0 auto;
   margin-right: var(--mantine-spacing-xs);
-}
 
-.thumbnailSlide:last-child {
-  margin-right: 0;
+	&:last-child {
+  	margin-right: 0;
+	}
 }
 
 .thumbnailButton {

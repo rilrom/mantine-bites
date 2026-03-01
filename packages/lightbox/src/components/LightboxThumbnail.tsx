@@ -15,7 +15,7 @@ export function LightboxThumbnail(props: LightboxThumbnailProps) {
 	const { index } = useLightboxThumbnailContext();
 
 	return (
-		<Box {...getStyles("thumbnailSlide")}>
+		<Box {...getStyles("thumbnail")}>
 			<UnstyledButton
 				{...getStyles("thumbnailButton")}
 				onClick={() => onThumbnailClick(index)}

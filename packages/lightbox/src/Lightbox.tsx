@@ -30,7 +30,7 @@ export type LightboxStylesNames =
 	| "thumbnails"
 	| "thumbnailsViewport"
 	| "thumbnailsContainer"
-	| "thumbnailSlide"
+	| "thumbnail"
 	| "thumbnailButton";
 
 export interface LightboxProps
