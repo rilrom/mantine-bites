@@ -1,7 +1,7 @@
 import { Box, useProps } from "@mantine/core";
 import type { EmblaOptionsType } from "embla-carousel";
 import type { ReactNode } from "react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useThumbnails } from "../hooks/useThumbnails.js";
 import { useLightboxContext } from "../Lightbox.context.js";
 import { LightboxThumbnailProvider } from "./LightboxThumbnail.context.js";
@@ -21,21 +21,46 @@ export function LightboxThumbnails(_props: LightboxThumbnailsProps) {
 
 	const { emblaOptions, children } = props;
 
-	const { getStyles, thumbnailsEmblaRef, currentIndex, orientation } =
-		useLightboxContext();
+	const { getStyles, thumbnailsEmblaRef, currentIndex } = useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
 		emblaOptions: {
 			...emblaOptions,
-			axis: orientation === "vertical" ? "y" : "x",
+			axis: "x",
 		},
 		thumbnailsEmblaRef,
 		initialIndex: currentIndex,
-		orientation,
 	});
 
+	const thumbnailsRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const el = thumbnailsRef.current;
+		if (!el) return;
+
+		const root = el.closest<HTMLElement>("[data-orientation]");
+		if (!root) return;
+
+		const update = () => {
+			root.style.setProperty(
+				"--lightbox-thumbnails-height",
+				`${el.offsetHeight}px`,
+			);
+		};
+
+		update();
+
+		const observer = new ResizeObserver(update);
+		observer.observe(el);
+
+		return () => {
+			observer.disconnect();
+			root.style.removeProperty("--lightbox-thumbnails-height");
+		};
+	}, []);
+
 	return (
-		<Box {...getStyles("thumbnails")} data-orientation={orientation}>
+		<Box ref={thumbnailsRef} {...getStyles("thumbnails")}>
 			<Box ref={setViewportRef} {...getStyles("thumbnailsViewport")}>
 				<Box
 					ref={containerRef}
