@@ -35,7 +35,7 @@
   justify-content: center;
   align-items: center;
   position: absolute;
-  top: 50%;
+  top: calc(50% - var(--lightbox-thumbnails-height, 0px) / 2);
   transform: translateY(-50%);
   z-index: 1;
   min-width: var(--lightbox-control-size);
