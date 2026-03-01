@@ -106,44 +106,6 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		["Escape", () => opened && onClose()],
 	]);
 
-	const handleSlidesCarouselInit = useCallback(
-		(embla: EmblaCarouselType, initialIndex: number) => {
-			slidesEmblaRef.current = embla;
-
-			const handleCarouselInit = (api: EmblaCarouselType) => {
-				setSlideCount(api.slideNodes().length);
-				setCurrentIndex(initialIndex);
-			};
-
-			const handleSlideSelect = (api: EmblaCarouselType) => {
-				setCurrentIndex(api.selectedScrollSnap());
-				thumbnailsEmblaRef.current?.scrollTo(api.selectedScrollSnap());
-			};
-
-			const handleCarouselDestroy = () => {
-				setCurrentIndex(0);
-				setSlideCount(null);
-				thumbnailsEmblaRef.current = null;
-				slidesEmblaRef.current = null;
-			};
-
-			handleCarouselInit(embla);
-
-			embla.on("select", handleSlideSelect);
-			embla.on("destroy", handleCarouselDestroy);
-		},
-		[],
-	);
-
-	const handleThumbnailsCarouselInit = useCallback(
-		(embla: EmblaCarouselType) => {
-			thumbnailsEmblaRef.current = embla;
-
-			embla.scrollTo(currentIndex);
-		},
-		[currentIndex],
-	);
-
 	const handleThumbnailClick = useCallback((index: number) => {
 		slidesEmblaRef.current?.scrollTo(index);
 	}, []);
@@ -179,8 +141,10 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 								opened,
 								currentIndex,
 								slideCount,
-								onSlidesCarouselInit: handleSlidesCarouselInit,
-								onThumbnailsCarouselInit: handleThumbnailsCarouselInit,
+								slidesEmblaRef,
+								thumbnailsEmblaRef,
+								setCurrentIndex,
+								setSlideCount,
 								onClose,
 								onOutsideClick: handleOutsideClick,
 								onThumbnailClick: handleThumbnailClick,

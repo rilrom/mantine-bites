@@ -1,5 +1,5 @@
 import { Box, useProps } from "@mantine/core";
-import type { EmblaOptionsType } from "embla-carousel";
+import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import type { ReactNode } from "react";
 import React, { useEffect } from "react";
@@ -23,7 +23,13 @@ export function LightboxSlides(_props: LightboxSlidesProps) {
 
 	const { initialSlide = 0, emblaOptions, children } = props;
 
-	const { onSlidesCarouselInit, getStyles } = useLightboxContext();
+	const {
+		getStyles,
+		slidesEmblaRef,
+		thumbnailsEmblaRef,
+		setCurrentIndex,
+		setSlideCount,
+	} = useLightboxContext();
 
 	const mergedEmblaOptions: EmblaOptionsType = {
 		...emblaOptions,
@@ -33,10 +39,39 @@ export function LightboxSlides(_props: LightboxSlidesProps) {
 	const [emblaRef, emblaApi] = useEmblaCarousel(mergedEmblaOptions);
 
 	useEffect(() => {
-		if (emblaApi) {
-			onSlidesCarouselInit(emblaApi, initialSlide);
+		if (!emblaApi) {
+			return;
 		}
-	}, [emblaApi, onSlidesCarouselInit, initialSlide]);
+
+		slidesEmblaRef.current = emblaApi;
+
+		setSlideCount(emblaApi.slideNodes().length);
+		setCurrentIndex(initialSlide);
+
+		const handleSlideSelect = (api: EmblaCarouselType) => {
+			setCurrentIndex(api.selectedScrollSnap());
+
+			thumbnailsEmblaRef.current?.scrollTo(api.selectedScrollSnap());
+		};
+
+		const handleCarouselDestroy = () => {
+			setCurrentIndex(0);
+			setSlideCount(null);
+
+			thumbnailsEmblaRef.current = null;
+			slidesEmblaRef.current = null;
+		};
+
+		emblaApi.on("select", handleSlideSelect);
+		emblaApi.on("destroy", handleCarouselDestroy);
+	}, [
+		emblaApi,
+		initialSlide,
+		slidesEmblaRef,
+		thumbnailsEmblaRef,
+		setCurrentIndex,
+		setSlideCount,
+	]);
 
 	return (
 		<Box {...getStyles("slides")}>

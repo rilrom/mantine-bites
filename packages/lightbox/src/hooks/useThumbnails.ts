@@ -10,7 +10,8 @@ import {
 
 interface UseThumbnailsProps {
 	emblaOptions: EmblaOptionsType | undefined;
-	onEmblaApi: (embla: EmblaCarouselType) => void;
+	thumbnailsEmblaRef: RefObject<EmblaCarouselType | null>;
+	initialIndex: number;
 }
 
 interface UseThumbnailsReturn {
@@ -20,12 +21,13 @@ interface UseThumbnailsReturn {
 }
 
 export function useThumbnails(props: UseThumbnailsProps): UseThumbnailsReturn {
-	const { emblaOptions, onEmblaApi } = props;
+	const { emblaOptions, thumbnailsEmblaRef, initialIndex } = props;
 
 	const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);
 
 	const viewportRef = useRef<HTMLDivElement | null>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
+	const initialIndexRef = useRef(initialIndex);
 
 	const [hasOverflow, setHasOverflow] = useState(false);
 
@@ -39,10 +41,14 @@ export function useThumbnails(props: UseThumbnailsProps): UseThumbnailsReturn {
 	);
 
 	useEffect(() => {
-		if (emblaApi) {
-			onEmblaApi(emblaApi);
+		if (!emblaApi) {
+			return;
 		}
-	}, [emblaApi, onEmblaApi]);
+
+		thumbnailsEmblaRef.current = emblaApi;
+
+		emblaApi.scrollTo(initialIndexRef.current);
+	}, [emblaApi, thumbnailsEmblaRef]);
 
 	useEffect(() => {
 		const updateOverflow = () => {

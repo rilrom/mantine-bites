@@ -21,11 +21,12 @@ export function LightboxThumbnails(_props: LightboxThumbnailsProps) {
 
 	const { emblaOptions, children } = props;
 
-	const { getStyles, onThumbnailsCarouselInit } = useLightboxContext();
+	const { getStyles, thumbnailsEmblaRef, currentIndex } = useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
 		emblaOptions,
-		onEmblaApi: onThumbnailsCarouselInit,
+		thumbnailsEmblaRef,
+		initialIndex: currentIndex,
 	});
 
 	return (
