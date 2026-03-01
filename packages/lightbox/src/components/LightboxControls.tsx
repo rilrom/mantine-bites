@@ -1,5 +1,4 @@
 import { ActionIcon, useProps } from "@mantine/core";
-import type { CSSProperties } from "react";
 import { useLightboxContext } from "../Lightbox.context.js";
 
 export interface LightboxControlsProps {
@@ -18,14 +17,10 @@ export function LightboxControls(_props: LightboxControlsProps) {
 
 	const { onScrollPrev, onScrollNext, getStyles } = useLightboxContext();
 
-	const controlSizeStyle = {
-		"--lightbox-control-size": `${size}px`,
-	} as CSSProperties;
-
 	return (
 		<>
 			<ActionIcon
-				{...getStyles("control", { style: controlSizeStyle })}
+				{...getStyles("control")}
 				data-direction="prev"
 				aria-label="Previous slide"
 				size={size}
@@ -48,7 +43,7 @@ export function LightboxControls(_props: LightboxControlsProps) {
 				</svg>
 			</ActionIcon>
 			<ActionIcon
-				{...getStyles("control", { style: controlSizeStyle })}
+				{...getStyles("control")}
 				data-direction="next"
 				aria-label="Next slide"
 				size={size}
