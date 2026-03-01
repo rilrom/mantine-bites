@@ -25,6 +25,7 @@ export function LightboxSlides(_props: LightboxSlidesProps) {
 
 	const {
 		getStyles,
+		orientation,
 		slidesEmblaRef,
 		thumbnailsEmblaRef,
 		setCurrentIndex,
@@ -33,6 +34,7 @@ export function LightboxSlides(_props: LightboxSlidesProps) {
 
 	const mergedEmblaOptions: EmblaOptionsType = {
 		...emblaOptions,
+		axis: orientation === "vertical" ? "y" : "x",
 		startIndex: initialSlide,
 	};
 
@@ -76,7 +78,7 @@ export function LightboxSlides(_props: LightboxSlidesProps) {
 	return (
 		<Box {...getStyles("slides")}>
 			<Box ref={emblaRef} {...getStyles("slidesViewport")}>
-				<Box {...getStyles("slidesContainer")}>
+				<Box {...getStyles("slidesContainer")} data-orientation={orientation}>
 					{React.Children.map(children, (child, index) => (
 						// biome-ignore lint/suspicious/noArrayIndexKey: index is the semantic slide position
 						<LightboxSlideProvider key={index} value={{ index }}>

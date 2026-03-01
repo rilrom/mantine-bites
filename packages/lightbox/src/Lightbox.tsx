@@ -57,6 +57,8 @@ export interface LightboxProps
 	transitionProps?: TransitionOverride;
 	/** Props passed to the `Overlay` component */
 	overlayProps?: OverlayProps;
+	/** Layout and scroll direction of the lightbox, `'horizontal'` by default */
+	orientation?: "horizontal" | "vertical";
 }
 
 export type LightboxFactory = Factory<{

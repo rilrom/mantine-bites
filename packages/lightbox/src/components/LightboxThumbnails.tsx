@@ -21,16 +21,21 @@ export function LightboxThumbnails(_props: LightboxThumbnailsProps) {
 
 	const { emblaOptions, children } = props;
 
-	const { getStyles, thumbnailsEmblaRef, currentIndex } = useLightboxContext();
+	const { getStyles, thumbnailsEmblaRef, currentIndex, orientation } =
+		useLightboxContext();
 
 	const { setViewportRef, containerRef, hasOverflow } = useThumbnails({
-		emblaOptions,
+		emblaOptions: {
+			...emblaOptions,
+			axis: orientation === "vertical" ? "y" : "x",
+		},
 		thumbnailsEmblaRef,
 		initialIndex: currentIndex,
+		orientation,
 	});
 
 	return (
-		<Box {...getStyles("thumbnails")}>
+		<Box {...getStyles("thumbnails")} data-orientation={orientation}>
 			<Box ref={setViewportRef} {...getStyles("thumbnailsViewport")}>
 				<Box
 					ref={containerRef}

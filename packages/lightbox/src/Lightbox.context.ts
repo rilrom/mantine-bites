@@ -17,6 +17,7 @@ export interface LightboxContext {
 	onThumbnailClick: (index: number) => void;
 	onScrollPrev: () => void;
 	onScrollNext: () => void;
+	orientation: "horizontal" | "vertical";
 }
 
 export const [LightboxProvider, useLightboxContext] =

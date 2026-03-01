@@ -223,4 +223,34 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		});
 		expect(screen.getByText("Image 1 of 3")).toBeInTheDocument();
 	});
+
+	it("should set data-orientation='horizontal' by default", () => {
+		renderLightbox();
+		expect(document.querySelector("[data-orientation]")).toHaveAttribute(
+			"data-orientation",
+			"horizontal",
+		);
+	});
+
+	it("should set data-orientation='vertical' when orientation is vertical", () => {
+		renderLightbox({ rootProps: { orientation: "vertical" } });
+		expect(document.querySelector("[data-orientation]")).toHaveAttribute(
+			"data-orientation",
+			"vertical",
+		);
+	});
+
+	it("should render up and down chevrons when orientation is vertical", () => {
+		renderLightbox({ rootProps: { orientation: "vertical" } });
+		const prevButton = screen.getByLabelText("Previous slide");
+		const nextButton = screen.getByLabelText("Next slide");
+		expect(prevButton.querySelector("polyline")).toHaveAttribute(
+			"points",
+			"18 15 12 9 6 15",
+		);
+		expect(nextButton.querySelector("polyline")).toHaveAttribute(
+			"points",
+			"6 9 12 15 18 9",
+		);
+	});
 });

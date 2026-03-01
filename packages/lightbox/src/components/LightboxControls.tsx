@@ -15,7 +15,13 @@ export function LightboxControls(_props: LightboxControlsProps) {
 
 	const { size } = props;
 
-	const { onScrollPrev, onScrollNext, getStyles } = useLightboxContext();
+	const { onScrollPrev, onScrollNext, getStyles, orientation } =
+		useLightboxContext();
+
+	const prevPoints =
+		orientation === "vertical" ? "18 15 12 9 6 15" : "15 18 9 12 15 6";
+	const nextPoints =
+		orientation === "vertical" ? "6 9 12 15 18 9" : "9 18 15 12 9 6";
 
 	return (
 		<>
@@ -39,7 +45,7 @@ export function LightboxControls(_props: LightboxControlsProps) {
 					strokeLinejoin="round"
 					aria-hidden="true"
 				>
-					<polyline points="15 18 9 12 15 6" />
+					<polyline points={prevPoints} />
 				</svg>
 			</ActionIcon>
 			<ActionIcon
@@ -62,7 +68,7 @@ export function LightboxControls(_props: LightboxControlsProps) {
 					strokeLinejoin="round"
 					aria-hidden="true"
 				>
-					<polyline points="9 18 15 12 9 6" />
+					<polyline points={nextPoints} />
 				</svg>
 			</ActionIcon>
 		</>

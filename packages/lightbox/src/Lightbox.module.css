@@ -7,6 +7,10 @@
   width: 100dvw;
   color: var(--mantine-color-white);
   z-index: 200;
+
+  &[data-orientation='vertical'] {
+    flex-direction: row;
+  }
 }
 
 .slides {
@@ -24,6 +28,10 @@
 .slidesContainer {
   display: flex;
   height: 100%;
+
+  .root[data-orientation='vertical'] & {
+    flex-direction: column;
+  }
 }
 
 .control {
@@ -34,12 +42,26 @@
   width: var(--lightbox-control-size);
   height: var(--lightbox-control-size);
 
-  &[data-direction="prev"] {
+  &[data-direction='prev'] {
     left: var(--mantine-spacing-md);
   }
 
-  &[data-direction="next"] {
+  &[data-direction='next'] {
     right: var(--mantine-spacing-md);
+  }
+
+  .root[data-orientation='vertical'] & {
+    &[data-direction='prev'] {
+      left: 50%;
+      top: var(--mantine-spacing-md);
+      right: auto;
+      transform: translateX(-50%);
+    }
+
+    &[data-direction='next'] {
+      inset: auto auto var(--mantine-spacing-md) 50%;
+      transform: translateX(-50%);
+    }
   }
 }
 
@@ -63,11 +85,22 @@
 .thumbnails {
   padding: var(--mantine-spacing-md);
   max-width: 100%;
+
+  .root[data-orientation='vertical'] & {
+    max-width: none;
+    max-height: 100%;
+    padding: var(--mantine-spacing-md) 0;
+  }
 }
 
 .thumbnailsViewport {
   overflow: hidden;
   width: 100%;
+
+  .root[data-orientation='vertical'] & {
+    width: auto;
+    height: 100%;
+  }
 }
 
 .thumbnailsContainer {
@@ -78,6 +111,15 @@
   &[data-overflow] {
     justify-content: flex-start;
   }
+
+  .root[data-orientation='vertical'] & {
+    flex-direction: column;
+    align-items: center;
+
+    &[data-overflow] {
+      align-items: flex-start;
+    }
+  }
 }
 
 .thumbnailSlide {
@@ -87,6 +129,15 @@
 
 .thumbnailSlide:last-child {
   margin-right: 0;
+}
+
+.root[data-orientation='vertical'] .thumbnailSlide {
+  margin-right: 0;
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+.root[data-orientation='vertical'] .thumbnailSlide:last-child {
+  margin-bottom: 0;
 }
 
 .thumbnailButton {

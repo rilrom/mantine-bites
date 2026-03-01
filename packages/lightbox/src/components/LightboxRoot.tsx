@@ -35,6 +35,7 @@ const defaultProps: Partial<LightboxProps> = {
 	lockScroll: true,
 	returnFocus: true,
 	withinPortal: true,
+	orientation: "horizontal",
 	transitionProps: {
 		transition: "fade",
 		duration: 250,
@@ -68,6 +69,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 		withinPortal,
 		transitionProps,
 		overlayProps,
+		orientation,
 		...others
 	} = props;
 
@@ -101,8 +103,34 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 	const [slideCount, setSlideCount] = useState<number | null>(null);
 
 	useHotkeys([
-		["ArrowLeft", () => opened && slidesEmblaRef.current?.scrollPrev()],
-		["ArrowRight", () => opened && slidesEmblaRef.current?.scrollNext()],
+		[
+			"ArrowLeft",
+			() =>
+				orientation === "horizontal" &&
+				opened &&
+				slidesEmblaRef.current?.scrollPrev(),
+		],
+		[
+			"ArrowRight",
+			() =>
+				orientation === "horizontal" &&
+				opened &&
+				slidesEmblaRef.current?.scrollNext(),
+		],
+		[
+			"ArrowUp",
+			() =>
+				orientation === "vertical" &&
+				opened &&
+				slidesEmblaRef.current?.scrollPrev(),
+		],
+		[
+			"ArrowDown",
+			() =>
+				orientation === "vertical" &&
+				opened &&
+				slidesEmblaRef.current?.scrollNext(),
+		],
 		["Escape", () => opened && onClose()],
 	]);
 
@@ -150,6 +178,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 								onThumbnailClick: handleThumbnailClick,
 								onScrollPrev: handleScrollPrev,
 								onScrollNext: handleScrollNext,
+								orientation: orientation ?? "horizontal",
 							}}
 						>
 							<Overlay
@@ -159,6 +188,7 @@ export const LightboxRoot = factory<LightboxFactory>((_props, ref) => {
 							<Box
 								ref={mergedRef}
 								{...getStyles("root", { style: transitionStyles })}
+								data-orientation={orientation}
 								{...others}
 							>
 								{children}

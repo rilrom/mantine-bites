@@ -12,6 +12,7 @@ interface UseThumbnailsProps {
 	emblaOptions: EmblaOptionsType | undefined;
 	thumbnailsEmblaRef: RefObject<EmblaCarouselType | null>;
 	initialIndex: number;
+	orientation: "horizontal" | "vertical";
 }
 
 interface UseThumbnailsReturn {
@@ -21,7 +22,7 @@ interface UseThumbnailsReturn {
 }
 
 export function useThumbnails(props: UseThumbnailsProps): UseThumbnailsReturn {
-	const { emblaOptions, thumbnailsEmblaRef, initialIndex } = props;
+	const { emblaOptions, thumbnailsEmblaRef, initialIndex, orientation } = props;
 
 	const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);
 
@@ -53,14 +54,17 @@ export function useThumbnails(props: UseThumbnailsProps): UseThumbnailsReturn {
 	useEffect(() => {
 		const updateOverflow = () => {
 			const viewport = viewportRef.current;
-
 			const container = containerRef.current;
 
 			if (!viewport || !container) {
 				return;
 			}
 
-			setHasOverflow(container.scrollWidth > viewport.clientWidth + 1);
+			if (orientation === "vertical") {
+				setHasOverflow(container.scrollHeight > viewport.clientHeight + 1);
+			} else {
+				setHasOverflow(container.scrollWidth > viewport.clientWidth + 1);
+			}
 		};
 
 		updateOverflow();
@@ -86,7 +90,7 @@ export function useThumbnails(props: UseThumbnailsProps): UseThumbnailsReturn {
 		}
 
 		return () => observer.disconnect();
-	}, []);
+	}, [orientation]);
 
 	return {
 		setViewportRef,

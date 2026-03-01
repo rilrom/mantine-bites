@@ -124,3 +124,20 @@ export const WithCustomCounter = () => {
 		</Container>
 	);
 };
+
+export const Vertical = () => {
+	const [opened, { open, close }] = useDisclosure(false);
+
+	return (
+		<Container>
+			<Button onClick={open}>Open</Button>
+			<Lightbox.Root opened={opened} onClose={close} orientation="vertical">
+				<Lightbox.Toolbar />
+				<Lightbox.Counter />
+				<Lightbox.Slides>{slides}</Lightbox.Slides>
+				<Lightbox.Controls />
+				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
+			</Lightbox.Root>
+		</Container>
+	);
+};
