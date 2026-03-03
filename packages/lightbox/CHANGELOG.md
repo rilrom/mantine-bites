@@ -1,5 +1,25 @@
 # @mantine-bites/lightbox
 
+## 1.0.0-beta.10
+
+### Minor Changes
+
+- feat!: compound component restructure ([36c5191](https://github.com/rilrom/payload-bites/commit/36c5191))
+
+### BREAKING CHANGES
+
+- Plugin structure was completely re-written, too many changes to list here. I highly recommend checking out the [documentation](https://rilrom.github.io/mantine-bites/lightbox) before upgrading. This should be the final re-write before being marked as stable.
+
+### Patch Changes
+
+- fix: ensure whole image is in viewport before zooming ([4ccaccf](https://github.com/rilrom/payload-bites/commit/4ccaccf))
+- refactor: remove useCarouselOptions ([5aa9bc9](https://github.com/rilrom/payload-bites/commit/5aa9bc9))
+- refactor: replace useKeyboardNavigation with useHotkeys ([f24045f](https://github.com/rilrom/payload-bites/commit/f24045f))
+- fix: correct types for portalProps and transitionProps ([1471620](https://github.com/rilrom/payload-bites/commit/1471620))
+- refactor: switch to @mantine/hooks useFullscreen ([74038cf](https://github.com/rilrom/payload-bites/commit/74038cf))
+- refactor: ctx and props consistency ([68a3478](https://github.com/rilrom/payload-bites/commit/68a3478))
+- refactor: create LightboxCounter component ([a213dbb](https://github.com/rilrom/payload-bites/commit/a213dbb))
+
 ## 1.0.0-beta.9
 
 ### Patch Changes
