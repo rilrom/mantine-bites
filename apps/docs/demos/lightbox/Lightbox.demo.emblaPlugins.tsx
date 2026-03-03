@@ -2,13 +2,15 @@ import { Image, SimpleGrid } from "@mantine/core";
 import { Lightbox } from "@mantine-bites/lightbox";
 import type { MantineDemo } from "@mantinex/demo";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 const code = `
-import { Lightbox } from '@mantine-bites/lightbox';
 import { Image, SimpleGrid } from '@mantine/core';
+import { Lightbox } from '@mantine-bites/lightbox';
 import Autoplay from 'embla-carousel-autoplay';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+
+const autoplay = Autoplay();
 
 const images = [
   { src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
@@ -22,9 +24,8 @@ const images = [
 function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
-  const autoplay = useRef(Autoplay({ delay: 2000 }));
 
-  const open = (index: number) => {
+  const open = (index) => {
     setInitialSlide(index);
     setOpened(true);
   };
@@ -44,24 +45,17 @@ function Demo() {
       </SimpleGrid>
 
       <Lightbox
+        images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        carouselOptions={{
-          initialSlide,
-          plugins: [autoplay.current],
-          emblaOptions: { loop: true },
-        }}
-      >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+        slidesProps={{ initialSlide, emblaPlugins: [autoplay] }}
+      />
     </>
   );
 }
 `;
+
+const autoplay = Autoplay();
 
 const images = [
 	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
@@ -75,7 +69,6 @@ const images = [
 function Demo() {
 	const [opened, setOpened] = useState(false);
 	const [initialSlide, setInitialSlide] = useState(0);
-	const autoplay = useRef(Autoplay({ delay: 2000 }));
 
 	const open = (index: number) => {
 		setInitialSlide(index);
@@ -97,23 +90,11 @@ function Demo() {
 			</SimpleGrid>
 
 			<Lightbox
+				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				carouselOptions={{
-					initialSlide,
-					plugins: [autoplay.current],
-					emblaOptions: { loop: true },
-				}}
-			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+				slidesProps={{ initialSlide, emblaPlugins: [autoplay] }}
+			/>
 		</>
 	);
 }

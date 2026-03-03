@@ -8,4 +8,13 @@ export const LightboxSlideStylesApi: StylesApiData<LightboxSlideFactory> = {
 	},
 
 	vars: {},
+
+	modifiers: [
+		{
+			modifier: "data-active",
+			selector: "slide",
+			condition:
+				"Applied when this slide is the currently visible slide in the carousel.",
+		},
+	],
 };

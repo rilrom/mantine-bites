@@ -1,9 +1,13 @@
-export { carouselOptions } from "./Lightbox.demo.carouselOptions";
+export { compoundComponent } from "./Lightbox.demo.compoundComponent";
+export { compoundFooter } from "./Lightbox.demo.compoundFooter";
+export { compoundToolbar } from "./Lightbox.demo.compoundToolbar";
 export { configurator } from "./Lightbox.demo.configurator";
-export { customCounter } from "./Lightbox.demo.customCounter";
+export { controlsProps } from "./Lightbox.demo.controlsProps";
+export { counterProps } from "./Lightbox.demo.counterProps";
 export { emblaOptions } from "./Lightbox.demo.emblaOptions";
 export { emblaPlugins } from "./Lightbox.demo.emblaPlugins";
 export { overlayProps } from "./Lightbox.demo.overlayProps";
-export { placeholderThumbnails } from "./Lightbox.demo.placeholderThumbnails";
+export { slidesProps } from "./Lightbox.demo.slidesProps";
+export { thumbnailsProps } from "./Lightbox.demo.thumbnailsProps";
 export { transitionProps } from "./Lightbox.demo.transitionProps";
-export { usage } from "./Lightbox.demo.usage";
+export { vertical } from "./Lightbox.demo.vertical";

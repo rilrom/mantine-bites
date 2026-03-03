@@ -4,8 +4,8 @@ import type { MantineDemo } from "@mantinex/demo";
 import { useState } from "react";
 
 const code = `
-import { Lightbox } from '@mantine-bites/lightbox';
 import { Image, SimpleGrid } from '@mantine/core';
+import { Lightbox } from '@mantine-bites/lightbox';
 import { useState } from 'react';
 
 const images = [
@@ -21,7 +21,7 @@ function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
-  const open = (index: number) => {
+  const open = (index) => {
     setInitialSlide(index);
     setOpened(true);
   };
@@ -40,22 +40,25 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox
-        opened={opened}
-        onClose={() => setOpened(false)}
-        carouselOptions={{
-          initialSlide,
-          controlSize: 40,
-          controlsOffset="xl",
-          onSlideChange: (index) => console.log('Slide changed to', index),
-        }}
-      >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+      <Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
+        <Lightbox.Toolbar />
+        <Lightbox.Counter />
+        <Lightbox.Controls />
+        <Lightbox.Slides initialSlide={initialSlide}>
+          {images.map((img) => (
+            <Lightbox.Slide key={img.src}>
+              <img src={img.src} alt={img.alt} />
+            </Lightbox.Slide>
+          ))}
+        </Lightbox.Slides>
+        <Lightbox.Thumbnails>
+          {images.map((img) => (
+            <Lightbox.Thumbnail key={img.src}>
+              <img src={img.src} alt={img.alt} />
+            </Lightbox.Thumbnail>
+          ))}
+        </Lightbox.Thumbnails>
+      </Lightbox.Root>
     </>
   );
 }
@@ -93,30 +96,30 @@ function Demo() {
 				))}
 			</SimpleGrid>
 
-			<Lightbox
-				opened={opened}
-				onClose={() => setOpened(false)}
-				carouselOptions={{
-					initialSlide,
-					controlSize: 40,
-					controlsOffset: "xl",
-					onSlideChange: (index) => console.log("Slide changed to", index),
-				}}
-			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+			<Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
+				<Lightbox.Toolbar />
+				<Lightbox.Counter />
+				<Lightbox.Controls />
+				<Lightbox.Slides initialSlide={initialSlide}>
+					{images.map((img) => (
+						<Lightbox.Slide key={img.src}>
+							<img src={img.src} alt={img.alt} />
+						</Lightbox.Slide>
+					))}
+				</Lightbox.Slides>
+				<Lightbox.Thumbnails>
+					{images.map((img) => (
+						<Lightbox.Thumbnail key={img.src}>
+							<img src={img.src} alt={img.alt} />
+						</Lightbox.Thumbnail>
+					))}
+				</Lightbox.Thumbnails>
+			</Lightbox.Root>
 		</>
 	);
 }
 
-export const carouselOptions: MantineDemo = {
+export const compoundComponent: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

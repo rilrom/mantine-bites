@@ -1,73 +1,164 @@
-import { Box } from "@mantine/core";
-import { cloneElement } from "react";
-import { useSlideInteractions } from "../hooks/useSlideInteractions.js";
-import { useLightboxContext } from "../Lightbox.context.js";
-import { getZoomTransform } from "../utils/zoom.js";
+import {
+	Box,
+	type BoxProps,
+	type CompoundStylesApiProps,
+	type ElementProps,
+	type Factory,
+	factory,
+	useProps,
+} from "@mantine/core";
+import type {
+	EmblaCarouselType,
+	EmblaOptionsType,
+	EmblaPluginType,
+} from "embla-carousel";
+import useEmblaCarousel from "embla-carousel-react";
+import React, { useCallback, useEffect } from "react";
+import { useLightboxContext } from "../context/LightboxContext.js";
+import { LightboxSlideProvider } from "../context/LightboxSlideContext.js";
+import classes from "../styles/Lightbox.module.css";
 
-export function LightboxSlides() {
-	const ctx = useLightboxContext();
+export type LightboxSlidesStylesNames =
+	| "slides"
+	| "slidesViewport"
+	| "slidesContainer";
+
+export interface LightboxSlidesProps
+	extends BoxProps,
+		CompoundStylesApiProps<LightboxSlidesFactory>,
+		ElementProps<"div"> {
+	/** Initial slide index, `0` by default */
+	initialSlide?: number;
+	/** Options passed directly to the Embla slide carousel */
+	emblaOptions?: EmblaOptionsType;
+	/** Plugins passed directly to the Embla slide carousel */
+	emblaPlugins?: EmblaPluginType[];
+}
+
+const defaultProps = {
+	initialSlide: 0,
+} satisfies Partial<LightboxSlidesProps>;
+
+export type LightboxSlidesFactory = Factory<{
+	props: LightboxSlidesProps;
+	ref: HTMLDivElement;
+	stylesNames: LightboxSlidesStylesNames;
+	compound: true;
+}>;
+
+export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
+	const props = useProps("LightboxSlides", defaultProps, _props);
 
 	const {
-		handleSlidePointerDown,
-		handleSlidePointerMove,
-		handleSlidePointerUp,
-		handleSlidePointerCancel,
-		handleSlideLoadCapture,
-	} = useSlideInteractions({
-		onClose: ctx.handleOutsideClick,
-		onZoomPointerDown: ctx.handleZoomPointerDown,
-		onZoomPointerMove: ctx.handleZoomPointerMove,
-		onZoomPointerEnd: ctx.handleZoomPointerEnd,
-		updateCanZoomAvailability: ctx.updateCanZoomAvailability,
-	});
+		classNames,
+		className,
+		style,
+		styles,
+		vars,
+		initialSlide,
+		emblaOptions,
+		emblaPlugins,
+		children,
+		...others
+	} = props;
+
+	const {
+		getStyles,
+		orientation,
+		isZoomedRef,
+		slidesEmblaRef,
+		thumbnailsEmblaRef,
+		setCurrentIndex,
+		setSlideCount,
+		onSlidesEmblaApi,
+	} = useLightboxContext();
+
+	const watchDrag = useCallback(
+		(emblaApi: EmblaCarouselType, event: MouseEvent | TouchEvent) => {
+			if (isZoomedRef.current) {
+				return false;
+			}
+
+			const configuredWatchDrag = emblaOptions?.watchDrag;
+
+			if (typeof configuredWatchDrag === "function") {
+				return configuredWatchDrag(emblaApi, event);
+			}
+
+			return configuredWatchDrag ?? true;
+		},
+		[isZoomedRef, emblaOptions?.watchDrag],
+	);
+
+	const mergedEmblaOptions: EmblaOptionsType = {
+		...emblaOptions,
+		axis: orientation === "vertical" ? "y" : "x",
+		startIndex: initialSlide,
+		watchDrag,
+	};
+
+	const [emblaRef, emblaApi] = useEmblaCarousel(
+		mergedEmblaOptions,
+		emblaPlugins,
+	);
+
+	useEffect(() => {
+		if (!emblaApi) {
+			return;
+		}
+
+		slidesEmblaRef.current = emblaApi;
+		onSlidesEmblaApi(emblaApi);
+
+		setSlideCount(emblaApi.slideNodes().length);
+		setCurrentIndex(initialSlide);
+
+		const handleSlideSelect = (api: EmblaCarouselType) => {
+			setCurrentIndex(api.selectedScrollSnap());
+
+			thumbnailsEmblaRef.current?.scrollTo(api.selectedScrollSnap());
+		};
+
+		const handleCarouselDestroy = () => {
+			setCurrentIndex(0);
+			setSlideCount(null);
+
+			thumbnailsEmblaRef.current = null;
+			slidesEmblaRef.current = null;
+		};
+
+		emblaApi.on("select", handleSlideSelect);
+		emblaApi.on("destroy", handleCarouselDestroy);
+	}, [
+		emblaApi,
+		initialSlide,
+		slidesEmblaRef,
+		thumbnailsEmblaRef,
+		setCurrentIndex,
+		setSlideCount,
+		onSlidesEmblaApi,
+	]);
 
 	return (
-		<>
-			{ctx.slides.map((slide, index) => {
-				const isActive = index === ctx.currentIndex;
-
-				const isActiveAndZoomed = isActive && ctx.isZoomed;
-
-				const slideProps = slide.props;
-
-				return cloneElement(slide, {
-					children: (
-						<Box
-							ref={isActive ? ctx.activeZoomContainerRef : undefined}
-							{...ctx.getStyles("zoomContainer")}
-							data-active={isActive || undefined}
-							data-zoomed={isActiveAndZoomed || undefined}
-							data-can-zoom={isActive ? String(ctx.canZoomCurrent) : undefined}
-							data-dragging={
-								(ctx.isDraggingZoom && isActiveAndZoomed) || undefined
-							}
-							onPointerDown={isActive ? handleSlidePointerDown : undefined}
-							onPointerMove={isActive ? handleSlidePointerMove : undefined}
-							onPointerUp={isActive ? handleSlidePointerUp : undefined}
-							onPointerCancel={isActive ? handleSlidePointerCancel : undefined}
-							onLoadCapture={isActive ? handleSlideLoadCapture : undefined}
-						>
-							<Box
-								{...ctx.getStyles("zoomContent")}
-								style={{
-									transform: getZoomTransform({
-										isZoomed: isActiveAndZoomed,
-										offset: ctx.zoomOffset,
-										scale: ctx.zoomScale,
-									}),
-								}}
-							>
-								<Box
-									style={{ display: "contents" }}
-									data-lightbox-slide-content
-								>
-									{slideProps.children}
-								</Box>
-							</Box>
-						</Box>
-					),
-				});
-			})}
-		</>
+		<Box
+			ref={ref}
+			{...getStyles("slides", { className, style, classNames, styles })}
+			{...others}
+		>
+			<Box ref={emblaRef} {...getStyles("slidesViewport")}>
+				<Box {...getStyles("slidesContainer")} data-orientation={orientation}>
+					{React.Children.map(children, (child, index) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: index is the semantic slide position
+						<LightboxSlideProvider key={index} value={{ index }}>
+							{child}
+						</LightboxSlideProvider>
+					))}
+				</Box>
+			</Box>
+		</Box>
 	);
-}
+});
+
+LightboxSlides.classes = classes;
+
+LightboxSlides.displayName = "LightboxSlides";

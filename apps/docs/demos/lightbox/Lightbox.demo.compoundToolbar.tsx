@@ -1,11 +1,13 @@
-import { Image, SimpleGrid } from "@mantine/core";
+import { ActionIcon, Image, SimpleGrid } from "@mantine/core";
 import { Lightbox } from "@mantine-bites/lightbox";
 import type { MantineDemo } from "@mantinex/demo";
+import { IconDownload } from "@tabler/icons-react";
 import { useState } from "react";
 
 const code = `
+import { ActionIcon, Image, SimpleGrid } from '@mantine/core';
 import { Lightbox } from '@mantine-bites/lightbox';
-import { Image, SimpleGrid } from '@mantine/core';
+import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
 
 const images = [
@@ -21,7 +23,7 @@ function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
-  const open = (index: number) => {
+  const open = (index) => {
     setInitialSlide(index);
     setOpened(true);
   };
@@ -40,17 +42,32 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox
-        opened={opened}
-        onClose={() => setOpened(false)}
-        carouselOptions={{ initialSlide }}
-      >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+      <Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
+        <Lightbox.Toolbar>
+          <Lightbox.ZoomButton />
+          <Lightbox.FullscreenButton />
+          <ActionIcon variant="default" size="lg" aria-label="Download">
+            <IconDownload />
+          </ActionIcon>
+          <Lightbox.CloseButton />
+        </Lightbox.Toolbar>
+        <Lightbox.Counter />
+        <Lightbox.Controls />
+        <Lightbox.Slides initialSlide={initialSlide}>
+          {images.map((img) => (
+            <Lightbox.Slide key={img.src}>
+              <img src={img.src} alt={img.alt} />
+            </Lightbox.Slide>
+          ))}
+        </Lightbox.Slides>
+        <Lightbox.Thumbnails>
+          {images.map((img) => (
+            <Lightbox.Thumbnail key={img.src}>
+              <img src={img.src} alt={img.alt} />
+            </Lightbox.Thumbnail>
+          ))}
+        </Lightbox.Thumbnails>
+      </Lightbox.Root>
     </>
   );
 }
@@ -88,25 +105,37 @@ function Demo() {
 				))}
 			</SimpleGrid>
 
-			<Lightbox
-				opened={opened}
-				onClose={() => setOpened(false)}
-				carouselOptions={{ initialSlide }}
-			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+			<Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
+				<Lightbox.Toolbar>
+					<Lightbox.ZoomButton />
+					<Lightbox.FullscreenButton />
+					<ActionIcon variant="default" size="lg" aria-label="Download">
+						<IconDownload />
+					</ActionIcon>
+					<Lightbox.CloseButton />
+				</Lightbox.Toolbar>
+				<Lightbox.Counter />
+				<Lightbox.Controls />
+				<Lightbox.Slides initialSlide={initialSlide}>
+					{images.map((img) => (
+						<Lightbox.Slide key={img.src}>
+							<img src={img.src} alt={img.alt} />
+						</Lightbox.Slide>
+					))}
+				</Lightbox.Slides>
+				<Lightbox.Thumbnails>
+					{images.map((img) => (
+						<Lightbox.Thumbnail key={img.src}>
+							<img src={img.src} alt={img.alt} />
+						</Lightbox.Thumbnail>
+					))}
+				</Lightbox.Thumbnails>
+			</Lightbox.Root>
 		</>
 	);
 }
 
-export const usage: MantineDemo = {
+export const compoundToolbar: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

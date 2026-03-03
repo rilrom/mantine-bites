@@ -1,15 +1,17 @@
 import type { PointerEvent as ReactPointerEvent, RefObject } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+	getPointerCoordinate,
+	hasPointerMoved,
+	isImageTarget,
+} from "../utils/pointer.js";
+import {
 	canZoomImageElement,
 	clampZoomOffset,
 	DEFAULT_ZOOM_SCALE,
 	getImageMaxZoomScale,
 	getInitialZoomOffset,
-	getPointerCoordinate,
 	getTargetZoomScale,
-	hasPointerMoved,
-	isImageTarget,
 	ZERO_ZOOM_OFFSET,
 	type ZoomOffset,
 } from "../utils/zoom.js";
@@ -19,13 +21,13 @@ interface UseZoomInput {
 	withZoom: boolean;
 }
 
-interface UseZoomOutput {
+export interface UseZoomOutput {
 	isZoomed: boolean;
+	isZoomedRef: RefObject<boolean>;
 	isDraggingZoom: boolean;
 	zoomOffset: ZoomOffset;
 	zoomScale: number;
 	canZoomCurrent: boolean;
-	isZoomedRef: RefObject<boolean>;
 	activeZoomContainerRef: RefObject<HTMLDivElement | null>;
 	resetZoom: () => void;
 	toggleZoom: () => void;
@@ -35,13 +37,6 @@ interface UseZoomOutput {
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 }
 
-/**
- * Manages all zoom and pan state for the lightbox.
- *
- * Handles pointer capture for smooth panning, tap-to-toggle zoom, offset
- * clamping within container bounds, and automatic reset on slide change or
- * window resize.
- */
 export function useZoom(props: UseZoomInput): UseZoomOutput {
 	const { opened, withZoom } = props;
 
@@ -49,7 +44,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 	const [isDraggingZoom, setIsDraggingZoom] = useState(false);
 	const [zoomOffset, setZoomOffset] = useState<ZoomOffset>(ZERO_ZOOM_OFFSET);
 	const [zoomScale, setZoomScale] = useState(DEFAULT_ZOOM_SCALE);
-	const [canZoomCurrent, setCanZoomCurrent] = useState(withZoom);
+	const [canZoomCurrent, setCanZoomCurrent] = useState(false);
 
 	const isZoomedRef = useRef(false);
 	const activeZoomContainerRef = useRef<HTMLDivElement | null>(null);
@@ -63,7 +58,6 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		originX: number;
 		originY: number;
 		canPan: boolean;
-		canToggleOnRelease: boolean;
 		moved: boolean;
 	} | null>(null);
 
@@ -72,6 +66,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		setZoomOffset(ZERO_ZOOM_OFFSET);
 		setZoomScale(DEFAULT_ZOOM_SCALE);
 		setIsDraggingZoom(false);
+		setCanZoomCurrent(false);
 		dragRef.current = null;
 		zoomBaseSizeRef.current = null;
 	}, []);
@@ -201,7 +196,6 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				originX: zoomOffset.x,
 				originY: zoomOffset.y,
 				canPan: isZoomed,
-				canToggleOnRelease: true,
 				moved: false,
 			};
 		},
@@ -230,7 +224,6 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				})
 			) {
 				drag.moved = true;
-				drag.canToggleOnRelease = false;
 			}
 
 			if (!drag.canPan) {
@@ -283,11 +276,9 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				})
 			) {
 				drag.moved = true;
-				drag.canToggleOnRelease = false;
 			}
 
-			const shouldToggleZoom = drag.canToggleOnRelease && !drag.moved;
-
+			const shouldToggleZoom = !drag.moved;
 			dragRef.current = null;
 			setIsDraggingZoom(false);
 
@@ -357,11 +348,11 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 
 	return {
 		isZoomed,
+		isZoomedRef,
 		isDraggingZoom,
 		zoomOffset,
 		zoomScale,
 		canZoomCurrent,
-		isZoomedRef,
 		activeZoomContainerRef,
 		resetZoom,
 		toggleZoom,

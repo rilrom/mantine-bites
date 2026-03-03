@@ -7,77 +7,92 @@ This plugin is in beta and is subject to BREAKING CHANGES. It is not yet recomme
 
 ## Installation
 
-<InstallScript packages="embla-carousel@^8.5.2 embla-carousel-react@^8.5.2 @mantine/carousel @mantine-bites/lightbox" />
+<InstallScript packages="embla-carousel@^8.5.2 embla-carousel-react@^8.5.2 @mantine-bites/lightbox" />
 
 After installation import package styles at the root of your application:
 
 ```tsx
 import '@mantine/core/styles.css';
-// ‼️ import carousel and lightbox styles after core package styles
-import '@mantine/carousel/styles.css';
+// ‼️ import lightbox styles after core package styles
 import '@mantine-bites/lightbox/styles.css';
 ```
 
 ## Usage
 
-`@mantine-bites/lightbox` is built on top of [@mantine/carousel](https://mantine.dev/x/carousel/) which is built on top of [embla-carousel](https://www.embla-carousel.com/):
-
-<Demo data={demos.usage} />
-
-## Common options
+`@mantine-bites/lightbox` is built on top of [embla-carousel](https://www.embla-carousel.com/).
 
 <Demo data={demos.configurator} />
 
-## Carousel options
+## Transition
 
-You can pass configuration options directly to `@mantine/carousel` with the `carouselOptions` prop. You can find carousel options in the [@mantine/carousel documentation](https://mantine.dev/x/carousel/).
+Customize the open/close animation using `transitionProps`. Props are passed to the Mantine [`Transition`](https://mantine.dev/core/transition/) component. Defaults to `transition: 'fade'` and `duration: 250`.
 
-Example of passing `controlSize` and `controlsOffset` options:
+<Demo data={demos.transitionProps} />
 
-<Demo data={demos.carouselOptions} />
+## Overlay
 
-## Carousel embla options
+Customize the backdrop using `overlayProps`. Props are passed to the Mantine [`Overlay`](https://mantine.dev/core/overlay/) component. Defaults to `color: '#18181B'`, `backgroundOpacity: 0.9` and `zIndex: 200`.
 
-You can pass configuration options directly to the embla carousel with the `carouselOptions.emblaOptions` prop. You can find embla options in the [embla options reference](https://www.embla-carousel.com/api/options/).
+<Demo data={demos.overlayProps} />
 
-Example of passing `loop` and `dragFree` options:
+## Slides
+
+Use `slidesProps` to configure the main slides carousel. Supports `initialSlide`, `emblaOptions`, and `emblaPlugins`.
+
+<Demo data={demos.slidesProps} />
+
+## Thumbnails
+
+Use `thumbnailsProps` to configure the thumbnail strip carousel. Currently defaults to `dragFree: true`.
+
+<Demo data={demos.thumbnailsProps} />
+
+## Controls
+
+Use `controlsProps` to configure the prev/next navigation buttons. `size` controls button size in px. Currently defaults to `36`.
+
+<Demo data={demos.controlsProps} />
+
+## Counter
+
+Use `counterProps` to customize the slide counter. The `formatter` function receives the current zero-based index and the total slide count.
+
+<Demo data={demos.counterProps} />
+
+## Embla options
+
+Pass options directly to the Embla carousel instance via `slidesProps.emblaOptions`. See the [Embla options documentation](https://www.embla-carousel.com/api/options/) for all available options.
 
 <Demo data={demos.emblaOptions} />
 
 ## Embla plugins
 
-`@mantine-bites/lightbox` supports [embla plugins](https://www.embla-carousel.com/plugins/) via `carouselOptions.plugins`. Note that plugins are not installed with the `@mantine-bites/lightbox` package so you will need to install them separately.
+Pass plugins to the main slides carousel via `slidesProps.emblaPlugins`. See the [Embla plugins documentation](https://www.embla-carousel.com/plugins/).
 
-Example of the [embla autoplay plugin](https://www.embla-carousel.com/plugins/autoplay/):
-
-<InstallScript packages="embla-carousel-autoplay@^8.5.2" />
+If the autoplay plugin is detected, an autoplay toggle button is automatically added to the toolbar.
 
 <Demo data={demos.emblaPlugins} />
 
-## Overlay
+## Vertical orientation
 
-Customize the backdrop using `overlayProps`. Props are passed directly to the `@mantine/core` [`Overlay`](https://mantine.dev/core/overlay/) component.
+Set `orientation="vertical"` to switch the slides carousel to a vertical layout.
 
-Defaults are `color: '#18181B'`, `backgroundOpacity: 0.9`, `zIndex: 200`:
+<Demo data={demos.vertical} />
 
-<Demo data={demos.overlayProps} />
+## Compound components
 
-## Transition
+For full control over layout and composition, use the compound components via `Lightbox.Root`.
 
-Customize the open/close animation using `transitionProps`. Props are passed to the `@mantine/core` [`Transition`](https://mantine.dev/core/transition/) component.
+<Demo data={demos.compoundComponent} />
 
-Defaults are `transition: 'fade'`, `duration: 250`:
+### Compound component example - custom toolbar button
 
-<Demo data={demos.transitionProps} />
+Pass children to `Lightbox.Toolbar` to compose a custom set of buttons.
 
-## Placeholder thumbnails
+<Demo data={demos.compoundToolbar} />
 
-When a `Lightbox.Slide` does not have a `thumbnail` prop, a placeholder icon is rendered in the thumbnail strip. This is useful for slides that contain non-image content.
+### Compound component example - custom footer
 
-<Demo data={demos.placeholderThumbnails} />
+Integrate your own custom components inside the compound component architecture to suit your needs.
 
-## Custom counter format
-
-Use the `counterFormatter` prop to customize how the slide counter is displayed. The function receives the current zero-based index and total slide count.
-
-<Demo data={demos.customCounter} />
+<Demo data={demos.compoundFooter} />

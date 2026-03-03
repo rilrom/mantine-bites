@@ -5,17 +5,14 @@ import { useState } from "react";
 
 type WrapperProps = Pick<
 	LightboxProps,
+	| "withToolbar"
+	| "withControls"
 	| "withThumbnails"
 	| "withCounter"
-	| "withFullscreen"
 	| "withZoom"
+	| "withFullscreen"
 	| "closeOnClickOutside"
-> & {
-	withControls?: boolean;
-	controlSize?: number;
-	controlsOffset?: "xs" | "sm" | "md" | "lg" | "xl";
-	loop?: boolean;
-};
+>;
 
 const images = [
 	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
@@ -27,15 +24,13 @@ const images = [
 ];
 
 function Wrapper({
+	withToolbar = true,
+	withControls = true,
 	withThumbnails = true,
 	withCounter = true,
-	withFullscreen = true,
 	withZoom = true,
+	withFullscreen = true,
 	closeOnClickOutside = true,
-	withControls = true,
-	controlSize = 26,
-	controlsOffset = "sm",
-	loop = false,
 }: WrapperProps) {
 	const [opened, setOpened] = useState(false);
 	const [initialSlide, setInitialSlide] = useState(0);
@@ -60,37 +55,25 @@ function Wrapper({
 			</SimpleGrid>
 
 			<Lightbox
+				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
+				withToolbar={withToolbar}
+				withControls={withControls}
 				withThumbnails={withThumbnails}
 				withCounter={withCounter}
-				withFullscreen={withFullscreen}
 				withZoom={withZoom}
+				withFullscreen={withFullscreen}
 				closeOnClickOutside={closeOnClickOutside}
-				carouselOptions={{
-					initialSlide,
-					withControls,
-					controlSize,
-					controlsOffset,
-					emblaOptions: { loop },
-				}}
-			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+				slidesProps={{ initialSlide }}
+			/>
 		</>
 	);
 }
 
 const code = `
-import { Lightbox } from '@mantine-bites/lightbox';
 import { Image, SimpleGrid } from '@mantine/core';
+import { Lightbox } from '@mantine-bites/lightbox';
 import { useState } from 'react';
 
 const images = [
@@ -102,21 +85,11 @@ const images = [
   { src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
 ];
 
-function Wrapper({
-  withThumbnails = true,
-  withCounter = true,
-  withFullscreen = true,
-  withZoom = true,
-  closeOnClickOutside = true,
-  withControls = true,
-  controlSize = 26,
-  controlsOffset = 'sm',
-  loop = false,
-}) {
+function Demo({{props}}) {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
-  const open = (index: number) => {
+  const open = (index) => {
     setInitialSlide(index);
     setOpened(true);
   };
@@ -136,33 +109,14 @@ function Wrapper({
       </SimpleGrid>
 
       <Lightbox
+        images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        withThumbnails={withThumbnails}
-        withCounter={withCounter}
-        withFullscreen={withFullscreen}
-        withZoom={withZoom}
-        closeOnClickOutside={closeOnClickOutside}
-        carouselOptions={{
-          initialSlide,
-          withControls,
-          controlSize,
-          controlsOffset,
-          emblaOptions: { loop },
-        }}
-      >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+        slidesProps={{ initialSlide }}
+        {{props}}
+      />
     </>
   );
-}
-
-function Demo() {
-  return <Wrapper {{props}} />;
 }
 `;
 
@@ -173,6 +127,18 @@ export const configurator: MantineDemo = {
 	centered: true,
 	maxWidth: "100%",
 	controls: [
+		{
+			prop: "withToolbar",
+			type: "boolean",
+			initialValue: true,
+			libraryValue: true,
+		},
+		{
+			prop: "withControls",
+			type: "boolean",
+			initialValue: true,
+			libraryValue: true,
+		},
 		{
 			prop: "withThumbnails",
 			type: "boolean",
@@ -186,13 +152,13 @@ export const configurator: MantineDemo = {
 			libraryValue: true,
 		},
 		{
-			prop: "withFullscreen",
+			prop: "withZoom",
 			type: "boolean",
 			initialValue: true,
 			libraryValue: true,
 		},
 		{
-			prop: "withZoom",
+			prop: "withFullscreen",
 			type: "boolean",
 			initialValue: true,
 			libraryValue: true,
@@ -203,26 +169,5 @@ export const configurator: MantineDemo = {
 			initialValue: true,
 			libraryValue: true,
 		},
-		{
-			prop: "withControls",
-			type: "boolean",
-			initialValue: true,
-			libraryValue: true,
-		},
-		{
-			prop: "controlSize",
-			type: "number",
-			min: 14,
-			max: 48,
-			initialValue: 26,
-			libraryValue: 26,
-		},
-		{
-			prop: "controlsOffset",
-			type: "size",
-			initialValue: "sm",
-			libraryValue: "sm",
-		},
-		{ prop: "loop", type: "boolean", initialValue: false, libraryValue: false },
 	],
 };

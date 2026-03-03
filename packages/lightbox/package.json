@@ -29,7 +29,6 @@
 		"dist"
 	],
 	"peerDependencies": {
-		"@mantine/carousel": ">=8.0.0",
 		"@mantine/core": ">=8.0.0",
 		"@mantine/hooks": ">=8.0.0",
 		"embla-carousel": ">=8.0.0",
@@ -38,14 +37,13 @@
 		"react-dom": "^18.x || ^19.x"
 	},
 	"devDependencies": {
+		"embla-carousel-autoplay": "^8.5.2",
 		"@mantine-bites/rollup-config": "workspace:*",
 		"@mantine-bites/typescript-config": "workspace:*",
 		"@mantine-tests/core": "^2.0.0",
-		"@mantine/carousel": "^8.3.14",
 		"@mantine/core": "^8.3.14",
 		"@mantine/hooks": "^8.3.14",
 		"embla-carousel": "^8.5.2",
-		"embla-carousel-autoplay": "^8.5.2",
 		"embla-carousel-react": "^8.5.2",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/jest-dom": "^6.6.3",

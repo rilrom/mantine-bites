@@ -3,25 +3,38 @@ import path from "node:path";
 import { generateDeclarations } from "mantine-docgen-script";
 
 const cwd = process.cwd();
+
 const packagesDir = path.join(cwd, "../../packages");
 
 const componentsPaths: string[] = [];
 
-for (const pkg of fs.readdirSync(packagesDir)) {
-	const srcDir = path.join(packagesDir, pkg, "src");
-	if (!fs.existsSync(srcDir)) continue;
-	if (["rollup-config", "typescript-config"].includes(pkg)) continue;
-
-	for (const file of fs.readdirSync(srcDir)) {
-		if (
-			file.endsWith(".tsx") &&
-			!file.includes(".story.") &&
-			!file.includes(".test.") &&
-			!file.includes("index")
+function collectComponentFiles(dir: string): void {
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		if (entry.isDirectory()) {
+			collectComponentFiles(path.join(dir, entry.name));
+		} else if (
+			entry.name.endsWith(".tsx") &&
+			!entry.name.includes(".story.") &&
+			!entry.name.includes(".test.") &&
+			!entry.name.includes("index")
 		) {
-			componentsPaths.push(path.join(srcDir, file));
+			componentsPaths.push(path.join(dir, entry.name));
 		}
 	}
+}
+
+for (const pkg of fs.readdirSync(packagesDir)) {
+	const srcDir = path.join(packagesDir, pkg, "src");
+
+	if (!fs.existsSync(srcDir)) {
+		continue;
+	}
+
+	if (["rollup-config", "typescript-config"].includes(pkg)) {
+		continue;
+	}
+
+	collectComponentFiles(srcDir);
 }
 
 const outputPath = cwd;

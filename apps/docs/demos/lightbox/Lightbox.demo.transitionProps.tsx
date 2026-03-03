@@ -4,8 +4,8 @@ import type { MantineDemo } from "@mantinex/demo";
 import { useState } from "react";
 
 const code = `
-import { Lightbox } from '@mantine-bites/lightbox';
 import { Image, SimpleGrid } from '@mantine/core';
+import { Lightbox } from '@mantine-bites/lightbox';
 import { useState } from 'react';
 
 const images = [
@@ -21,7 +21,7 @@ function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
-  const open = (index: number) => {
+  const open = (index) => {
     setInitialSlide(index);
     setOpened(true);
   };
@@ -41,17 +41,12 @@ function Demo() {
       </SimpleGrid>
 
       <Lightbox
+        images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        carouselOptions={{ initialSlide }}
+        slidesProps={{ initialSlide }}
         transitionProps={{ transition: 'slide-up', duration: 400 }}
-      >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+      />
     </>
   );
 }
@@ -90,20 +85,12 @@ function Demo() {
 			</SimpleGrid>
 
 			<Lightbox
+				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				carouselOptions={{ initialSlide }}
+				slidesProps={{ initialSlide }}
 				transitionProps={{ transition: "slide-up", duration: 400 }}
-			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+			/>
 		</>
 	);
 }

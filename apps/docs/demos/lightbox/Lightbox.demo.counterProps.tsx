@@ -4,8 +4,8 @@ import type { MantineDemo } from "@mantinex/demo";
 import { useState } from "react";
 
 const code = `
-import { Lightbox } from '@mantine-bites/lightbox';
 import { Image, SimpleGrid } from '@mantine/core';
+import { Lightbox } from '@mantine-bites/lightbox';
 import { useState } from 'react';
 
 const images = [
@@ -21,7 +21,7 @@ function Demo() {
   const [opened, setOpened] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
-  const open = (index: number) => {
+  const open = (index) => {
     setInitialSlide(index);
     setOpened(true);
   };
@@ -41,17 +41,12 @@ function Demo() {
       </SimpleGrid>
 
       <Lightbox
+        images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        carouselOptions={{ initialSlide }}
-        counterFormatter={(index, total) => \`Image \${index + 1} of \${total}\`}
-      >
-        {images.map((img) => (
-          <Lightbox.Slide key={img.src} thumbnail={<img src={img.src} alt={img.alt} />}>
-            <img src={img.src} alt={img.alt} />
-          </Lightbox.Slide>
-        ))}
-      </Lightbox>
+        slidesProps={{ initialSlide }}
+        counterProps={{ formatter: (index, total) => \`\${index + 1} of \${total}\` }}
+      />
     </>
   );
 }
@@ -90,25 +85,19 @@ function Demo() {
 			</SimpleGrid>
 
 			<Lightbox
+				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				carouselOptions={{ initialSlide }}
-				counterFormatter={(index, total) => `Image ${index + 1} of ${total}`}
-			>
-				{images.map((img) => (
-					<Lightbox.Slide
-						key={img.src}
-						thumbnail={<img src={img.src} alt={img.alt} />}
-					>
-						<img src={img.src} alt={img.alt} />
-					</Lightbox.Slide>
-				))}
-			</Lightbox>
+				slidesProps={{ initialSlide }}
+				counterProps={{
+					formatter: (index, total) => `${index + 1} of ${total}`,
+				}}
+			/>
 		</>
 	);
 }
 
-export const customCounter: MantineDemo = {
+export const counterProps: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

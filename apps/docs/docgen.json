@@ -1,36 +1,45 @@
 {
 	"Lightbox": {
 		"props": {
-			"carouselOptions": {
-				"defaultValue": null,
-				"description": "Configuration options forwarded to the underlying Carousel instance.",
-				"name": "carouselOptions",
-				"required": false,
-				"type": {
-					"name": "LightboxCarouselOptions"
-				}
-			},
 			"closeOnClickOutside": {
-				"defaultValue": "true",
-				"description": "Closes the lightbox when a pointer interaction occurs outside its content area.",
+				"defaultValue": null,
+				"description": "Whether to close when clicking outside the content, <code>true</code> by default",
 				"name": "closeOnClickOutside",
 				"required": false,
 				"type": {
 					"name": "boolean"
 				}
 			},
-			"counterFormatter": {
-				"defaultValue": "(index, total) => `${index + 1} / ${total}`",
-				"description": "Formats the slide counter output based on the current index and total count.",
-				"name": "counterFormatter",
+			"controlsProps": {
+				"defaultValue": null,
+				"description": "Props passed to the prev/next controls (<code>LightboxControls</code>)",
+				"name": "controlsProps",
 				"required": false,
 				"type": {
-					"name": "(index: number, total: number) => string"
+					"name": "Pick<LightboxControlsProps, \"size\">"
+				}
+			},
+			"counterProps": {
+				"defaultValue": null,
+				"description": "Props passed to the slide counter (<code>LightboxCounter</code>)",
+				"name": "counterProps",
+				"required": false,
+				"type": {
+					"name": "Pick<LightboxCounterProps, \"formatter\">"
+				}
+			},
+			"images": {
+				"defaultValue": null,
+				"description": "Array of images to display",
+				"name": "images",
+				"required": true,
+				"type": {
+					"name": "LightboxImageData[]"
 				}
 			},
 			"keepMounted": {
-				"defaultValue": "false",
-				"description": "Keeps the lightbox mounted in the DOM when it is not visible.",
+				"defaultValue": null,
+				"description": "Whether to keep content mounted when closed, <code>false</code> by default",
 				"name": "keepMounted",
 				"required": false,
 				"type": {
@@ -38,8 +47,8 @@
 				}
 			},
 			"lockScroll": {
-				"defaultValue": "true",
-				"description": "Prevents background document scrolling while the lightbox is open.",
+				"defaultValue": null,
+				"description": "Whether to lock page scroll while open, <code>true</code> by default",
 				"name": "lockScroll",
 				"required": false,
 				"type": {
@@ -48,7 +57,7 @@
 			},
 			"onClose": {
 				"defaultValue": null,
-				"description": "Callback invoked when the lightbox requests to close.",
+				"description": "Called when the lightbox requests to close",
 				"name": "onClose",
 				"required": true,
 				"type": {
@@ -57,70 +66,100 @@
 			},
 			"opened": {
 				"defaultValue": null,
-				"description": "Controls whether the lightbox is visible.",
+				"description": "Whether the lightbox is open",
 				"name": "opened",
 				"required": true,
 				"type": {
 					"name": "boolean"
 				}
 			},
+			"orientation": {
+				"defaultValue": null,
+				"description": "Layout and scroll direction of the lightbox, <code>'horizontal'</code> by default",
+				"name": "orientation",
+				"required": false,
+				"type": {
+					"name": "\"horizontal\" | \"vertical\"",
+					"raw": "\"horizontal\" | \"vertical\" | undefined",
+					"value": [
+						{
+							"value": "undefined"
+						},
+						{
+							"value": "\"horizontal\""
+						},
+						{
+							"value": "\"vertical\""
+						}
+					]
+				}
+			},
 			"overlayProps": {
 				"defaultValue": null,
-				"description": "Props forwarded to the Overlay component that renders the backdrop.",
+				"description": "Props passed to the <code>Overlay</code> component",
 				"name": "overlayProps",
 				"required": false,
 				"type": {
 					"name": "OverlayProps"
 				}
 			},
-			"portalProps": {
-				"defaultValue": null,
-				"description": "Props forwarded to the Portal component when portal rendering is enabled.",
-				"name": "portalProps",
-				"required": false,
-				"type": {
-					"name": "Omit<PortalProps, \"children\" | \"withinPortal\">"
-				}
-			},
 			"returnFocus": {
-				"defaultValue": "true",
-				"description": "Restores focus to the previously focused element after the lightbox closes.",
+				"defaultValue": null,
+				"description": "Whether to return focus to the trigger on close, <code>true</code> by default",
 				"name": "returnFocus",
 				"required": false,
 				"type": {
 					"name": "boolean"
 				}
 			},
-			"thumbnailEmblaOptions": {
+			"slidesProps": {
 				"defaultValue": null,
-				"description": "Configuration options used by the thumbnail strip Embla instance.",
-				"name": "thumbnailEmblaOptions",
+				"description": "Props passed to the slides carousel (<code>LightboxSlides</code>)",
+				"name": "slidesProps",
 				"required": false,
 				"type": {
-					"name": "Partial<OptionsType>"
+					"name": "Pick<LightboxSlidesProps, \"initialSlide\" | \"emblaOptions\" | \"emblaPlugins\">"
+				}
+			},
+			"thumbnailsProps": {
+				"defaultValue": null,
+				"description": "Props passed to the thumbnails carousel (<code>LightboxThumbnails</code>)",
+				"name": "thumbnailsProps",
+				"required": false,
+				"type": {
+					"name": "Pick<LightboxThumbnailsProps, \"emblaOptions\">"
 				}
 			},
 			"transitionProps": {
 				"defaultValue": null,
-				"description": "Transition configuration applied to the lightbox content container.",
+				"description": "Props passed to the <code>Transition</code> component",
 				"name": "transitionProps",
 				"required": false,
 				"type": {
-					"name": "Omit<TransitionProps, \"children\" | \"keepMounted\" | \"mounted\">"
+					"name": "TransitionProps"
 				}
 			},
 			"trapFocus": {
-				"defaultValue": "true",
-				"description": "Constrains keyboard focus to elements within the lightbox while it is open.",
+				"defaultValue": null,
+				"description": "Whether to trap focus while open, <code>true</code> by default",
 				"name": "trapFocus",
 				"required": false,
 				"type": {
 					"name": "boolean"
 				}
 			},
+			"withControls": {
+				"defaultValue": null,
+				"description": "Show prev/next navigation controls, <code>true</code> by default",
+				"name": "withControls",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
 			"withCounter": {
-				"defaultValue": "true",
-				"description": "Displays the current slide index and total slide count.",
+				"defaultValue": null,
+				"description": "Show slide counter, <code>true</code> by default",
 				"name": "withCounter",
 				"required": false,
 				"type": {
@@ -128,8 +167,8 @@
 				}
 			},
 			"withFullscreen": {
-				"defaultValue": "true",
-				"description": "Shows a control that toggles fullscreen mode for the lightbox.",
+				"defaultValue": null,
+				"description": "Whether to show the fullscreen toggle button in the toolbar, <code>true</code> by default",
 				"name": "withFullscreen",
 				"required": false,
 				"type": {
@@ -137,17 +176,26 @@
 				}
 			},
 			"withThumbnails": {
-				"defaultValue": "true",
-				"description": "Renders thumbnail previews for navigating between slides.",
+				"defaultValue": null,
+				"description": "Show thumbnail strip, <code>true</code> by default",
 				"name": "withThumbnails",
 				"required": false,
 				"type": {
 					"name": "boolean"
 				}
 			},
+			"withToolbar": {
+				"defaultValue": null,
+				"description": "Show toolbar (zoom, fullscreen, close buttons), <code>true</code> by default",
+				"name": "withToolbar",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
 			"withZoom": {
-				"defaultValue": "true",
-				"description": "Shows a control that toggles zoom functionality for the active slide.",
+				"defaultValue": null,
+				"description": "Whether to show the zoom toggle button in the toolbar, <code>true</code> by default",
 				"name": "withZoom",
 				"required": false,
 				"type": {
@@ -155,8 +203,179 @@
 				}
 			},
 			"withinPortal": {
-				"defaultValue": "true",
-				"description": "Renders the lightbox inside a React Portal instead of the current DOM hierarchy.",
+				"defaultValue": null,
+				"description": "Whether to render inside a portal, <code>true</code> by default",
+				"name": "withinPortal",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			}
+		}
+	},
+	"LightboxAutoplayButton": {
+		"description": "",
+		"props": {}
+	},
+	"LightboxCloseButton": {
+		"description": "",
+		"props": {}
+	},
+	"LightboxControls": {
+		"props": {
+			"size": {
+				"defaultValue": null,
+				"description": "Size of the prev/next navigation buttons in px, <code>36</code> by default",
+				"name": "size",
+				"required": false,
+				"type": {
+					"name": "number"
+				}
+			}
+		}
+	},
+	"LightboxCounter": {
+		"props": {
+			"formatter": {
+				"defaultValue": null,
+				"description": "Custom formatter for the counter label, <code>(i, t) => \\</code>${i + 1} / ${t}\\`` by default",
+				"name": "formatter",
+				"required": false,
+				"type": {
+					"name": "(index: number, total: number) => string"
+				}
+			}
+		}
+	},
+	"LightboxFullscreenButton": {
+		"description": "",
+		"props": {}
+	},
+	"LightboxRoot": {
+		"props": {
+			"closeOnClickOutside": {
+				"defaultValue": null,
+				"description": "Whether to close when clicking outside the content, <code>true</code> by default",
+				"name": "closeOnClickOutside",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"keepMounted": {
+				"defaultValue": null,
+				"description": "Whether to keep content mounted when closed, <code>false</code> by default",
+				"name": "keepMounted",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"lockScroll": {
+				"defaultValue": null,
+				"description": "Whether to lock page scroll while open, <code>true</code> by default",
+				"name": "lockScroll",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"onClose": {
+				"defaultValue": null,
+				"description": "Called when the lightbox requests to close",
+				"name": "onClose",
+				"required": true,
+				"type": {
+					"name": "() => void"
+				}
+			},
+			"opened": {
+				"defaultValue": null,
+				"description": "Whether the lightbox is open",
+				"name": "opened",
+				"required": true,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"orientation": {
+				"defaultValue": null,
+				"description": "Layout and scroll direction of the lightbox, <code>'horizontal'</code> by default",
+				"name": "orientation",
+				"required": false,
+				"type": {
+					"name": "\"horizontal\" | \"vertical\"",
+					"raw": "\"horizontal\" | \"vertical\" | undefined",
+					"value": [
+						{
+							"value": "undefined"
+						},
+						{
+							"value": "\"horizontal\""
+						},
+						{
+							"value": "\"vertical\""
+						}
+					]
+				}
+			},
+			"overlayProps": {
+				"defaultValue": null,
+				"description": "Props passed to the <code>Overlay</code> component",
+				"name": "overlayProps",
+				"required": false,
+				"type": {
+					"name": "OverlayProps"
+				}
+			},
+			"returnFocus": {
+				"defaultValue": null,
+				"description": "Whether to return focus to the trigger on close, <code>true</code> by default",
+				"name": "returnFocus",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"transitionProps": {
+				"defaultValue": null,
+				"description": "Props passed to the <code>Transition</code> component",
+				"name": "transitionProps",
+				"required": false,
+				"type": {
+					"name": "TransitionProps"
+				}
+			},
+			"trapFocus": {
+				"defaultValue": null,
+				"description": "Whether to trap focus while open, <code>true</code> by default",
+				"name": "trapFocus",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"withFullscreen": {
+				"defaultValue": null,
+				"description": "Whether to show the fullscreen toggle button in the toolbar, <code>true</code> by default",
+				"name": "withFullscreen",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"withZoom": {
+				"defaultValue": null,
+				"description": "Whether to show the zoom toggle button in the toolbar, <code>true</code> by default",
+				"name": "withZoom",
+				"required": false,
+				"type": {
+					"name": "boolean"
+				}
+			},
+			"withinPortal": {
+				"defaultValue": null,
+				"description": "Whether to render inside a portal, <code>true</code> by default",
 				"name": "withinPortal",
 				"required": false,
 				"type": {
@@ -166,16 +385,87 @@
 		}
 	},
 	"LightboxSlide": {
+		"description": "",
+		"props": {}
+	},
+	"LightboxSlides": {
 		"props": {
-			"thumbnail": {
+			"emblaOptions": {
 				"defaultValue": null,
-				"description": "Content rendered as the slide thumbnail in the lightbox navigation, or a default placeholder if omitted.",
-				"name": "thumbnail",
+				"description": "Options passed directly to the Embla slide carousel",
+				"name": "emblaOptions",
 				"required": false,
 				"type": {
-					"name": "React.ReactNode"
+					"name": "Partial<OptionsType>"
+				}
+			},
+			"emblaPlugins": {
+				"defaultValue": null,
+				"description": "Plugins passed directly to the Embla slide carousel",
+				"name": "emblaPlugins",
+				"required": false,
+				"type": {
+					"name": "CreatePluginType<LoosePluginType, {}>[]"
+				}
+			},
+			"initialSlide": {
+				"defaultValue": null,
+				"description": "Initial slide index, <code>0</code> by default",
+				"name": "initialSlide",
+				"required": false,
+				"type": {
+					"name": "number"
 				}
 			}
 		}
+	},
+	"LightboxThumbnail": {
+		"description": "",
+		"props": {}
+	},
+	"LightboxThumbnails": {
+		"props": {
+			"emblaOptions": {
+				"defaultValue": null,
+				"description": "Options passed directly to the Embla thumbnail carousel, <code>{ dragFree: true }</code> by default",
+				"name": "emblaOptions",
+				"required": false,
+				"type": {
+					"name": "Partial<OptionsType>"
+				}
+			}
+		}
+	},
+	"LightboxToolbar": {
+		"description": "",
+		"props": {}
+	},
+	"LightboxZoomButton": {
+		"description": "",
+		"props": {}
+	},
+	"EnterFullscreen": {
+		"description": "",
+		"props": {}
+	},
+	"ExitFullscreen": {
+		"description": "",
+		"props": {}
+	},
+	"Pause": {
+		"description": "",
+		"props": {}
+	},
+	"Play": {
+		"description": "",
+		"props": {}
+	},
+	"ZoomIn": {
+		"description": "",
+		"props": {}
+	},
+	"ZoomOut": {
+		"description": "",
+		"props": {}
 	}
 }
