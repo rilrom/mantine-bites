@@ -9,8 +9,6 @@ import {
 } from "react";
 import { Lightbox } from "../index.js";
 
-export default { title: "Lightbox" };
-
 const sampleImages = [
 	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
 	{ src: "https://picsum.photos/id/20/800/400", alt: "Bird" },
@@ -29,12 +27,14 @@ interface ImgWithLoaderProps extends ImgHTMLAttributes<HTMLImageElement> {
 
 const ImgWithLoader = (props: ImgWithLoaderProps) => {
 	const { type = "default", src, alt, style, onLoad, onError, ...rest } = props;
+
 	const [loading, setLoading] = useState(true);
 
 	const handleLoad = (e: SyntheticEvent<HTMLImageElement>) => {
 		setLoading(false);
 		onLoad?.(e);
 	};
+
 	const handleError = (e: SyntheticEvent<HTMLImageElement>) => {
 		setLoading(false);
 		onError?.(e);
@@ -61,121 +61,144 @@ const ImgWithLoader = (props: ImgWithLoaderProps) => {
 	);
 };
 
-const thumbnails = sampleImages.map((img) => (
-	<Lightbox.Thumbnail key={img.src}>
-		<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
-	</Lightbox.Thumbnail>
-));
-
-const slides = sampleImages.map((img) => (
-	<Lightbox.Slide key={img.src}>
-		<ImgWithLoader src={img.src} alt={img.alt} />
-	</Lightbox.Slide>
-));
-
-export const Default = () => {
-	const [opened, { open, close }] = useDisclosure(false);
-
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-			<Lightbox.Root opened={opened} onClose={close}>
-				<Lightbox.Toolbar />
-				<Lightbox.Counter />
-				<Lightbox.Slides>{slides}</Lightbox.Slides>
-				<Lightbox.Controls />
-				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
-			</Lightbox.Root>
-		</Container>
-	);
+export default {
+	title: "Lightbox",
+	argTypes: {
+		orientation: {
+			control: "inline-radio",
+			options: ["horizontal", "vertical"],
+			table: { category: "Carousel" },
+		},
+		loop: {
+			control: "boolean",
+			table: { category: "Carousel" },
+		},
+		enableAutoplay: {
+			control: "boolean",
+			table: { category: "Carousel" },
+		},
+		autoplayDelay: {
+			control: { type: "range", min: 500, max: 5000, step: 500 },
+			table: { category: "Carousel" },
+			if: { arg: "enableAutoplay" },
+		},
+		withZoom: {
+			control: "boolean",
+			table: { category: "Toolbar" },
+		},
+		withFullscreen: {
+			control: "boolean",
+			table: { category: "Toolbar" },
+		},
+		withToolbar: {
+			control: "boolean",
+			table: { category: "Sections" },
+		},
+		withControls: {
+			control: "boolean",
+			table: { category: "Sections" },
+		},
+		withThumbnails: {
+			control: "boolean",
+			table: { category: "Sections" },
+		},
+		withCounter: {
+			control: "boolean",
+			table: { category: "Sections" },
+		},
+		closeOnClickOutside: {
+			control: "boolean",
+			table: { category: "Behavior" },
+		},
+		counterFormat: {
+			control: "inline-radio",
+			options: ["default", "verbose"],
+			table: { category: "Counter" },
+		},
+	},
 };
 
-export const WithLoop = () => {
-	const [opened, { open, close }] = useDisclosure(false);
+interface PlaygroundArgs {
+	orientation: "horizontal" | "vertical";
+	loop: boolean;
+	enableAutoplay: boolean;
+	autoplayDelay: number;
+	withZoom: boolean;
+	withFullscreen: boolean;
+	withToolbar: boolean;
+	withControls: boolean;
+	withThumbnails: boolean;
+	withCounter: boolean;
+	closeOnClickOutside: boolean;
+	counterFormat: "default" | "verbose";
+}
 
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-			<Lightbox.Root opened={opened} onClose={close}>
-				<Lightbox.Toolbar />
-				<Lightbox.Counter />
-				<Lightbox.Slides emblaOptions={{ loop: true }}>
-					{slides}
-				</Lightbox.Slides>
-				<Lightbox.Controls />
-				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
-			</Lightbox.Root>
-		</Container>
-	);
-};
+export const Playground = {
+	args: {
+		orientation: "horizontal",
+		loop: false,
+		enableAutoplay: false,
+		autoplayDelay: 2000,
+		withZoom: true,
+		withFullscreen: true,
+		withToolbar: true,
+		withControls: true,
+		withThumbnails: true,
+		withCounter: true,
+		closeOnClickOutside: true,
+		counterFormat: "default",
+	} satisfies PlaygroundArgs,
+	render: (args: PlaygroundArgs) => {
+		const [opened, { open, close }] = useDisclosure(false);
 
-export const WithCustomCounter = () => {
-	const [opened, { open, close }] = useDisclosure(false);
+		const emblaOptions = { loop: args.loop };
 
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-			<Lightbox.Root opened={opened} onClose={close}>
-				<Lightbox.Toolbar />
-				<Lightbox.Counter formatter={(i, t) => `Image ${i + 1} of ${t}`} />
-				<Lightbox.Slides>{slides}</Lightbox.Slides>
-				<Lightbox.Controls />
-				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
-			</Lightbox.Root>
-		</Container>
-	);
-};
+		const emblaPlugins = args.enableAutoplay
+			? [Autoplay({ delay: args.autoplayDelay })]
+			: [];
 
-export const Vertical = () => {
-	const [opened, { open, close }] = useDisclosure(false);
+		const formatter =
+			args.counterFormat === "verbose"
+				? (i: number, t: number) => `Image ${i + 1} of ${t}`
+				: undefined;
 
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-			<Lightbox.Root opened={opened} onClose={close} orientation="vertical">
-				<Lightbox.Toolbar />
-				<Lightbox.Counter />
-				<Lightbox.Slides>{slides}</Lightbox.Slides>
-				<Lightbox.Controls />
-				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
-			</Lightbox.Root>
-		</Container>
-	);
-};
+		const thumbnails = sampleImages.map((img) => (
+			<Lightbox.Thumbnail key={img.src}>
+				<ImgWithLoader src={img.src} alt={img.alt} type="thumbnail" />
+			</Lightbox.Thumbnail>
+		));
 
-export const WithAutoplay = () => {
-	const [opened, { open, close }] = useDisclosure(false);
+		const slides = sampleImages.map((img) => (
+			<Lightbox.Slide key={img.src}>
+				<ImgWithLoader src={img.src} alt={img.alt} />
+			</Lightbox.Slide>
+		));
 
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-			<Lightbox.Root opened={opened} onClose={close}>
-				<Lightbox.Toolbar />
-				<Lightbox.Counter />
-				<Lightbox.Slides
-					emblaOptions={{ loop: true }}
-					emblaPlugins={[
-						Autoplay({
-							delay: 2000,
-						}),
-					]}
+		return (
+			<Container>
+				<Button onClick={open}>Open</Button>
+				<Lightbox.Root
+					opened={opened}
+					onClose={close}
+					orientation={args.orientation}
+					withZoom={args.withZoom}
+					withFullscreen={args.withFullscreen}
+					closeOnClickOutside={args.closeOnClickOutside}
 				>
-					{slides}
-				</Lightbox.Slides>
-				<Lightbox.Controls />
-				<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
-			</Lightbox.Root>
-		</Container>
-	);
-};
-
-export const Simple = () => {
-	const [opened, { open, close }] = useDisclosure(false);
-
-	return (
-		<Container>
-			<Button onClick={open}>Open</Button>
-			<Lightbox opened={opened} onClose={close} images={sampleImages} />
-		</Container>
-	);
+					{args.withToolbar && <Lightbox.Toolbar />}
+					{args.withCounter && <Lightbox.Counter formatter={formatter} />}
+					<Lightbox.Slides
+						emblaOptions={emblaOptions}
+						emblaPlugins={emblaPlugins}
+					>
+						{slides}
+					</Lightbox.Slides>
+					{args.withControls && <Lightbox.Controls />}
+					{args.withThumbnails && (
+						<Lightbox.Thumbnails>{thumbnails}</Lightbox.Thumbnails>
+					)}
+				</Lightbox.Root>
+			</Container>
+		);
+	},
 };
