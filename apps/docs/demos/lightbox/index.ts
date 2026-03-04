@@ -1,5 +1,7 @@
 export { compoundComponent } from "./Lightbox.demo.compoundComponent";
 export { compoundFooter } from "./Lightbox.demo.compoundFooter";
+export { compoundMantineImage } from "./Lightbox.demo.compoundMantineImage";
+export { compoundNextImage } from "./Lightbox.demo.compoundNextImage";
 export { compoundToolbar } from "./Lightbox.demo.compoundToolbar";
 export { configurator } from "./Lightbox.demo.configurator";
 export { controlsProps } from "./Lightbox.demo.controlsProps";
