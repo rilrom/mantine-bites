@@ -1,5 +1,12 @@
 # @mantine-bites/lightbox
 
+## 1.1.0
+
+### Minor Changes
+
+- feat: add thumbnail src and alt to convenience component ([59c41ba](https://github.com/rilrom/payload-bites/commit/59c41ba))
+- feat: Mantine image used in convenience component by default ([b45cd0b](https://github.com/rilrom/payload-bites/commit/b45cd0b))
+
 ## 1.0.0
 
 ### Major Changes
