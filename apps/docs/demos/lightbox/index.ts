@@ -1,13 +1,12 @@
 export { compoundComponent } from "./Lightbox.demo.compoundComponent";
 export { compoundFooter } from "./Lightbox.demo.compoundFooter";
-export { compoundMantineImage } from "./Lightbox.demo.compoundMantineImage";
-export { compoundNextImage } from "./Lightbox.demo.compoundNextImage";
 export { compoundToolbar } from "./Lightbox.demo.compoundToolbar";
 export { configurator } from "./Lightbox.demo.configurator";
 export { controlsProps } from "./Lightbox.demo.controlsProps";
 export { counterProps } from "./Lightbox.demo.counterProps";
 export { emblaOptions } from "./Lightbox.demo.emblaOptions";
 export { emblaPlugins } from "./Lightbox.demo.emblaPlugins";
+export { nextImage } from "./Lightbox.demo.nextImage";
 export { overlayProps } from "./Lightbox.demo.overlayProps";
 export { slidesProps } from "./Lightbox.demo.slidesProps";
 export { thumbnailsProps } from "./Lightbox.demo.thumbnailsProps";

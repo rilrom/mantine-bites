@@ -2,13 +2,19 @@ import { SimpleGrid } from "@mantine/core";
 import { Lightbox } from "@mantine-bites/lightbox";
 import type { MantineDemo } from "@mantinex/demo";
 import NextImage from "next/image";
-import { useState } from "react";
+import {
+	// type ComponentProps,
+	useState,
+} from "react";
 
 const code = `
 import { SimpleGrid } from '@mantine/core';
 import { Lightbox } from '@mantine-bites/lightbox';
 import NextImage from 'next/image';
-import { useState } from 'react';
+import {
+  // type ComponentProps,
+  useState,
+} from 'react';
 
 const images = [
   {
@@ -77,30 +83,19 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
-        <Lightbox.Toolbar />
-        <Lightbox.Counter />
-        <Lightbox.Controls />
-        <Lightbox.Slides initialSlide={initialSlide}>
-          {images.map((img) => (
-            <Lightbox.Slide key={img.src}>
-              <NextImage
-                src={img.src}
-                alt={img.alt}
-                width={img.width}
-                height={img.height}
-              />
-            </Lightbox.Slide>
-          ))}
-        </Lightbox.Slides>
-        <Lightbox.Thumbnails>
-          {images.map((img) => (
-            <Lightbox.Thumbnail key={img.src}>
-              <NextImage src={img.src} alt={img.alt} width={94} height={76} />
-            </Lightbox.Thumbnail>
-          ))}
-        </Lightbox.Thumbnails>
-      </Lightbox.Root>
+      <Lightbox
+        images={images}
+        slideImageProps={{
+          component: NextImage,
+          // Use renderRoot if you need more fine-grained control and better type-safety
+          // renderRoot: (props: ComponentProps<typeof NextImage>) => (
+          // 	<NextImage {...props} />
+          // ),
+        }}
+        opened={opened}
+        onClose={() => setOpened(false)}
+        slidesProps={{ initialSlide }}
+      />
     </>
   );
 }
@@ -173,35 +168,24 @@ function Demo() {
 				))}
 			</SimpleGrid>
 
-			<Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
-				<Lightbox.Toolbar />
-				<Lightbox.Counter />
-				<Lightbox.Controls />
-				<Lightbox.Slides initialSlide={initialSlide}>
-					{images.map((img) => (
-						<Lightbox.Slide key={img.src}>
-							<NextImage
-								src={img.src}
-								alt={img.alt}
-								width={img.width}
-								height={img.height}
-							/>
-						</Lightbox.Slide>
-					))}
-				</Lightbox.Slides>
-				<Lightbox.Thumbnails>
-					{images.map((img) => (
-						<Lightbox.Thumbnail key={img.src}>
-							<NextImage src={img.src} alt={img.alt} width={94} height={76} />
-						</Lightbox.Thumbnail>
-					))}
-				</Lightbox.Thumbnails>
-			</Lightbox.Root>
+			<Lightbox
+				images={images}
+				slideImageProps={{
+					component: NextImage,
+					// Use renderRoot if you need more fine-grained control and better type-safety
+					// renderRoot: (props: ComponentProps<typeof NextImage>) => (
+					// 	<NextImage {...props} />
+					// ),
+				}}
+				opened={opened}
+				onClose={() => setOpened(false)}
+				slidesProps={{ initialSlide }}
+			/>
 		</>
 	);
 }
 
-export const compoundNextImage: MantineDemo = {
+export const nextImage: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

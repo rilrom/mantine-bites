@@ -75,6 +75,7 @@ export { useLightboxContext } from "./context/LightboxContext.js";
 export type {
 	LightboxFactory,
 	LightboxImageData,
+	LightboxImageProps,
 	LightboxProps,
 } from "./Lightbox.js";
 export { Lightbox } from "./Lightbox.js";

@@ -1,4 +1,10 @@
-import { type Factory, factory, useProps } from "@mantine/core";
+import {
+	type Factory,
+	factory,
+	Image,
+	type ImageProps,
+	useProps,
+} from "@mantine/core";
 import { LightboxAutoplayButton } from "./components/LightboxAutoplayButton.js";
 import { LightboxCloseButton } from "./components/LightboxCloseButton.js";
 import {
@@ -27,13 +33,47 @@ import {
 import { LightboxToolbar } from "./components/LightboxToolbar.js";
 import { LightboxZoomButton } from "./components/LightboxZoomButton.js";
 
+type LightboxImageBaseProps = Omit<
+	ImageProps,
+	| "src"
+	| "fallbackSrc"
+	| "fit"
+	| "w"
+	| "width"
+	| "h"
+	| "height"
+	| "miw"
+	| "minWidth"
+	| "mih"
+	| "minHeight"
+	| "maw"
+	| "maxWidth"
+	| "mah"
+	| "maxHeight"
+>;
+
+export type LightboxImageProps = LightboxImageBaseProps & {
+	component?: any;
+	renderRoot?: (props: any) => React.ReactNode;
+};
+
 export interface LightboxImageData {
+	/** URL for the slide image */
 	src: string;
+	/** URL used as a fallback if the slide image cannot be loaded */
+	fallbackSrc?: string;
+	/** Alt text for the slide image */
 	alt?: string;
 	/** URL for the thumbnail image, falls back to `src` if omitted */
 	thumbnailSrc?: string;
+	/** URL used as a fallback if the thumbnail image cannot be loaded */
+	fallbackThumbnailSrc?: string;
 	/** Alt text for the thumbnail image, falls back to `alt` if omitted */
 	thumbnailAlt?: string;
+	/** Pre-defined width of the image, only applicable when using next/image */
+	width?: number;
+	/** Pre-defined height of the image, only applicable when using next/image */
+	height?: number;
 }
 
 export interface LightboxProps extends Omit<LightboxRootProps, "children"> {
@@ -58,6 +98,10 @@ export interface LightboxProps extends Omit<LightboxRootProps, "children"> {
 	controlsProps?: Pick<LightboxControlsProps, "size">;
 	/** Props passed to the slide counter (`LightboxCounter`) */
 	counterProps?: Pick<LightboxCounterProps, "formatter">;
+	/** Props passed to the slide `Image` component  */
+	slideImageProps?: LightboxImageProps;
+	/** Props passed to the thumbnail `Image` component  */
+	thumbnailImageProps?: LightboxImageProps;
 }
 
 export type LightboxFactory = Factory<{
@@ -99,6 +143,8 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 		thumbnailsProps,
 		controlsProps,
 		counterProps,
+		slideImageProps,
+		thumbnailImageProps,
 		...rootProps
 	} = props;
 
@@ -110,7 +156,14 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 			<LightboxSlides {...slidesProps}>
 				{images.map((img) => (
 					<LightboxSlide key={img.src}>
-						<img src={img.src} alt={img.alt} />
+						<Image
+							src={img.src}
+							fallbackSrc={img.fallbackSrc}
+							alt={img.alt ?? ""}
+							width={img.width}
+							height={img.height}
+							{...slideImageProps}
+						/>
 					</LightboxSlide>
 				))}
 			</LightboxSlides>
@@ -118,9 +171,13 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 				<LightboxThumbnails {...thumbnailsProps}>
 					{images.map((img) => (
 						<LightboxThumbnail key={img.src}>
-							<img
+							<Image
 								src={img.thumbnailSrc ?? img.src}
-								alt={img.thumbnailAlt ?? img.alt}
+								fallbackSrc={img.fallbackThumbnailSrc}
+								alt={img.thumbnailAlt ?? img.alt ?? ""}
+								width={img.width}
+								height={img.height}
+								{...thumbnailImageProps}
 							/>
 						</LightboxThumbnail>
 					))}

@@ -75,6 +75,16 @@ Set `orientation="vertical"` to switch the slides carousel to a vertical layout.
 
 <Demo data={demos.vertical} />
 
+## Next.js Image
+
+You can pass next/image to `slideImageProps.component` or `slideImageProps.renderRoot`.
+
+I recommend including the `width` and `height` properties in your `images` array when using `next/image`. Alternatively if you do not know these values, you can use `renderRoot` and pass in `fill={true}`, however this will cause smaller images to increase to the size of the lightbox viewport, reducing the quality of the image.
+
+Refer to [Next.js image documentation](https://nextjs.org/docs/app/api-reference/components/image) for more information.
+
+<Demo data={demos.nextImage} />
+
 ## Compound components
 
 For full control over layout and composition, use the compound components via `Lightbox.Root`.
@@ -92,15 +102,3 @@ Pass children to `Lightbox.Toolbar` to compose a custom set of buttons.
 Integrate your own custom components inside the compound component architecture to suit your needs.
 
 <Demo data={demos.compoundFooter} />
-
-### Compound component example - Mantine Image
-
-Use Mantine's `Image` component inside `Lightbox.Slide` and `Lightbox.Thumbnail`.
-
-<Demo data={demos.compoundMantineImage} />
-
-### Compound component example - Next.js Image
-
-Use Next.js `Image` component inside `Lightbox.Slide` and `Lightbox.Thumbnail`.
-
-<Demo data={demos.compoundNextImage} />

@@ -112,6 +112,15 @@
 					"name": "boolean"
 				}
 			},
+			"slideImageProps": {
+				"defaultValue": null,
+				"description": "Props passed to the slide <code>Image</code> component",
+				"name": "slideImageProps",
+				"required": false,
+				"type": {
+					"name": "LightboxImageProps"
+				}
+			},
 			"slidesProps": {
 				"defaultValue": null,
 				"description": "Props passed to the slides carousel (<code>LightboxSlides</code>)",
@@ -119,6 +128,15 @@
 				"required": false,
 				"type": {
 					"name": "Pick<LightboxSlidesProps, \"initialSlide\" | \"emblaOptions\" | \"emblaPlugins\">"
+				}
+			},
+			"thumbnailImageProps": {
+				"defaultValue": null,
+				"description": "Props passed to the thumbnail <code>Image</code> component",
+				"name": "thumbnailImageProps",
+				"required": false,
+				"type": {
+					"name": "LightboxImageProps"
 				}
 			},
 			"thumbnailsProps": {

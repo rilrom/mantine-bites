@@ -120,6 +120,97 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 		expect(screen.getByLabelText("Previous slide")).toBeInTheDocument();
 	});
 
+	it("should apply width and height from image data to slide and thumbnail images", () => {
+		render(
+			<Lightbox
+				opened
+				onClose={() => {}}
+				images={[{ src: "/photo-1.jpg", alt: "Forest", width: 1200, height: 800 }]}
+			/>,
+		);
+		const imgs = screen.getAllByAltText("Forest");
+		for (const img of imgs) {
+			expect(img).toHaveAttribute("width", "1200");
+			expect(img).toHaveAttribute("height", "800");
+		}
+	});
+
+	it("should render with fallbackSrc without crashing", () => {
+		render(
+			<Lightbox
+				opened
+				onClose={() => {}}
+				images={[{ src: "/photo-1.jpg", alt: "Forest", fallbackSrc: "/fallback.jpg" }]}
+			/>,
+		);
+		expect(screen.getAllByAltText("Forest")[0]).toBeInTheDocument();
+	});
+
+	it("should render with fallbackThumbnailSrc without crashing", () => {
+		render(
+			<Lightbox
+				opened
+				onClose={() => {}}
+				images={[
+					{
+						src: "/photo-1.jpg",
+						alt: "Forest",
+						fallbackThumbnailSrc: "/fallback-thumb.jpg",
+					},
+				]}
+			/>,
+		);
+		expect(screen.getAllByAltText("Forest")[0]).toBeInTheDocument();
+	});
+
+	it("should forward slideImageProps to slide images", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				slideImageProps={{ "data-testid": "slide-img" } as any}
+			/>,
+		);
+		expect(screen.getAllByTestId("slide-img").length).toBeGreaterThan(0);
+	});
+
+	it("should forward thumbnailImageProps to thumbnail images", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				thumbnailImageProps={{ "data-testid": "thumb-img" } as any}
+			/>,
+		);
+		expect(screen.getAllByTestId("thumb-img").length).toBeGreaterThan(0);
+	});
+
+	it("should render slide images with a custom component via slideImageProps.renderRoot", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				slideImageProps={{
+					renderRoot: (props: any) => (
+						<span data-testid="custom-slide-root" {...props} />
+					),
+				}}
+			/>,
+		);
+		expect(screen.getAllByTestId("custom-slide-root").length).toBeGreaterThan(0);
+	});
+
+	it("should render thumbnail images with a custom component via thumbnailImageProps.renderRoot", () => {
+		render(
+			<Lightbox
+				{...defaultProps}
+				thumbnailImageProps={{
+					renderRoot: (props: any) => (
+						<span data-testid="custom-thumb-root" {...props} />
+					),
+				}}
+			/>,
+		);
+		expect(screen.getAllByTestId("custom-thumb-root").length).toBeGreaterThan(0);
+	});
+
 	it("should use thumbnailSrc and thumbnailAlt for thumbnail images", () => {
 		render(
 			<Lightbox
