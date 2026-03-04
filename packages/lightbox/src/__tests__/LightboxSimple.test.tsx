@@ -125,7 +125,9 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 			<Lightbox
 				opened
 				onClose={() => {}}
-				images={[{ src: "/photo-1.jpg", alt: "Forest", width: 1200, height: 800 }]}
+				images={[
+					{ src: "/photo-1.jpg", alt: "Forest", width: 1200, height: 800 },
+				]}
 			/>,
 		);
 		const imgs = screen.getAllByAltText("Forest");
@@ -140,7 +142,9 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 			<Lightbox
 				opened
 				onClose={() => {}}
-				images={[{ src: "/photo-1.jpg", alt: "Forest", fallbackSrc: "/fallback.jpg" }]}
+				images={[
+					{ src: "/photo-1.jpg", alt: "Forest", fallbackSrc: "/fallback.jpg" },
+				]}
 			/>,
 		);
 		expect(screen.getAllByAltText("Forest")[0]).toBeInTheDocument();
@@ -194,7 +198,9 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 				}}
 			/>,
 		);
-		expect(screen.getAllByTestId("custom-slide-root").length).toBeGreaterThan(0);
+		expect(screen.getAllByTestId("custom-slide-root").length).toBeGreaterThan(
+			0,
+		);
 	});
 
 	it("should render thumbnail images with a custom component via thumbnailImageProps.renderRoot", () => {
@@ -208,7 +214,9 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 				}}
 			/>,
 		);
-		expect(screen.getAllByTestId("custom-thumb-root").length).toBeGreaterThan(0);
+		expect(screen.getAllByTestId("custom-thumb-root").length).toBeGreaterThan(
+			0,
+		);
 	});
 
 	it("should use thumbnailSrc and thumbnailAlt for thumbnail images", () => {

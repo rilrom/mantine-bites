@@ -45,7 +45,7 @@ function Demo() {
         opened={opened}
         onClose={() => setOpened(false)}
         slidesProps={{ initialSlide }}
-        counterProps={{ formatter: (index, total) => \`\${index + 1} of \${total}\` }}
+        counterProps={{ formatter: (index, total) => \`Image \${index + 1} of \${total}\` }}
       />
     </>
   );
@@ -90,7 +90,7 @@ function Demo() {
 				onClose={() => setOpened(false)}
 				slidesProps={{ initialSlide }}
 				counterProps={{
-					formatter: (index, total) => `${index + 1} of ${total}`,
+					formatter: (index, total) => `Image ${index + 1} of ${total}`,
 				}}
 			/>
 		</>

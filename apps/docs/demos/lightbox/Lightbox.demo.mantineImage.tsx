@@ -45,7 +45,12 @@ function Demo() {
         opened={opened}
         onClose={() => setOpened(false)}
         slidesProps={{ initialSlide }}
-        thumbnailsProps={{ emblaOptions: { dragFree: false } }}
+        slideImageProps={{
+          radius: "50%",
+        }}
+        thumbnailImageProps={{
+          radius: "50%",
+        }}
       />
     </>
   );
@@ -89,13 +94,18 @@ function Demo() {
 				opened={opened}
 				onClose={() => setOpened(false)}
 				slidesProps={{ initialSlide }}
-				thumbnailsProps={{ emblaOptions: { dragFree: false } }}
+				slideImageProps={{
+					radius: "50%",
+				}}
+				thumbnailImageProps={{
+					radius: "50%",
+				}}
 			/>
 		</>
 	);
 }
 
-export const thumbnailsProps: MantineDemo = {
+export const mantineImage: MantineDemo = {
 	type: "code",
 	component: Demo,
 	code,

@@ -35,13 +35,13 @@ Customize the backdrop using `overlayProps`. Props are passed to the Mantine [`O
 
 Use `slidesProps` to configure the main slides carousel. Supports `initialSlide`, `emblaOptions`, and `emblaPlugins`.
 
-<Demo data={demos.slidesProps} />
+See the [Embla options documentation](https://www.embla-carousel.com/api/options/) for all available options.
 
 ## Thumbnails
 
 Use `thumbnailsProps` to configure the thumbnail strip carousel. Currently defaults to `dragFree: true`.
 
-<Demo data={demos.thumbnailsProps} />
+See the [Embla options documentation](https://www.embla-carousel.com/api/options/) for all available options.
 
 ## Controls
 
@@ -57,13 +57,17 @@ Use `counterProps` to customize the slide counter. The `formatter` function rece
 
 ## Embla options
 
-Pass options directly to the Embla carousel instance via `slidesProps.emblaOptions`. See the [Embla options documentation](https://www.embla-carousel.com/api/options/) for all available options.
+Pass options directly to the Embla carousel instance via `slidesProps.emblaOptions`.
+
+See the [Embla options documentation](https://www.embla-carousel.com/api/options/) for all available options.
 
 <Demo data={demos.emblaOptions} />
 
 ## Embla plugins
 
-Pass plugins to the main slides carousel via `slidesProps.emblaPlugins`. See the [Embla plugins documentation](https://www.embla-carousel.com/plugins/).
+Pass plugins to the main slides carousel via `slidesProps.emblaPlugins`.
+
+See the [Embla plugins documentation](https://www.embla-carousel.com/plugins/) for more information.
 
 If the autoplay plugin is detected, an autoplay toggle button is automatically added to the toolbar.
 
@@ -74,6 +78,14 @@ If the autoplay plugin is detected, an autoplay toggle button is automatically a
 Set `orientation="vertical"` to switch the slides carousel to a vertical layout.
 
 <Demo data={demos.vertical} />
+
+## Mantine Image
+
+The `<Lightbox />` wrapper uses [Mantine Image](https://mantine.dev/core/image/) under the hood.
+
+This allows you to pass Mantine props directly in `slideImageProps` and `thumbnailImageProps`.
+
+<Demo data={demos.mantineImage} />
 
 ## Next.js Image
 
