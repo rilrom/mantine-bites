@@ -1,5 +1,15 @@
 # @mantine-bites/lightbox
 
+## 1.0.0
+
+### Major Changes
+
+- feat: lightbox stable release
+
+### Patch Changes
+
+- fix: update index on reinit ([831fae7](https://github.com/rilrom/payload-bites/commit/831fae7))
+
 ## 1.0.0-beta.10
 
 ### Minor Changes
