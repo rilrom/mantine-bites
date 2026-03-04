@@ -114,9 +114,11 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 		setCurrentIndex(initialSlide);
 
 		const handleSlideSelect = (api: EmblaCarouselType) => {
-			setCurrentIndex(api.selectedScrollSnap());
+			const newIndex = api.selectedScrollSnap();
 
-			thumbnailsEmblaRef.current?.scrollTo(api.selectedScrollSnap());
+			setCurrentIndex(newIndex);
+
+			thumbnailsEmblaRef.current?.scrollTo(newIndex);
 		};
 
 		const handleCarouselDestroy = () => {
@@ -128,6 +130,7 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 		};
 
 		emblaApi.on("select", handleSlideSelect);
+		emblaApi.on("reInit", handleSlideSelect);
 		emblaApi.on("destroy", handleCarouselDestroy);
 	}, [
 		emblaApi,
