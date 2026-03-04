@@ -30,6 +30,10 @@ import { LightboxZoomButton } from "./components/LightboxZoomButton.js";
 export interface LightboxImageData {
 	src: string;
 	alt?: string;
+	/** URL for the thumbnail image, falls back to `src` if omitted */
+	thumbnailSrc?: string;
+	/** Alt text for the thumbnail image, falls back to `alt` if omitted */
+	thumbnailAlt?: string;
 }
 
 export interface LightboxProps extends Omit<LightboxRootProps, "children"> {
@@ -114,7 +118,10 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 				<LightboxThumbnails {...thumbnailsProps}>
 					{images.map((img) => (
 						<LightboxThumbnail key={img.src}>
-							<img src={img.src} alt={img.alt} />
+							<img
+								src={img.thumbnailSrc ?? img.src}
+								alt={img.thumbnailAlt ?? img.alt}
+							/>
 						</LightboxThumbnail>
 					))}
 				</LightboxThumbnails>

@@ -11,7 +11,7 @@ Full-screen image lightbox with thumbnails, controls, and carousel navigation.
 - [x] Autoplay option.
 - [x] Zoom option.
 - [x] Fullscreen option.
-- [ ] Custom thumbnail URLs and alt text.
+- [x] Custom thumbnail URLs and alt text.
 - [ ] Image captions.
 - [ ] Pinch to zoom functionality.
 - [ ] Swipe up or down to close functionality.

@@ -119,4 +119,31 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 		render(<Lightbox {...defaultProps} controlsProps={{ size: 48 }} />);
 		expect(screen.getByLabelText("Previous slide")).toBeInTheDocument();
 	});
+
+	it("should use thumbnailSrc and thumbnailAlt for thumbnail images", () => {
+		render(
+			<Lightbox
+				opened
+				onClose={() => {}}
+				images={[
+					{
+						src: "/photo-1.jpg",
+						alt: "Forest",
+						thumbnailSrc: "/thumb-1.jpg",
+						thumbnailAlt: "Forest thumbnail",
+					},
+				]}
+			/>,
+		);
+
+		expect(screen.getByAltText("Forest")).toHaveAttribute(
+			"src",
+			"/photo-1.jpg",
+		);
+
+		expect(screen.getByAltText("Forest thumbnail")).toHaveAttribute(
+			"src",
+			"/thumb-1.jpg",
+		);
+	});
 });
