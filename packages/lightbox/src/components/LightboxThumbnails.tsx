@@ -54,14 +54,15 @@ export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
 			...others
 		} = props;
 
-		const { getStyles, thumbnailsEmblaRef, currentIndex } =
+		const { getStyles, thumbnailsEmblaRef, initialSlideRef } =
 			useLightboxContext();
+
+		const initialSlide = initialSlideRef.current;
 
 		const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);
 
 		const viewportRef = useRef<HTMLDivElement | null>(null);
 		const containerRef = useRef<HTMLDivElement | null>(null);
-		const initialIndexRef = useRef(currentIndex);
 		const thumbnailsRef = useRef<HTMLDivElement>(null);
 
 		const mergedRef = useMergedRef(ref, thumbnailsRef);
@@ -83,8 +84,8 @@ export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
 
 			thumbnailsEmblaRef.current = emblaApi;
 
-			emblaApi.scrollTo(initialIndexRef.current);
-		}, [emblaApi, thumbnailsEmblaRef]);
+			emblaApi.scrollTo(initialSlide);
+		}, [emblaApi, thumbnailsEmblaRef, initialSlide]);
 
 		useEffect(() => {
 			const updateOverflow = () => {

@@ -68,10 +68,15 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 		isZoomedRef,
 		slidesEmblaRef,
 		thumbnailsEmblaRef,
+		initialSlideRef,
 		setCurrentIndex,
 		setSlideCount,
 		onSlidesEmblaApi,
 	} = useLightboxContext();
+
+	// We need to pass initialSlide to thumbnails to ensure embla scrolls to the correct thumbnail on mount.
+	// TODO: in v2, move initialSlide to LightboxRoot instead of LightboxSlides.
+	initialSlideRef.current = initialSlide;
 
 	const watchDrag = useCallback(
 		(emblaApi: EmblaCarouselType, event: MouseEvent | TouchEvent) => {

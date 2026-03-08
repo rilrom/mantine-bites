@@ -188,6 +188,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 
 	const slidesEmblaRef = useRef<EmblaCarouselType | null>(null);
 	const thumbnailsEmblaRef = useRef<EmblaCarouselType | null>(null);
+	const initialSlideRef = useRef(0);
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [slideCount, setSlideCount] = useState<number | null>(null);
@@ -323,6 +324,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 								slideCount,
 								slidesEmblaRef,
 								thumbnailsEmblaRef,
+								initialSlideRef,
 								setCurrentIndex: handleSlideChange,
 								setSlideCount,
 								onClose,
