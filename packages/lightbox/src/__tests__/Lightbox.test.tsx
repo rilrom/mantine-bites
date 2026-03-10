@@ -139,6 +139,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		expect(Lightbox.Thumbnails).toBeDefined();
 		expect(Lightbox.Thumbnail).toBeDefined();
 		expect(Lightbox.Slide).toBeDefined();
+		expect(Lightbox.Caption).toBeDefined();
 	});
 
 	it("should expose button static members on Lightbox", () => {
@@ -218,6 +219,37 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 			pointerId: 1,
 			clientX: 24,
 			clientY: 24,
+		});
+
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("should not close when clicking on the caption", () => {
+		const onClose = jest.fn();
+
+		render(
+			<Lightbox.Root opened onClose={onClose}>
+				<Lightbox.Slides>
+					<Lightbox.Slide>
+						<img src="/photo.jpg" alt="Forest slide" />
+						<Lightbox.Caption>A forest scene</Lightbox.Caption>
+					</Lightbox.Slide>
+				</Lightbox.Slides>
+			</Lightbox.Root>,
+		);
+
+		const caption = screen.getByText("A forest scene");
+
+		fireEvent.pointerDown(caption, {
+			pointerId: 1,
+			clientX: 10,
+			clientY: 10,
+		});
+
+		fireEvent.pointerUp(caption, {
+			pointerId: 1,
+			clientX: 10,
+			clientY: 10,
 		});
 
 		expect(onClose).not.toHaveBeenCalled();
@@ -722,6 +754,33 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 	it("should render default buttons when toolbar has no children", () => {
 		renderLightbox();
 		expect(screen.getByLabelText("Close lightbox")).toBeInTheDocument();
+	});
+
+	it("should render Lightbox.Caption outside the zoom content wrapper", () => {
+		render(
+			<Lightbox.Root opened onClose={() => {}}>
+				<Lightbox.Slides>
+					<Lightbox.Slide>
+						<img src="/photo.jpg" alt="Forest slide" />
+						<Lightbox.Caption>A forest scene</Lightbox.Caption>
+					</Lightbox.Slide>
+				</Lightbox.Slides>
+			</Lightbox.Root>,
+		);
+
+		const captionEl = document.querySelector<HTMLElement>(
+			"[data-lightbox-caption]",
+		);
+
+		expect(captionEl).toBeInTheDocument();
+
+		expect(captionEl).toHaveTextContent("A forest scene");
+
+		const imageContent = document.querySelector(
+			"[data-lightbox-slide-content]",
+		);
+
+		expect(imageContent).not.toContainElement(captionEl);
 	});
 });
 

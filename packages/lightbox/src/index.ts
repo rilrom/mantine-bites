@@ -5,6 +5,12 @@ export type {
 } from "./components/LightboxAutoplayButton.js";
 export { LightboxAutoplayButton } from "./components/LightboxAutoplayButton.js";
 export type {
+	LightboxCaptionFactory,
+	LightboxCaptionProps,
+	LightboxCaptionStylesNames,
+} from "./components/LightboxCaption.js";
+export { LightboxCaption } from "./components/LightboxCaption.js";
+export type {
 	LightboxCloseButtonFactory,
 	LightboxCloseButtonProps,
 	LightboxCloseButtonStylesNames,

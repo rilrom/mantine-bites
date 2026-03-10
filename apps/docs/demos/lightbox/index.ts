@@ -1,3 +1,4 @@
+export { caption } from "./Lightbox.demo.caption";
 export { compoundComponent } from "./Lightbox.demo.compoundComponent";
 export { compoundFooter } from "./Lightbox.demo.compoundFooter";
 export { compoundToolbar } from "./Lightbox.demo.compoundToolbar";

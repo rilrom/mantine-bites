@@ -84,6 +84,14 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 				return false;
 			}
 
+			const target = event.target;
+			if (
+				target instanceof Element &&
+				target.closest("[data-lightbox-caption]")
+			) {
+				return false;
+			}
+
 			const configuredWatchDrag = emblaOptions?.watchDrag;
 
 			if (typeof configuredWatchDrag === "function") {

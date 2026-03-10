@@ -8,7 +8,7 @@ import {
 	useProps,
 } from "@mantine/core";
 import type { PointerEvent as ReactPointerEvent, SyntheticEvent } from "react";
-import { useCallback, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useLightboxContext } from "../context/LightboxContext.js";
 import { useLightboxSlideContext } from "../context/LightboxSlideContext.js";
 import classes from "../styles/Lightbox.module.css";
@@ -20,6 +20,7 @@ import {
 	updateOutsideClosePointerState,
 } from "../utils/pointer.js";
 import { getZoomTransform } from "../utils/zoom.js";
+import { LightboxCaption } from "./LightboxCaption.js";
 
 export type LightboxSlideStylesNames = "slide";
 
@@ -66,7 +67,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 		(event: ReactPointerEvent<HTMLDivElement>) => {
 			const startedInsideContent = isEventTargetWithinSelector(
 				event.target,
-				"[data-lightbox-slide-content]",
+				":is([data-lightbox-slide-content], [data-lightbox-caption])",
 			);
 
 			outsideClosePointerRef.current = createOutsideClosePointerState({
@@ -152,6 +153,14 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 
 	const isActive = index === currentIndex;
 
+	const childrenArray = React.Children.toArray(children);
+	const captionChild = childrenArray.find(
+		(child) => React.isValidElement(child) && child.type === LightboxCaption,
+	);
+	const slideChildren = childrenArray.filter(
+		(child) => !(React.isValidElement(child) && child.type === LightboxCaption),
+	);
+
 	return (
 		<Box
 			ref={ref}
@@ -190,10 +199,11 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 					})}
 				>
 					<Box style={{ display: "contents" }} data-lightbox-slide-content>
-						{children}
+						{slideChildren}
 					</Box>
 				</Box>
 			</Box>
+			{captionChild}
 		</Box>
 	);
 });

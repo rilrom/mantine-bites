@@ -235,6 +235,19 @@
 		"description": "",
 		"props": {}
 	},
+	"LightboxCaption": {
+		"props": {
+			"children": {
+				"defaultValue": null,
+				"description": "Caption displayed below the slide image",
+				"name": "children",
+				"required": false,
+				"type": {
+					"name": "React.ReactNode"
+				}
+			}
+		}
+	},
 	"LightboxCloseButton": {
 		"description": "",
 		"props": {}

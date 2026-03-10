@@ -10,11 +10,42 @@ import {
 import { Lightbox } from "../index.js";
 
 const sampleImages = [
-	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
-	{ src: "https://picsum.photos/id/20/800/400", alt: "Bird" },
-	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Plant" },
-	{ src: "https://picsum.photos/id/40/1200/800", alt: "Leaves" },
-	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Desk" },
+	{
+		src: "https://picsum.photos/id/10/2400/1600",
+		alt: "Forest",
+		caption: (
+			<>
+				A peaceful forest scene
+				<br />
+				<em>Photographed in the Pacific Northwest</em>
+			</>
+		),
+	},
+	{
+		src: "https://picsum.photos/id/20/1200/800",
+		alt: "Books",
+		caption: "A stack of books",
+	},
+	{
+		src: "https://picsum.photos/id/30/2400/1600",
+		alt: "Mug",
+		caption: "Coffee break",
+	},
+	{
+		src: "https://picsum.photos/id/40/1200/800",
+		alt: "Cat",
+		caption: "A curious cat",
+	},
+	{
+		src: "https://picsum.photos/id/50/2400/1600",
+		alt: "Bird",
+		caption: "Bird in flight",
+	},
+	{
+		src: "https://picsum.photos/id/60/1200/800",
+		alt: "Computer",
+		caption: "Late night coding",
+	},
 ];
 
 const Container = (props: PropsWithChildren) => (
@@ -106,6 +137,10 @@ export default {
 			control: "boolean",
 			table: { category: "Sections" },
 		},
+		withCaptions: {
+			control: "boolean",
+			table: { category: "Sections" },
+		},
 		closeOnClickOutside: {
 			control: "boolean",
 			table: { category: "Behavior" },
@@ -129,6 +164,7 @@ interface PlaygroundArgs {
 	withControls: boolean;
 	withThumbnails: boolean;
 	withCounter: boolean;
+	withCaptions: boolean;
 	closeOnClickOutside: boolean;
 	counterFormat: "default" | "verbose";
 }
@@ -145,6 +181,7 @@ export const Playground = {
 		withControls: true,
 		withThumbnails: true,
 		withCounter: true,
+		withCaptions: true,
 		closeOnClickOutside: true,
 		counterFormat: "default",
 	} satisfies PlaygroundArgs,
@@ -171,6 +208,9 @@ export const Playground = {
 		const slides = sampleImages.map((img) => (
 			<Lightbox.Slide key={img.src}>
 				<ImgWithLoader src={img.src} alt={img.alt} />
+				{args.withCaptions && img.caption && (
+					<Lightbox.Caption>{img.caption}</Lightbox.Caption>
+				)}
 			</Lightbox.Slide>
 		));
 

@@ -9,8 +9,18 @@ import { Lightbox } from '@mantine-bites/lightbox';
 import { useState } from 'react';
 
 const images = [
-  { src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
-  { src: "https://picsum.photos/id/20/1200/800", alt: "Books" },
+  {
+    src: "https://picsum.photos/id/10/2400/1600",
+    alt: "Forest",
+    caption: (
+      <>
+        A peaceful forest scene
+        <br />
+        <em>Photographed in the Pacific Northwest</em>
+      </>
+    ),
+  },
+  { src: "https://picsum.photos/id/20/1200/800", alt: "Books", caption: "A stack of books" },
   { src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
   { src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
   { src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
@@ -48,6 +58,7 @@ function Demo() {
           {images.map((img) => (
             <Lightbox.Slide key={img.src}>
               <img src={img.src} alt={img.alt} />
+              {img.caption && <Lightbox.Caption>{img.caption}</Lightbox.Caption>}
             </Lightbox.Slide>
           ))}
         </Lightbox.Slides>
@@ -65,8 +76,22 @@ function Demo() {
 `;
 
 const images = [
-	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
-	{ src: "https://picsum.photos/id/20/1200/800", alt: "Books" },
+	{
+		src: "https://picsum.photos/id/10/2400/1600",
+		alt: "Forest",
+		caption: (
+			<>
+				A peaceful forest scene
+				<br />
+				<em>Photographed in the Pacific Northwest</em>
+			</>
+		),
+	},
+	{
+		src: "https://picsum.photos/id/20/1200/800",
+		alt: "Books",
+		caption: "A stack of books",
+	},
 	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
 	{ src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
 	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
@@ -104,6 +129,9 @@ function Demo() {
 					{images.map((img) => (
 						<Lightbox.Slide key={img.src}>
 							<img src={img.src} alt={img.alt} />
+							{img.caption && (
+								<Lightbox.Caption>{img.caption}</Lightbox.Caption>
+							)}
 						</Lightbox.Slide>
 					))}
 				</Lightbox.Slides>

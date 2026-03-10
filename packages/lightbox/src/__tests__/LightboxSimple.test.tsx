@@ -21,6 +21,7 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 		expect(Lightbox.Controls).toBeDefined();
 		expect(Lightbox.Slides).toBeDefined();
 		expect(Lightbox.Slide).toBeDefined();
+		expect(Lightbox.Caption).toBeDefined();
 		expect(Lightbox.Thumbnails).toBeDefined();
 		expect(Lightbox.Thumbnail).toBeDefined();
 	});
@@ -244,5 +245,24 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 			"src",
 			"/thumb-1.jpg",
 		);
+	});
+
+	it("should render caption when caption is set in image data", () => {
+		render(
+			<Lightbox
+				opened
+				onClose={() => {}}
+				images={[
+					{ src: "/photo-1.jpg", alt: "Forest", caption: "A forest scene" },
+				]}
+			/>,
+		);
+		expect(screen.getByText("A forest scene")).toBeInTheDocument();
+	});
+
+	it("should not render a caption element when caption is omitted", () => {
+		render(<Lightbox {...defaultProps} />);
+		// sampleImages have no caption set — no caption text should appear
+		expect(screen.queryByText("A forest scene")).not.toBeInTheDocument();
 	});
 });

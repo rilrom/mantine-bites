@@ -29,6 +29,7 @@ import { useAutoPlay } from "../hooks/useAutoPlay.js";
 import { useZoom } from "../hooks/useZoom.js";
 import classes from "../styles/Lightbox.module.css";
 import { LightboxAutoplayButton } from "./LightboxAutoplayButton.js";
+import { LightboxCaption } from "./LightboxCaption.js";
 import { LightboxCloseButton } from "./LightboxCloseButton.js";
 import { LightboxControls } from "./LightboxControls.js";
 import { LightboxCounter } from "./LightboxCounter.js";
@@ -56,6 +57,7 @@ export type LightboxRootStylesNames =
 	| "toolbar"
 	| "closeButton"
 	| "counter"
+	| "caption"
 	| "thumbnails"
 	| "thumbnailsViewport"
 	| "thumbnailsContainer"
@@ -107,6 +109,7 @@ export type LightboxRootFactory = Factory<{
 		Thumbnails: typeof LightboxThumbnails;
 		Thumbnail: typeof LightboxThumbnail;
 		Slide: typeof LightboxSlide;
+		Caption: typeof LightboxCaption;
 		CloseButton: typeof LightboxCloseButton;
 		ZoomButton: typeof LightboxZoomButton;
 		FullscreenButton: typeof LightboxFullscreenButton;
@@ -398,6 +401,7 @@ LightboxRoot.Slides = LightboxSlides;
 LightboxRoot.Thumbnails = LightboxThumbnails;
 LightboxRoot.Thumbnail = LightboxThumbnail;
 LightboxRoot.Slide = LightboxSlide;
+LightboxRoot.Caption = LightboxCaption;
 LightboxRoot.CloseButton = LightboxCloseButton;
 LightboxRoot.ZoomButton = LightboxZoomButton;
 LightboxRoot.FullscreenButton = LightboxFullscreenButton;

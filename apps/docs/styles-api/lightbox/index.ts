@@ -1,5 +1,6 @@
 import { LightboxStylesApi } from "./Lightbox.styles-api";
 import { LightboxAutoplayButtonStylesApi } from "./LightboxAutoplayButton.styles-api";
+import { LightboxCaptionStylesApi } from "./LightboxCaption.styles-api";
 import { LightboxCloseButtonStylesApi } from "./LightboxCloseButton.styles-api";
 import { LightboxControlsStylesApi } from "./LightboxControls.styles-api";
 import { LightboxCounterStylesApi } from "./LightboxCounter.styles-api";
@@ -18,6 +19,7 @@ export const STYLES_API_DATA = {
 	LightboxToolbar: LightboxToolbarStylesApi,
 	LightboxControls: LightboxControlsStylesApi,
 	LightboxCounter: LightboxCounterStylesApi,
+	LightboxCaption: LightboxCaptionStylesApi,
 	LightboxThumbnails: LightboxThumbnailsStylesApi,
 	LightboxThumbnail: LightboxThumbnailStylesApi,
 	LightboxCloseButton: LightboxCloseButtonStylesApi,

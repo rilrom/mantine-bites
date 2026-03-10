@@ -26,6 +26,7 @@ export const LightboxStylesApi: StylesApiData<LightboxRootFactory> = {
 		autoplayButton: "Control element that starts and pauses slide autoplay.",
 		counter:
 			"Element that displays the current slide index and total slide count.",
+		caption: "Element that displays the caption text below the slide image.",
 		thumbnails: "Outer wrapper element for the thumbnail navigation strip.",
 		thumbnailsViewport:
 			"Viewport element that clips the thumbnail strip for embla scrolling.",

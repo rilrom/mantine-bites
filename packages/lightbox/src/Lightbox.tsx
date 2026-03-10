@@ -6,6 +6,7 @@ import {
 	useProps,
 } from "@mantine/core";
 import { LightboxAutoplayButton } from "./components/LightboxAutoplayButton.js";
+import { LightboxCaption } from "./components/LightboxCaption.js";
 import { LightboxCloseButton } from "./components/LightboxCloseButton.js";
 import {
 	LightboxControls,
@@ -64,6 +65,8 @@ export interface LightboxImageData {
 	fallbackSrc?: string;
 	/** Alt text for the slide image */
 	alt?: string;
+	/** Optional caption displayed below the slide image */
+	caption?: React.ReactNode;
 	/** URL for the thumbnail image, falls back to `src` if omitted */
 	thumbnailSrc?: string;
 	/** URL used as a fallback if the thumbnail image cannot be loaded */
@@ -114,6 +117,7 @@ export type LightboxFactory = Factory<{
 		Controls: typeof LightboxControls;
 		Slides: typeof LightboxSlides;
 		Slide: typeof LightboxSlide;
+		Caption: typeof LightboxCaption;
 		Thumbnails: typeof LightboxThumbnails;
 		Thumbnail: typeof LightboxThumbnail;
 		CloseButton: typeof LightboxCloseButton;
@@ -164,6 +168,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 							height={img.height}
 							{...slideImageProps}
 						/>
+						{img.caption && <LightboxCaption>{img.caption}</LightboxCaption>}
 					</LightboxSlide>
 				))}
 			</LightboxSlides>
@@ -195,6 +200,7 @@ Lightbox.Counter = LightboxCounter;
 Lightbox.Controls = LightboxControls;
 Lightbox.Slides = LightboxSlides;
 Lightbox.Slide = LightboxSlide;
+Lightbox.Caption = LightboxCaption;
 Lightbox.Thumbnails = LightboxThumbnails;
 Lightbox.Thumbnail = LightboxThumbnail;
 Lightbox.CloseButton = LightboxCloseButton;
