@@ -9,6 +9,7 @@ import {
 	useProps,
 } from "@mantine/core";
 import { useLightboxContext } from "../context/LightboxContext.js";
+import { useScrollButtons } from "../hooks/useScrollButtons.js";
 import classes from "../styles/Lightbox.module.css";
 
 export type LightboxControlsStylesNames = "control";
@@ -36,8 +37,16 @@ export const LightboxControls = factory<LightboxControlsFactory>(
 
 		const { classNames, styles, size } = props;
 
-		const { onScrollPrev, onScrollNext, getStyles, orientation } =
-			useLightboxContext();
+		const {
+			onScrollPrev,
+			onScrollNext,
+			getStyles,
+			orientation,
+			slidesEmblaApi,
+		} = useLightboxContext();
+
+		const { prevBtnDisabled, nextBtnDisabled } =
+			useScrollButtons(slidesEmblaApi);
 
 		const { dir } = useDirection();
 
@@ -56,6 +65,7 @@ export const LightboxControls = factory<LightboxControlsFactory>(
 					})}
 					data-direction="prev"
 					aria-label="Previous slide"
+					disabled={prevBtnDisabled}
 					onClick={onScrollPrev}
 				>
 					<AccordionChevron
@@ -72,6 +82,7 @@ export const LightboxControls = factory<LightboxControlsFactory>(
 					})}
 					data-direction="next"
 					aria-label="Next slide"
+					disabled={nextBtnDisabled}
 					onClick={onScrollNext}
 				>
 					<AccordionChevron

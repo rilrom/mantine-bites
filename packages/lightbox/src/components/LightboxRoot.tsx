@@ -192,6 +192,8 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [slideCount, setSlideCount] = useState<number | null>(null);
+	const [slidesEmblaApi, setSlidesEmblaApi] =
+		useState<EmblaCarouselType | null>(null);
 
 	const {
 		isZoomed,
@@ -216,6 +218,14 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 		notifyAutoPlayInteraction,
 		handleEmblaApiForAutoPlay,
 	} = useAutoPlay();
+
+	const handleSlidesEmblaApi = useCallback(
+		(embla: EmblaCarouselType) => {
+			setSlidesEmblaApi(embla);
+			handleEmblaApiForAutoPlay(embla);
+		},
+		[handleEmblaApiForAutoPlay],
+	);
 
 	const { fullscreen: isFullscreen, toggle: toggleFullscreen } =
 		useFullscreen();
@@ -330,13 +340,14 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 								onClose,
 								onOutsideClick: handleOutsideClick,
 								onThumbnailClick: handleThumbnailClick,
+								slidesEmblaApi,
 								onScrollPrev: handleScrollPrev,
 								onScrollNext: handleScrollNext,
 								orientation,
 								canAutoPlay,
 								isPlaying,
 								toggleAutoPlay,
-								onSlidesEmblaApi: handleEmblaApiForAutoPlay,
+								onSlidesEmblaApi: handleSlidesEmblaApi,
 								withFullscreen,
 								isFullscreen,
 								toggleFullscreen,

@@ -499,7 +499,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 	});
 
 	it("should keep carousel controls enabled when zoomed", async () => {
-		renderLightbox();
+		renderLightbox({ slidesProps: { emblaOptions: { loop: true } } });
 
 		const image = screen.getByAltText("Forest landscape slide");
 		fireEvent.load(image);

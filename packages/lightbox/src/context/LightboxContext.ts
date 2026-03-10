@@ -17,6 +17,7 @@ export interface LightboxContext {
 	onClose: () => void;
 	onOutsideClick: () => void;
 	onThumbnailClick: (index: number) => void;
+	slidesEmblaApi: EmblaCarouselType | null;
 	onScrollPrev: () => void;
 	onScrollNext: () => void;
 	orientation: "horizontal" | "vertical";
