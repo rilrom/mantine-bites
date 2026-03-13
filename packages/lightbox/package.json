@@ -38,6 +38,7 @@
 	},
 	"devDependencies": {
 		"embla-carousel-autoplay": "^8.5.2",
+		"embla-carousel-fade": "^8.5.2",
 		"@mantine-bites/rollup-config": "workspace:*",
 		"@mantine-bites/typescript-config": "workspace:*",
 		"@mantine-tests/core": "^2.0.0",

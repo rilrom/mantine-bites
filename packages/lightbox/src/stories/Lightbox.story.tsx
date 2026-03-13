@@ -1,6 +1,7 @@
 import { Box, Button, Center, Image, Loader } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Autoplay from "embla-carousel-autoplay";
+import Fade from "embla-carousel-fade";
 import {
 	type ImgHTMLAttributes,
 	type PropsWithChildren,
@@ -113,6 +114,11 @@ export default {
 			table: { category: "Carousel" },
 			if: { arg: "enableAutoplay" },
 		},
+		transition: {
+			control: "select",
+			options: ["scroll", "fade"],
+			table: { category: "Carousel" },
+		},
 		withZoom: {
 			control: "boolean",
 			table: { category: "Toolbar" },
@@ -158,6 +164,7 @@ interface PlaygroundArgs {
 	loop: boolean;
 	enableAutoplay: boolean;
 	autoplayDelay: number;
+	transition: "scroll" | "fade";
 	withZoom: boolean;
 	withFullscreen: boolean;
 	withToolbar: boolean;
@@ -175,6 +182,7 @@ export const Playground = {
 		loop: false,
 		enableAutoplay: false,
 		autoplayDelay: 2000,
+		transition: "scroll",
 		withZoom: true,
 		withFullscreen: true,
 		withToolbar: true,
@@ -190,9 +198,10 @@ export const Playground = {
 
 		const emblaOptions = { loop: args.loop };
 
-		const emblaPlugins = args.enableAutoplay
-			? [Autoplay({ delay: args.autoplayDelay })]
-			: [];
+		const emblaPlugins = [
+			...(args.enableAutoplay ? [Autoplay({ delay: args.autoplayDelay })] : []),
+			...(args.transition === "fade" ? [Fade()] : []),
+		];
 
 		const formatter =
 			args.counterFormat === "verbose"

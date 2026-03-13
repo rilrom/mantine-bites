@@ -5,6 +5,7 @@ export { compoundToolbar } from "./Lightbox.demo.compoundToolbar";
 export { configurator } from "./Lightbox.demo.configurator";
 export { controlsProps } from "./Lightbox.demo.controlsProps";
 export { counterProps } from "./Lightbox.demo.counterProps";
+export { emblaFade } from "./Lightbox.demo.emblaFade";
 export { emblaOptions } from "./Lightbox.demo.emblaOptions";
 export { emblaPlugins } from "./Lightbox.demo.emblaPlugins";
 export { mantineImage } from "./Lightbox.demo.mantineImage";
