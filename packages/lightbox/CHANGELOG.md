@@ -1,5 +1,16 @@
 # @mantine-bites/lightbox
 
+## 1.2.0
+
+### Minor Changes
+
+- feat: image captions ([58fbfa5](https://github.com/rilrom/mantine-bites/commit/58fbfa5))
+- feat: disabled functionality for control buttons ([4fa4c40](https://github.com/rilrom/mantine-bites/commit/4fa4c40))
+
+### Patch Changes
+
+- fix: ensure correct thumbnail is scrolled to on mount ([ce7510c](https://github.com/rilrom/mantine-bites/commit/ce7510c))
+
 ## 1.1.0
 
 ### Minor Changes
