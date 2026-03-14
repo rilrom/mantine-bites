@@ -11,6 +11,7 @@ const withMDX = createMDX({
 const nextConfig = {
 	reactStrictMode: true,
 	output: "export",
+	trailingSlash: true,
 	basePath:
 		process.env.NODE_ENV === "production" ? "/mantine-bites" : undefined,
 	pageExtensions: ["ts", "tsx", "mdx"],
