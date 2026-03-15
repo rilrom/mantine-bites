@@ -1,5 +1,11 @@
 # @mantine-bites/lightbox
 
+## 1.3.0
+
+### Minor Changes
+
+- feat: add getEmblaApi to carousels ([4c4d76d](https://github.com/rilrom/mantine-bites/commit/4c4d76d))
+
 ## 1.2.0
 
 ### Minor Changes
