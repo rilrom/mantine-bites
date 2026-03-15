@@ -1,4 +1,7 @@
 export { caption } from "./Lightbox.demo.caption";
+export { htmlContent } from "./Lightbox.demo.htmlContent";
+export { iframe } from "./Lightbox.demo.iframe";
+export { map } from "./Lightbox.demo.map";
 export { compoundComponent } from "./Lightbox.demo.compoundComponent";
 export { compoundFooter } from "./Lightbox.demo.compoundFooter";
 export { compoundToolbar } from "./Lightbox.demo.compoundToolbar";
