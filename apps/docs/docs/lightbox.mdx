@@ -117,6 +117,28 @@ Refer to [Next.js image documentation](https://nextjs.org/docs/app/api-reference
 
 <Demo data={demos.nextImage} />
 
+## Custom content
+
+The compound component API supports any React content inside `<Lightbox.Slide>` — not just images. For non-image content, set `withZoom={false}` on `Lightbox.Root` to hide the zoom button (which requires an image to function).
+
+### HTML content
+
+Slides can contain any HTML or React content — useful for rich text, profiles, articles, or any custom UI.
+
+<Demo data={demos.htmlContent} />
+
+### iframes
+
+Embed iframes — such as videos — inside lightbox slides. The slide expands to fill the lightbox viewport.
+
+<Demo data={demos.iframe} />
+
+### Maps
+
+Embed interactive maps using OpenStreetMap (or any other map iframe provider).
+
+<Demo data={demos.map} />
+
 ## Compound components
 
 For full control over layout and composition, use the compound components via `Lightbox.Root`.
