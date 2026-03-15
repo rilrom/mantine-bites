@@ -34,6 +34,12 @@ const defaultSlides = [
 	</Lightbox.Slide>,
 ];
 
+const defaultImages = [
+	{ src: "/photo-1.jpg", alt: "Forest landscape" },
+	{ src: "/photo-2.jpg", alt: "Mountain view" },
+	{ src: "/photo-3.jpg", alt: "Ocean sunset" },
+];
+
 const defaultThumbnails = [
 	<Lightbox.Thumbnail key="thumbnail-1">
 		<img src="/photo-1.jpg" alt="Forest landscape thumbnail" />
@@ -754,6 +760,68 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 	it("should render default buttons when toolbar has no children", () => {
 		renderLightbox();
 		expect(screen.getByLabelText("Close lightbox")).toBeInTheDocument();
+	});
+
+	it("should call getEmblaApi with the thumbnails embla instance on init", async () => {
+		const getEmblaApi = jest.fn();
+
+		renderLightbox({ thumbnailsProps: { getEmblaApi } });
+
+		await waitFor(() => expect(getEmblaApi).toHaveBeenCalledTimes(1));
+
+		expect(getEmblaApi).toHaveBeenCalledWith(
+			expect.objectContaining({ on: expect.any(Function) }),
+		);
+	});
+
+	it("should call getEmblaApi with the slides embla instance on init", async () => {
+		const getEmblaApi = jest.fn();
+
+		renderLightbox({ slidesProps: { getEmblaApi } });
+
+		await waitFor(() => expect(getEmblaApi).toHaveBeenCalledTimes(1));
+
+		expect(getEmblaApi).toHaveBeenCalledWith(
+			expect.objectContaining({ on: expect.any(Function) }),
+		);
+	});
+
+	it("should forward slidesProps.getEmblaApi through the convenience Lightbox component", async () => {
+		const getEmblaApi = jest.fn();
+
+		render(
+			<Lightbox
+				images={defaultImages}
+				opened
+				onClose={() => {}}
+				slidesProps={{ getEmblaApi }}
+			/>,
+		);
+
+		await waitFor(() => expect(getEmblaApi).toHaveBeenCalledTimes(1));
+
+		expect(getEmblaApi).toHaveBeenCalledWith(
+			expect.objectContaining({ on: expect.any(Function) }),
+		);
+	});
+
+	it("should forward thumbnailsProps.getEmblaApi through the convenience Lightbox component", async () => {
+		const getEmblaApi = jest.fn();
+
+		render(
+			<Lightbox
+				images={defaultImages}
+				opened
+				onClose={() => {}}
+				thumbnailsProps={{ getEmblaApi }}
+			/>,
+		);
+
+		await waitFor(() => expect(getEmblaApi).toHaveBeenCalledTimes(1));
+
+		expect(getEmblaApi).toHaveBeenCalledWith(
+			expect.objectContaining({ on: expect.any(Function) }),
+		);
 	});
 
 	it("should render Lightbox.Caption outside the zoom content wrapper", () => {

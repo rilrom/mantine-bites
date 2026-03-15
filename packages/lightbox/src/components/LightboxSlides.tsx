@@ -13,7 +13,7 @@ import type {
 	EmblaPluginType,
 } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useLightboxContext } from "../context/LightboxContext.js";
 import { LightboxSlideProvider } from "../context/LightboxSlideContext.js";
 import classes from "../styles/Lightbox.module.css";
@@ -33,6 +33,8 @@ export interface LightboxSlidesProps
 	emblaOptions?: EmblaOptionsType;
 	/** Plugins passed directly to the Embla slide carousel */
 	emblaPlugins?: EmblaPluginType[];
+	/** Called when the slides Embla carousel is initialized, provides access to the Embla API */
+	getEmblaApi?: (embla: EmblaCarouselType) => void;
 }
 
 const defaultProps = {
@@ -58,6 +60,7 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 		initialSlide,
 		emblaOptions,
 		emblaPlugins,
+		getEmblaApi,
 		children,
 		...others
 	} = props;
@@ -77,6 +80,9 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 	// We need to pass initialSlide to thumbnails to ensure embla scrolls to the correct thumbnail on mount.
 	// TODO: in v2, move initialSlide to LightboxRoot instead of LightboxSlides.
 	initialSlideRef.current = initialSlide;
+
+	const getEmblaApiRef = useRef(getEmblaApi);
+	getEmblaApiRef.current = getEmblaApi;
 
 	const watchDrag = useCallback(
 		(emblaApi: EmblaCarouselType, event: MouseEvent | TouchEvent) => {
@@ -122,6 +128,7 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 
 		slidesEmblaRef.current = emblaApi;
 		onSlidesEmblaApi(emblaApi);
+		getEmblaApiRef.current?.(emblaApi);
 
 		setSlideCount(emblaApi.slideNodes().length);
 		setCurrentIndex(initialSlide);

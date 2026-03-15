@@ -127,7 +127,7 @@
 				"name": "slidesProps",
 				"required": false,
 				"type": {
-					"name": "Pick<LightboxSlidesProps, \"initialSlide\" | \"emblaOptions\" | \"emblaPlugins\">"
+					"name": "Pick<LightboxSlidesProps, \"initialSlide\" | \"emblaOptions\" | \"emblaPlugins\" | \"getEmblaApi\">"
 				}
 			},
 			"thumbnailImageProps": {
@@ -145,7 +145,7 @@
 				"name": "thumbnailsProps",
 				"required": false,
 				"type": {
-					"name": "Pick<LightboxThumbnailsProps, \"emblaOptions\">"
+					"name": "Pick<LightboxThumbnailsProps, \"emblaOptions\" | \"getEmblaApi\">"
 				}
 			},
 			"transitionProps": {
@@ -439,6 +439,15 @@
 					"name": "CreatePluginType<LoosePluginType, {}>[]"
 				}
 			},
+			"getEmblaApi": {
+				"defaultValue": null,
+				"description": "Called when the slides Embla carousel is initialized, provides access to the Embla API",
+				"name": "getEmblaApi",
+				"required": false,
+				"type": {
+					"name": "(embla: EmblaCarouselType) => void"
+				}
+			},
 			"initialSlide": {
 				"defaultValue": null,
 				"description": "Initial slide index, <code>0</code> by default",
@@ -463,6 +472,15 @@
 				"required": false,
 				"type": {
 					"name": "Partial<OptionsType>"
+				}
+			},
+			"getEmblaApi": {
+				"defaultValue": null,
+				"description": "Called when the thumbnails Embla carousel is initialized, provides access to the Embla API",
+				"name": "getEmblaApi",
+				"required": false,
+				"type": {
+					"name": "(embla: EmblaCarouselType) => void"
 				}
 			}
 		}

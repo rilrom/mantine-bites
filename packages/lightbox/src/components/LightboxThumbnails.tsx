@@ -8,7 +8,7 @@ import {
 	useProps,
 } from "@mantine/core";
 import { useMergedRef } from "@mantine/hooks";
-import type { EmblaOptionsType } from "embla-carousel";
+import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLightboxContext } from "../context/LightboxContext.js";
@@ -26,6 +26,8 @@ export interface LightboxThumbnailsProps
 		ElementProps<"div"> {
 	/** Options passed directly to the Embla thumbnail carousel, `{ dragFree: true }` by default */
 	emblaOptions?: EmblaOptionsType;
+	/** Called when the thumbnails Embla carousel is initialized, provides access to the Embla API */
+	getEmblaApi?: (embla: EmblaCarouselType) => void;
 }
 
 const defaultProps = {
@@ -50,6 +52,7 @@ export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
 			styles,
 			vars,
 			emblaOptions,
+			getEmblaApi,
 			children,
 			...others
 		} = props;
@@ -58,6 +61,9 @@ export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
 			useLightboxContext();
 
 		const initialSlide = initialSlideRef.current;
+
+		const getEmblaApiRef = useRef(getEmblaApi);
+		getEmblaApiRef.current = getEmblaApi;
 
 		const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions);
 
@@ -83,6 +89,7 @@ export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
 			}
 
 			thumbnailsEmblaRef.current = emblaApi;
+			getEmblaApiRef.current?.(emblaApi);
 
 			emblaApi.scrollTo(initialSlide);
 		}, [emblaApi, thumbnailsEmblaRef, initialSlide]);

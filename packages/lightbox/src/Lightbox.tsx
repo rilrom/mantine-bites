@@ -93,10 +93,13 @@ export interface LightboxProps extends Omit<LightboxRootProps, "children"> {
 	/** Props passed to the slides carousel (`LightboxSlides`) */
 	slidesProps?: Pick<
 		LightboxSlidesProps,
-		"initialSlide" | "emblaOptions" | "emblaPlugins"
+		"initialSlide" | "emblaOptions" | "emblaPlugins" | "getEmblaApi"
 	>;
 	/** Props passed to the thumbnails carousel (`LightboxThumbnails`) */
-	thumbnailsProps?: Pick<LightboxThumbnailsProps, "emblaOptions">;
+	thumbnailsProps?: Pick<
+		LightboxThumbnailsProps,
+		"emblaOptions" | "getEmblaApi"
+	>;
 	/** Props passed to the prev/next controls (`LightboxControls`) */
 	controlsProps?: Pick<LightboxControlsProps, "size">;
 	/** Props passed to the slide counter (`LightboxCounter`) */

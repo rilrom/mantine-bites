@@ -87,6 +87,12 @@ The fade plugin replaces the default scroll transition between slides with a cro
 
 <Demo data={demos.emblaFade} />
 
+## Embla API
+
+Use `getEmblaApi` on `slidesProps` (convenience component) or directly on `<Lightbox.Slides>` (compound component) to access the [Embla carousel API](https://www.embla-carousel.com/api/). This is useful for subscribing to carousel events and issuing programmatic commands not exposed by the lightbox itself.
+
+<Demo data={demos.emblaApi} />
+
 ## Vertical orientation
 
 Set `orientation="vertical"` to switch the slides carousel to a vertical layout.
