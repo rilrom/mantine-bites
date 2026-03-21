@@ -1,5 +1,4 @@
 import "@mantine/core/styles.css";
-import "@mantine/carousel/styles.css";
 import "@mantine/code-highlight/styles.css";
 import "@mantinex/mantine-logo/styles.css";
 import "@mantinex/mantine-header/styles.css";

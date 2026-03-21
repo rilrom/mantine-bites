@@ -44,9 +44,6 @@ importers:
       '@mantine-bites/lightbox':
         specifier: workspace:*
         version: link:../../packages/lightbox
-      '@mantine/carousel':
-        specifier: 8.3.14
-        version: 8.3.14(@mantine/core@8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@mantine/hooks@8.3.14(react@19.2.4))(embla-carousel-react@8.6.0(react@19.2.4))(embla-carousel@8.6.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@mantine/code-highlight':
         specifier: 8.3.14
         version: 8.3.14(@mantine/core@8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@mantine/hooks@8.3.14(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -144,9 +141,6 @@ importers:
 
   apps/storybook:
     dependencies:
-      '@mantine/carousel':
-        specifier: ^8.3.14
-        version: 8.3.14(@mantine/core@8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@mantine/hooks@8.3.14(react@19.2.4))(embla-carousel-react@8.6.0(react@19.2.4))(embla-carousel@8.6.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@mantine/core':
         specifier: ^8.3.14
         version: 8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1200,16 +1194,6 @@ packages:
   '@mantine-tests/core@2.0.0':
     resolution: {integrity: sha512-D6ktuI5sWMyaskgAYzCtBvr/L8rn6x551OhjB51bqT2BCTH+a5av4NIPqhhh5OaGpHbZPU2AgdDXUadcyPzSfA==}
     peerDependencies:
-      react: ^18.x || ^19.x
-      react-dom: ^18.x || ^19.x
-
-  '@mantine/carousel@8.3.14':
-    resolution: {integrity: sha512-1RAgUkeRFhuPnbwOXnF2pEEqD7iYCgkUDpFDsGzBNuX2SQt2MkXolCn/sdcGg4nWGhl7iqaWzR/YcZeg/TlXIQ==}
-    peerDependencies:
-      '@mantine/core': 8.3.14
-      '@mantine/hooks': 8.3.14
-      embla-carousel: '>=8.0.0'
-      embla-carousel-react: '>=8.0.0'
       react: ^18.x || ^19.x
       react-dom: ^18.x || ^19.x
 
@@ -6074,15 +6058,6 @@ snapshots:
 
   '@mantine-tests/core@2.0.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-
-  '@mantine/carousel@8.3.14(@mantine/core@8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@mantine/hooks@8.3.14(react@19.2.4))(embla-carousel-react@8.6.0(react@19.2.4))(embla-carousel@8.6.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@mantine/core': 8.3.14(@mantine/hooks@8.3.14(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@mantine/hooks': 8.3.14(react@19.2.4)
-      embla-carousel: 8.6.0
-      embla-carousel-react: 8.6.0(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 

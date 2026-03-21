@@ -1,5 +1,4 @@
 import "@mantine/core/styles.css";
-import "@mantine/carousel/styles.css";
 
 import { MantineProvider, useMantineColorScheme } from "@mantine/core";
 import { addons } from "@storybook/preview-api";
