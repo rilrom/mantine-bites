@@ -6,7 +6,11 @@
 	"type": "module",
 	"keywords": [
 		"extension",
-		"mantine"
+		"mantine",
+		"lightbox",
+		"fancybox",
+		"gallery",
+		"carousel"
 	],
 	"main": "./dist/cjs/index.cjs",
 	"module": "./dist/esm/index.mjs",
