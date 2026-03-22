@@ -199,6 +199,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 
 			if (isZoomed) {
 				event.currentTarget.setPointerCapture?.(event.pointerId);
+				event.currentTarget.style.cursor = "grabbing";
 				setIsDraggingZoom(true);
 			}
 
@@ -275,6 +276,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 
 			if (drag.canPan) {
 				event.currentTarget.releasePointerCapture?.(event.pointerId);
+				event.currentTarget.style.cursor = "";
 			}
 
 			const endX = getPointerCoordinate(event.clientX, drag.startX);
