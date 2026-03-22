@@ -1,5 +1,12 @@
 # @mantine-bites/lightbox
 
+## 1.4.0
+
+### Minor Changes
+
+- feat: move zoomed image with arrow keys ([b29a298](https://github.com/rilrom/mantine-bites/commit/b29a298))
+- feat: add dragging cursor on zoomed image ([7268be9](https://github.com/rilrom/mantine-bites/commit/7268be9))
+
 ## 1.3.0
 
 ### Minor Changes
