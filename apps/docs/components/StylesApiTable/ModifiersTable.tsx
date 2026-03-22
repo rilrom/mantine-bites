@@ -18,8 +18,8 @@ export function ModifiersTable({
 	const hasValues = data.modifiers?.some((modifier) => !!modifier.value);
 
 	const rows =
-		data.modifiers?.map((modifier, index) => (
-			<Table.Tr key={`${modifier.selector}-${index}`}>
+		data.modifiers?.map((modifier) => (
+			<Table.Tr key={`${modifier.selector}`}>
 				<Table.Td>
 					{Array.isArray(modifier.selector)
 						? modifier.selector.join(", ")
