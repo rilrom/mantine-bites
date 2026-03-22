@@ -286,6 +286,19 @@ describe("@mantine/core/ComponentName", () => {
 - **Node**: >= 22
 - **pnpm**: ^10.19.0 (enable via `corepack enable`)
 
+## Package Scaffolding
+
+New packages are created using `pnpm create-package`, which runs `scripts/create-package.ts`. The script generates all boilerplate files for a new package and its docs page based on the patterns established by the lightbox package.
+
+**Keep the script in sync:** If any of the following are changed, the implementation plan must include updating `scripts/create-package.ts` to reflect the new conventions:
+- Package config files (`package.json` structure, `rollup.config.ts`, `tsconfig.json`, `jest.config.cjs`, `jsdom.mocks.cjs`, `global.d.ts`)
+- Component implementation pattern (factory pattern, imports, CSS variables)
+- `src/index.ts` barrel export conventions
+- Test file structure (`ComponentName.test.tsx`)
+- Docs page structure (`apps/docs/pages/`, `apps/docs/docs/`, `apps/docs/styles-api/`, `apps/docs/demos/`)
+- `apps/docs/data.ts` shape (`PackageData` interface or `PACKAGES_DATA` object structure)
+- Shared devDependency versions used across packages
+
 ## Version Control
 
 Uses Conventional Commits for PR titles:
