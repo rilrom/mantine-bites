@@ -44,6 +44,7 @@ export interface LightboxContext {
 	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	panZoom: (direction: "up" | "down" | "left" | "right") => void;
 }
 
 export const [LightboxProvider, useLightboxContext] =

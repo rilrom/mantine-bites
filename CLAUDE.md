@@ -280,6 +280,17 @@ describe("@mantine/core/ComponentName", () => {
 - **Linting**: Biome handles JS/TS, Stylelint handles CSS modules. Both must pass with zero errors (warnings acceptable when appropriate)
 - **Formatting**: Biome formats on save (VSCode settings provided)
 - **Editor**: 2-space indentation, double quotes, LF line endings
+- **Braces**: Always use curly braces for `if` statements with the body on its own line — never inline bodies:
+  ```ts
+  // ✗ bad
+  if (x) return;
+  if (x) { return; }
+
+  // ✓ good
+  if (x) {
+    return;
+  }
+  ```
 
 ## Environment & Requirements
 

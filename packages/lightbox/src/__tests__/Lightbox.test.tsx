@@ -586,6 +586,170 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
 	});
 
+	it("should pan zoomed image left when ArrowLeft is pressed", async () => {
+		renderLightbox();
+
+		const image = screen.getByAltText("Forest landscape slide");
+		const activeSlide = image.closest("[aria-current='true']");
+		const zoomContainer = activeSlide?.querySelector("[data-zoom-enabled]");
+
+		// Mock image dimensions to enable zoom
+		Object.defineProperty(image, "naturalWidth", {
+			configurable: true,
+			value: 3000,
+		});
+		Object.defineProperty(image, "naturalHeight", {
+			configurable: true,
+			value: 2000,
+		});
+		Object.defineProperty(image, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+		Object.defineProperty(zoomContainer, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+
+		fireEvent.load(image);
+
+		// Zoom in
+		await waitFor(() => expect(screen.getByLabelText("Zoom in")).toBeEnabled());
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+
+		// Get the zoom content element that receives the transform
+		// (parent of [data-lightbox-slide-content], which is the zoomContent Box)
+		const zoomContent = activeSlide?.querySelector<HTMLElement>(
+			"[data-lightbox-slide-content]",
+		)?.parentElement;
+
+		expect(zoomContent).not.toBeNull();
+		if (!zoomContent) {
+			return;
+		}
+
+		// Record initial transform
+		const initialTransform = zoomContent.style.transform;
+
+		// Press ArrowLeft
+		await userEvent.keyboard("{ArrowLeft}");
+
+		// Transform should change (panned left = negative X direction)
+		await waitFor(() =>
+			expect(zoomContent.style.transform).not.toBe(initialTransform),
+		);
+	});
+
+	it("should not navigate slides when arrow key is pressed while zoomed", async () => {
+		renderLightbox();
+
+		const image = screen.getByAltText("Forest landscape slide");
+		const activeSlide = image.closest("[aria-current='true']");
+		const zoomContainer = activeSlide?.querySelector("[data-zoom-enabled]");
+
+		Object.defineProperty(image, "naturalWidth", {
+			configurable: true,
+			value: 3000,
+		});
+		Object.defineProperty(image, "naturalHeight", {
+			configurable: true,
+			value: 2000,
+		});
+		Object.defineProperty(image, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+		Object.defineProperty(zoomContainer, "getBoundingClientRect", {
+			configurable: true,
+			value: () => ({
+				x: 0,
+				y: 0,
+				width: 1000,
+				height: 667,
+				top: 0,
+				left: 0,
+				right: 1000,
+				bottom: 667,
+				toJSON: () => ({}),
+			}),
+		});
+
+		fireEvent.load(image);
+
+		await waitFor(() => expect(screen.getByLabelText("Zoom in")).toBeEnabled());
+
+		await userEvent.click(screen.getByLabelText("Zoom in"));
+
+		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+
+		// Capture zoom content element and initial transform
+		const zoomContent = activeSlide?.querySelector<HTMLElement>(
+			"[data-lightbox-slide-content]",
+		)?.parentElement;
+
+		expect(zoomContent).not.toBeNull();
+
+		if (!zoomContent) {
+			return;
+		}
+
+		const initialTransform = zoomContent.style.transform;
+
+		// Press ArrowRight — should pan, NOT navigate to next slide
+		await userEvent.keyboard("{ArrowRight}");
+
+		// Verify panning occurred (transform changed)
+		await waitFor(() =>
+			expect(zoomContent.style.transform).not.toBe(initialTransform),
+		);
+
+		// Verify no slide navigation
+		expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+		expect(screen.getByText("1 / 3")).toBeInTheDocument();
+	});
+
+	it("should navigate slides with arrow keys when not zoomed", async () => {
+		renderLightbox({
+			slidesProps: { emblaOptions: { loop: true } },
+		});
+
+		// Not zoomed — ArrowRight should navigate
+		await userEvent.keyboard("{ArrowRight}");
+
+		await waitFor(() => expect(screen.getByText("2 / 3")).toBeInTheDocument());
+	});
+
 	it("should render fullscreen button by default", () => {
 		renderLightbox();
 		expect(screen.getByLabelText("Enter fullscreen")).toBeInTheDocument();

@@ -212,6 +212,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
+		panZoom,
 	} = useZoom({ opened, withZoom });
 
 	const {
@@ -249,31 +250,59 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 	useHotkeys([
 		[
 			"ArrowLeft",
-			() =>
-				orientation === "horizontal" &&
-				opened &&
-				slidesEmblaRef.current?.scrollPrev(),
+			() => {
+				if (!opened) {
+					return;
+				}
+
+				if (isZoomedRef.current) {
+					panZoom("left");
+				} else if (orientation === "horizontal") {
+					slidesEmblaRef.current?.scrollPrev();
+				}
+			},
 		],
 		[
 			"ArrowRight",
-			() =>
-				orientation === "horizontal" &&
-				opened &&
-				slidesEmblaRef.current?.scrollNext(),
+			() => {
+				if (!opened) {
+					return;
+				}
+
+				if (isZoomedRef.current) {
+					panZoom("right");
+				} else if (orientation === "horizontal") {
+					slidesEmblaRef.current?.scrollNext();
+				}
+			},
 		],
 		[
 			"ArrowUp",
-			() =>
-				orientation === "vertical" &&
-				opened &&
-				slidesEmblaRef.current?.scrollPrev(),
+			() => {
+				if (!opened) {
+					return;
+				}
+
+				if (isZoomedRef.current) {
+					panZoom("up");
+				} else if (orientation === "vertical") {
+					slidesEmblaRef.current?.scrollPrev();
+				}
+			},
 		],
 		[
 			"ArrowDown",
-			() =>
-				orientation === "vertical" &&
-				opened &&
-				slidesEmblaRef.current?.scrollNext(),
+			() => {
+				if (!opened) {
+					return;
+				}
+
+				if (isZoomedRef.current) {
+					panZoom("down");
+				} else if (orientation === "vertical") {
+					slidesEmblaRef.current?.scrollNext();
+				}
+			},
 		],
 		["Escape", () => opened && onClose()],
 	]);
@@ -367,6 +396,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 								handleZoomPointerDown,
 								handleZoomPointerMove,
 								handleZoomPointerEnd,
+								panZoom,
 							}}
 						>
 							<Overlay

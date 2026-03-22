@@ -35,7 +35,20 @@ export interface UseZoomOutput {
 	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	panZoom: (direction: "up" | "down" | "left" | "right") => void;
 }
+
+const PAN_STEP_RATIO = 0.2;
+
+const PAN_DELTA: Record<
+	"up" | "down" | "left" | "right",
+	[x: number, y: number]
+> = {
+	left: [-1, 0],
+	right: [1, 0],
+	up: [0, 1],
+	down: [0, -1],
+};
 
 export function useZoom(props: UseZoomInput): UseZoomOutput {
 	const { opened, withZoom } = props;
@@ -289,6 +302,38 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		[toggleZoomAt],
 	);
 
+	const panZoom = useCallback(
+		(direction: "up" | "down" | "left" | "right") => {
+			const container = activeZoomContainerRef.current;
+			const baseSize = zoomBaseSizeRef.current;
+
+			if (!container || !baseSize) {
+				return;
+			}
+
+			const containerRect = container.getBoundingClientRect();
+
+			const [dx, dy] = PAN_DELTA[direction];
+			const deltaX = dx * containerRect.width * PAN_STEP_RATIO;
+			const deltaY = dy * containerRect.height * PAN_STEP_RATIO;
+
+			// zoomScale is stable while panning (scale only changes on toggle),
+			// so capturing it from the closure here is safe.
+			setZoomOffset((prev) =>
+				clampZoomOffset({
+					containerWidth: containerRect.width,
+					containerHeight: containerRect.height,
+					imageWidth: baseSize.width,
+					imageHeight: baseSize.height,
+					zoomScale,
+					nextX: prev.x + deltaX,
+					nextY: prev.y + deltaY,
+				}),
+			);
+		},
+		[zoomScale],
+	);
+
 	useEffect(() => {
 		if (!opened) {
 			resetZoom();
@@ -360,5 +405,6 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
+		panZoom,
 	};
 }
