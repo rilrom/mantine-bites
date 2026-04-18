@@ -1,5 +1,51 @@
 # @mantine-bites/lightbox
 
+## 2.0.0
+
+### Major Changes
+
+- feat!: upgrade to mantine v9 ([a9112b8](https://github.com/rilrom/mantine-bites/commit/a9112b8))
+- feat!: move initialSlide to LightboxRoot ([f24b8fe](https://github.com/rilrom/mantine-bites/commit/f24b8fe))
+
+#### BREAKING CHANGES
+
+- Mantine was upgraded to v9, refer to the [Mantine migration guide](https://mantine.dev/guides/8x-to-9x/) for more information.
+- `initialSlide` was moved from `Lightbox.Slides` to `Lightbox.Root`.
+
+Before:
+
+```tsx
+<Lightbox
+  images={images}
+  opened={opened}
+  onClose={onClose}
+  slidesProps={{ initialSlide: 2 }}
+/>
+
+<Lightbox.Root opened={opened} onClose={onClose}>
+  <Lightbox.Slides initialSlide={2}>
+    ...
+  </Lightbox.Slides>
+</Lightbox.Root>
+```
+
+After:
+
+```tsx
+<Lightbox
+  images={images}
+  opened={opened}
+  onClose={onClose}
+  initialSlide={2}
+/>
+
+<Lightbox.Root opened={opened} onClose={onClose} initialSlide={2}>
+  <Lightbox.Slides>
+    ...
+  </Lightbox.Slides>
+</Lightbox.Root>
+```
+
 ## 1.4.0
 
 ### Minor Changes

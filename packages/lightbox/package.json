@@ -1,6 +1,6 @@
 {
 	"name": "@mantine-bites/lightbox",
-	"version": "1.4.0",
+	"version": "2.0.0",
 	"description": "full-screen image lightbox with thumbnails, controls, and carousel navigation",
 	"license": "MIT",
 	"type": "module",
