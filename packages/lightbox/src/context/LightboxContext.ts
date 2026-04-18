@@ -8,7 +8,7 @@ export interface LightboxContext {
 	getStyles: GetStylesApi<LightboxRootFactory>;
 	opened: boolean;
 	currentIndex: number;
-	initialSlideRef: RefObject<number>;
+	initialSlide: number;
 	slideCount: number | null;
 	slidesEmblaRef: RefObject<EmblaCarouselType | null>;
 	thumbnailsEmblaRef: RefObject<EmblaCarouselType | null>;

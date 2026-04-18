@@ -93,7 +93,7 @@ export interface LightboxProps extends Omit<LightboxRootProps, "children"> {
 	/** Props passed to the slides carousel (`LightboxSlides`) */
 	slidesProps?: Pick<
 		LightboxSlidesProps,
-		"initialSlide" | "emblaOptions" | "emblaPlugins" | "getEmblaApi"
+		"emblaOptions" | "emblaPlugins" | "getEmblaApi"
 	>;
 	/** Props passed to the thumbnails carousel (`LightboxThumbnails`) */
 	thumbnailsProps?: Pick<

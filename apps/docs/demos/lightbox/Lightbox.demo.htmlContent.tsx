@@ -78,12 +78,13 @@ function Demo() {
       <Lightbox.Root
         opened={opened}
         onClose={() => setOpened(false)}
+        initialSlide={initialSlide}
         withZoom={false}
       >
         <Lightbox.Toolbar />
         <Lightbox.Counter />
         <Lightbox.Controls />
-        <Lightbox.Slides initialSlide={initialSlide}>
+        <Lightbox.Slides>
           {members.map((member) => (
             <Lightbox.Slide key={member.name}>
               <Box p="xl" maw={560} w="100%">
@@ -162,12 +163,13 @@ function Demo() {
 			<Lightbox.Root
 				opened={opened}
 				onClose={() => setOpened(false)}
+				initialSlide={initialSlide}
 				withZoom={false}
 			>
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
 				<Lightbox.Controls />
-				<Lightbox.Slides initialSlide={initialSlide}>
+				<Lightbox.Slides>
 					{members.map((member) => (
 						<Lightbox.Slide key={member.name}>
 							<Box p="xl" maw={560} w="100%">

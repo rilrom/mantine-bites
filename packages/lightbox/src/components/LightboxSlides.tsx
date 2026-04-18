@@ -27,8 +27,6 @@ export interface LightboxSlidesProps
 	extends BoxProps,
 		CompoundStylesApiProps<LightboxSlidesFactory>,
 		ElementProps<"div"> {
-	/** Initial slide index, `0` by default */
-	initialSlide?: number;
 	/** Options passed directly to the Embla slide carousel */
 	emblaOptions?: EmblaOptionsType;
 	/** Plugins passed directly to the Embla slide carousel */
@@ -37,9 +35,7 @@ export interface LightboxSlidesProps
 	getEmblaApi?: (embla: EmblaCarouselType) => void;
 }
 
-const defaultProps = {
-	initialSlide: 0,
-} satisfies Partial<LightboxSlidesProps>;
+const defaultProps = {} satisfies Partial<LightboxSlidesProps>;
 
 export type LightboxSlidesFactory = Factory<{
 	props: LightboxSlidesProps;
@@ -57,7 +53,6 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props) => {
 		style,
 		styles,
 		vars,
-		initialSlide,
 		emblaOptions,
 		emblaPlugins,
 		getEmblaApi,
@@ -71,15 +66,11 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props) => {
 		isZoomedRef,
 		slidesEmblaRef,
 		thumbnailsEmblaRef,
-		initialSlideRef,
+		initialSlide,
 		setCurrentIndex,
 		setSlideCount,
 		onSlidesEmblaApi,
 	} = useLightboxContext();
-
-	// We need to pass initialSlide to thumbnails to ensure embla scrolls to the correct thumbnail on mount.
-	// TODO: in v2, move initialSlide to LightboxRoot instead of LightboxSlides.
-	initialSlideRef.current = initialSlide;
 
 	const getEmblaApiRef = useRef(getEmblaApi);
 	getEmblaApiRef.current = getEmblaApi;

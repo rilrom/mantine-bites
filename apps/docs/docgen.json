@@ -37,6 +37,15 @@
 					"name": "LightboxImageData[]"
 				}
 			},
+			"initialSlide": {
+				"defaultValue": null,
+				"description": "Initial slide index, <code>0</code> by default",
+				"name": "initialSlide",
+				"required": false,
+				"type": {
+					"name": "number"
+				}
+			},
 			"keepMounted": {
 				"defaultValue": null,
 				"description": "Whether to keep content mounted when closed, <code>false</code> by default",
@@ -127,7 +136,7 @@
 				"name": "slidesProps",
 				"required": false,
 				"type": {
-					"name": "Pick<LightboxSlidesProps, \"initialSlide\" | \"emblaOptions\" | \"emblaPlugins\" | \"getEmblaApi\">"
+					"name": "Pick<LightboxSlidesProps, \"emblaOptions\" | \"emblaPlugins\" | \"getEmblaApi\">"
 				}
 			},
 			"thumbnailImageProps": {
@@ -293,6 +302,15 @@
 					"name": "boolean"
 				}
 			},
+			"initialSlide": {
+				"defaultValue": null,
+				"description": "Initial slide index, <code>0</code> by default",
+				"name": "initialSlide",
+				"required": false,
+				"type": {
+					"name": "number"
+				}
+			},
 			"keepMounted": {
 				"defaultValue": null,
 				"description": "Whether to keep content mounted when closed, <code>false</code> by default",
@@ -446,15 +464,6 @@
 				"required": false,
 				"type": {
 					"name": "(embla: EmblaCarouselType) => void"
-				}
-			},
-			"initialSlide": {
-				"defaultValue": null,
-				"description": "Initial slide index, <code>0</code> by default",
-				"name": "initialSlide",
-				"required": false,
-				"type": {
-					"name": "number"
 				}
 			}
 		}

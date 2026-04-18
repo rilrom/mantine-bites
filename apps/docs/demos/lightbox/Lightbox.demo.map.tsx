@@ -63,11 +63,16 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox.Root opened={opened} onClose={() => setOpened(false)} withZoom={false}>
+      <Lightbox.Root
+        opened={opened}
+        onClose={() => setOpened(false)}
+        initialSlide={initialSlide}
+        withZoom={false}
+      >
         <Lightbox.Toolbar />
         <Lightbox.Counter />
         <Lightbox.Controls />
-        <Lightbox.Slides initialSlide={initialSlide}>
+        <Lightbox.Slides>
           {locations.map((location) => (
             <Lightbox.Slide key={location.city}>
               <iframe
@@ -145,12 +150,13 @@ function Demo() {
 			<Lightbox.Root
 				opened={opened}
 				onClose={() => setOpened(false)}
+				initialSlide={initialSlide}
 				withZoom={false}
 			>
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
 				<Lightbox.Controls />
-				<Lightbox.Slides initialSlide={initialSlide}>
+				<Lightbox.Slides>
 					{locations.map((location) => (
 						<Lightbox.Slide key={location.city}>
 							<iframe

@@ -65,7 +65,7 @@ function Wrapper({
 				withZoom={withZoom}
 				withFullscreen={withFullscreen}
 				closeOnClickOutside={closeOnClickOutside}
-				slidesProps={{ initialSlide }}
+				initialSlide={initialSlide}
 			/>
 		</>
 	);
@@ -112,7 +112,7 @@ function Demo({{props}}) {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide }}
+        initialSlide={initialSlide}
         {{props}}
       />
     </>

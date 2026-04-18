@@ -44,7 +44,8 @@ function Demo() {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide, emblaOptions: { loop: true } }}
+        initialSlide={initialSlide}
+        slidesProps={{ emblaOptions: { loop: true } }}
       />
     </>
   );
@@ -87,7 +88,8 @@ function Demo() {
 				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				slidesProps={{ initialSlide, emblaOptions: { loop: true } }}
+				initialSlide={initialSlide}
+				slidesProps={{ emblaOptions: { loop: true } }}
 			/>
 		</>
 	);

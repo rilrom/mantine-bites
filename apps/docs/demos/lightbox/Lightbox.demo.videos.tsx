@@ -53,12 +53,13 @@ function Demo() {
       <Lightbox.Root
         opened={opened}
         onClose={() => setOpened(false)}
+        initialSlide={initialSlide}
         withZoom={false}
       >
         <Lightbox.Toolbar />
         <Lightbox.Counter />
         <Lightbox.Controls />
-        <Lightbox.Slides initialSlide={initialSlide}>
+        <Lightbox.Slides>
           {youtubeVideos.map((video) => (
             <Lightbox.Slide key={video.id}>
               <div
@@ -142,12 +143,13 @@ function Demo() {
 			<Lightbox.Root
 				opened={opened}
 				onClose={() => setOpened(false)}
+				initialSlide={initialSlide}
 				withZoom={false}
 			>
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
 				<Lightbox.Controls />
-				<Lightbox.Slides initialSlide={initialSlide}>
+				<Lightbox.Slides>
 					{youtubeVideos.map((video) => (
 						<Lightbox.Slide key={video.id}>
 							<div

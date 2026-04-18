@@ -44,7 +44,7 @@ function Demo() {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide }}
+        initialSlide={initialSlide}
         slideImageProps={{
           radius: "50%",
         }}
@@ -93,7 +93,7 @@ function Demo() {
 				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				slidesProps={{ initialSlide }}
+				initialSlide={initialSlide}
 				slideImageProps={{
 					radius: "50%",
 				}}

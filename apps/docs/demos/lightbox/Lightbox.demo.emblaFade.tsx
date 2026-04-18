@@ -48,7 +48,8 @@ function Demo() {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide, emblaPlugins: [fade] }}
+        initialSlide={initialSlide}
+        slidesProps={{ emblaPlugins: [fade] }}
       />
     </>
   );
@@ -93,7 +94,8 @@ function Demo() {
 				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				slidesProps={{ initialSlide, emblaPlugins: [fade] }}
+				initialSlide={initialSlide}
+				slidesProps={{ emblaPlugins: [fade] }}
 			/>
 		</>
 	);

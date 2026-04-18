@@ -272,7 +272,7 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 	});
 
 	it("should render at initialSlide position", async () => {
-		renderLightbox({ slidesProps: { initialSlide: 2 } });
+		renderLightbox({ rootProps: { initialSlide: 2 } });
 
 		expect(await screen.findByText("3 / 3")).toBeInTheDocument();
 
@@ -284,26 +284,25 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 
 	it("should reset current index when closed and reopened", () => {
 		const { rerender } = renderLightbox({
-			rootProps: { opened: true },
-			slidesProps: { initialSlide: 1 },
+			rootProps: { opened: true, initialSlide: 1 },
 		});
 
 		expect(screen.getByText("2 / 3")).toBeInTheDocument();
 
 		rerender(
-			<Lightbox.Root {...defaultRootProps} opened={false}>
+			<Lightbox.Root {...defaultRootProps} opened={false} initialSlide={0}>
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
-				<Lightbox.Slides initialSlide={0}>{defaultSlides}</Lightbox.Slides>
+				<Lightbox.Slides>{defaultSlides}</Lightbox.Slides>
 				<Lightbox.Thumbnails />
 			</Lightbox.Root>,
 		);
 
 		rerender(
-			<Lightbox.Root {...defaultRootProps} opened>
+			<Lightbox.Root {...defaultRootProps} opened initialSlide={0}>
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
-				<Lightbox.Slides initialSlide={0}>{defaultSlides}</Lightbox.Slides>
+				<Lightbox.Slides>{defaultSlides}</Lightbox.Slides>
 				<Lightbox.Thumbnails />
 			</Lightbox.Root>,
 		);

@@ -81,8 +81,8 @@ describe("@mantine-bites/lightbox/Lightbox simple API", () => {
 		expect(screen.queryByAltText("Forest")).not.toBeInTheDocument();
 	});
 
-	it("should render at the slide specified by slidesProps.initialSlide", async () => {
-		render(<Lightbox {...defaultProps} slidesProps={{ initialSlide: 2 }} />);
+	it("should render at the slide specified by initialSlide", async () => {
+		render(<Lightbox {...defaultProps} initialSlide={2} />);
 		expect(await screen.findByText("3 / 3")).toBeInTheDocument();
 	});
 

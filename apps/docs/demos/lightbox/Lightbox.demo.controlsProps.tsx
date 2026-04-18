@@ -44,7 +44,7 @@ function Demo() {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide }}
+        initialSlide={initialSlide}
         controlsProps={{ size: 48 }}
       />
     </>
@@ -88,7 +88,7 @@ function Demo() {
 				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				slidesProps={{ initialSlide }}
+				initialSlide={initialSlide}
 				controlsProps={{ size: 48 }}
 			/>
 		</>

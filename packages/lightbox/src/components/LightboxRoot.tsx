@@ -72,6 +72,8 @@ export interface LightboxRootProps
 	opened: boolean;
 	/** Called when the lightbox requests to close */
 	onClose: () => void;
+	/** Initial slide index, `0` by default */
+	initialSlide?: number;
 	/** Whether to close when clicking outside the content, `true` by default */
 	closeOnClickOutside?: boolean;
 	/** Whether to keep content mounted when closed, `false` by default */
@@ -127,6 +129,7 @@ const defaultProps = {
 	withZoom: true,
 	withFullscreen: true,
 	orientation: "horizontal",
+	initialSlide: 0,
 	transitionProps: {
 		transition: "fade",
 		duration: 250,
@@ -153,6 +156,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 		unstyled,
 		vars,
 		children,
+		initialSlide,
 		closeOnClickOutside,
 		keepMounted,
 		trapFocus,
@@ -192,7 +196,6 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 
 	const slidesEmblaRef = useRef<EmblaCarouselType | null>(null);
 	const thumbnailsEmblaRef = useRef<EmblaCarouselType | null>(null);
-	const initialSlideRef = useRef(0);
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [slideCount, setSlideCount] = useState<number | null>(null);
@@ -367,7 +370,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 								slideCount,
 								slidesEmblaRef,
 								thumbnailsEmblaRef,
-								initialSlideRef,
+								initialSlide,
 								setCurrentIndex: handleSlideChange,
 								setSlideCount,
 								onClose,

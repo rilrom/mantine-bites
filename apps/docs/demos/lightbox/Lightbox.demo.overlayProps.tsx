@@ -44,7 +44,7 @@ function Demo() {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide }}
+        initialSlide={initialSlide}
         overlayProps={{ color: '#ADD8E6', backgroundOpacity: 0.7 }}
       />
     </>
@@ -88,7 +88,7 @@ function Demo() {
 				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				slidesProps={{ initialSlide }}
+				initialSlide={initialSlide}
 				overlayProps={{ color: "#ADD8E6", backgroundOpacity: 0.7 }}
 			/>
 		</>

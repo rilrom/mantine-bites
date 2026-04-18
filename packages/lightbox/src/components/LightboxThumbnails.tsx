@@ -58,10 +58,8 @@ export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
 			...others
 		} = props;
 
-		const { getStyles, thumbnailsEmblaRef, initialSlideRef } =
+		const { getStyles, thumbnailsEmblaRef, initialSlide } =
 			useLightboxContext();
-
-		const initialSlide = initialSlideRef.current;
 
 		const getEmblaApiRef = useRef(getEmblaApi);
 		getEmblaApiRef.current = getEmblaApi;

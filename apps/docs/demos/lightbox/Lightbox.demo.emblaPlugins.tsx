@@ -48,7 +48,8 @@ function Demo() {
         images={images}
         opened={opened}
         onClose={() => setOpened(false)}
-        slidesProps={{ initialSlide, emblaPlugins: [autoplay] }}
+        initialSlide={initialSlide}
+        slidesProps={{ emblaPlugins: [autoplay] }}
       />
     </>
   );
@@ -93,7 +94,8 @@ function Demo() {
 				images={images}
 				opened={opened}
 				onClose={() => setOpened(false)}
-				slidesProps={{ initialSlide, emblaPlugins: [autoplay] }}
+				initialSlide={initialSlide}
+				slidesProps={{ emblaPlugins: [autoplay] }}
 			/>
 		</>
 	);

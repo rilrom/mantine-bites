@@ -60,14 +60,15 @@ function Demo() {
         ))}
       </SimpleGrid>
 
-      <Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
+      <Lightbox.Root
+        opened={opened}
+        onClose={() => setOpened(false)}
+        initialSlide={initialSlide}
+      >
         <Lightbox.Toolbar />
         <Lightbox.Counter />
         <Lightbox.Controls />
-        <Lightbox.Slides
-          initialSlide={initialSlide}
-          getEmblaApi={handleEmblaApi}
-        >
+        <Lightbox.Slides getEmblaApi={handleEmblaApi}>
           {images.map((img) => (
             <Lightbox.Slide key={img.src}>
               <img src={img.src} alt={img.alt} />
@@ -164,14 +165,15 @@ function Demo() {
 				))}
 			</SimpleGrid>
 
-			<Lightbox.Root opened={opened} onClose={() => setOpened(false)}>
+			<Lightbox.Root
+				opened={opened}
+				onClose={() => setOpened(false)}
+				initialSlide={initialSlide}
+			>
 				<Lightbox.Toolbar />
 				<Lightbox.Counter />
 				<Lightbox.Controls />
-				<Lightbox.Slides
-					initialSlide={initialSlide}
-					getEmblaApi={handleEmblaApi}
-				>
+				<Lightbox.Slides getEmblaApi={handleEmblaApi}>
 					{images.map((img) => (
 						<Lightbox.Slide key={img.src}>
 							<img src={img.src} alt={img.alt} />
