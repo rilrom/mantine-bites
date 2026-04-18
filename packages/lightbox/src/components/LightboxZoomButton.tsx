@@ -27,7 +27,7 @@ export type LightboxZoomButtonFactory = Factory<{
 }>;
 
 export const LightboxZoomButton = factory<LightboxZoomButtonFactory>(
-	(_props, ref) => {
+	(_props) => {
 		const props = useProps("LightboxZoomButton", null, _props);
 
 		const { classNames, className, style, styles, vars, ...others } = props;
@@ -41,7 +41,6 @@ export const LightboxZoomButton = factory<LightboxZoomButtonFactory>(
 
 		return (
 			<ActionIcon
-				ref={ref}
 				variant="default"
 				size="lg"
 				onClick={toggleZoom}

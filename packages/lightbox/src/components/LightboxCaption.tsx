@@ -27,27 +27,24 @@ export type LightboxCaptionFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxCaption = factory<LightboxCaptionFactory>(
-	(_props, ref) => {
-		const props = useProps("LightboxCaption", null, _props);
+export const LightboxCaption = factory<LightboxCaptionFactory>((_props) => {
+	const props = useProps("LightboxCaption", null, _props);
 
-		const { className, style, classNames, styles, vars, children, ...others } =
-			props;
+	const { className, style, classNames, styles, vars, children, ...others } =
+		props;
 
-		const { getStyles } = useLightboxContext();
+	const { getStyles } = useLightboxContext();
 
-		return (
-			<Box
-				ref={ref}
-				data-lightbox-caption
-				{...getStyles("caption", { className, style, classNames, styles })}
-				{...others}
-			>
-				{children}
-			</Box>
-		);
-	},
-);
+	return (
+		<Box
+			data-lightbox-caption
+			{...getStyles("caption", { className, style, classNames, styles })}
+			{...others}
+		>
+			{children}
+		</Box>
+	);
+});
 
 LightboxCaption.displayName = "LightboxCaption";
 LightboxCaption.classes = classes;

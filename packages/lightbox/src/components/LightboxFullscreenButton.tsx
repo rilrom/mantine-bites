@@ -27,7 +27,7 @@ export type LightboxFullscreenButtonFactory = Factory<{
 }>;
 
 export const LightboxFullscreenButton =
-	factory<LightboxFullscreenButtonFactory>((_props, ref) => {
+	factory<LightboxFullscreenButtonFactory>((_props) => {
 		const props = useProps("LightboxFullscreenButton", null, _props);
 
 		const { classNames, className, style, styles, vars, ...others } = props;
@@ -41,7 +41,6 @@ export const LightboxFullscreenButton =
 
 		return (
 			<ActionIcon
-				ref={ref}
 				variant="default"
 				size="lg"
 				onClick={toggleFullscreen}

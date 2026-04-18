@@ -133,7 +133,7 @@ const varsResolver = createVarsResolver<ComponentNameFactory>(
   }),
 );
 
-export const ComponentName = factory<ComponentNameFactory>((_props, ref) => {
+export const ComponentName = factory<ComponentNameFactory>((_props) => {
   const props = useProps("ComponentName", defaultProps, _props);
   const { classNames, className, style, styles, unstyled, vars, ...others } =
     props;
@@ -151,7 +151,7 @@ export const ComponentName = factory<ComponentNameFactory>((_props, ref) => {
     varsResolver,
   });
 
-  return <Box ref={ref} {...getStyles("root")} {...others} />;
+  return <Box {...getStyles("root")} {...others} />;
 });
 
 ComponentName.displayName = "ComponentName";

@@ -137,7 +137,7 @@ const defaultProps = {
 	withCounter: true,
 } satisfies Partial<LightboxProps>;
 
-export const Lightbox = factory<LightboxFactory>((_props, ref) => {
+export const Lightbox = factory<LightboxFactory>((_props) => {
 	const props = useProps("Lightbox", defaultProps, _props);
 
 	const {
@@ -156,7 +156,7 @@ export const Lightbox = factory<LightboxFactory>((_props, ref) => {
 	} = props;
 
 	return (
-		<LightboxRoot ref={ref} {...rootProps}>
+		<LightboxRoot {...rootProps}>
 			{withToolbar && <LightboxToolbar />}
 			{withCounter && <LightboxCounter {...counterProps} />}
 			{withControls && <LightboxControls {...controlsProps} />}

@@ -42,10 +42,11 @@ export type LightboxThumbnailsFactory = Factory<{
 }>;
 
 export const LightboxThumbnails = factory<LightboxThumbnailsFactory>(
-	(_props, ref) => {
+	(_props) => {
 		const props = useProps("LightboxThumbnails", defaultProps, _props);
 
 		const {
+			ref,
 			classNames,
 			className,
 			style,

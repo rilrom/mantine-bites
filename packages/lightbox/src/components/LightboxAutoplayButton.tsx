@@ -27,7 +27,7 @@ export type LightboxAutoplayButtonFactory = Factory<{
 }>;
 
 export const LightboxAutoplayButton = factory<LightboxAutoplayButtonFactory>(
-	(_props, ref) => {
+	(_props) => {
 		const props = useProps("LightboxAutoplayButton", null, _props);
 
 		const { classNames, className, style, styles, vars, ...others } = props;
@@ -41,7 +41,6 @@ export const LightboxAutoplayButton = factory<LightboxAutoplayButtonFactory>(
 
 		return (
 			<ActionIcon
-				ref={ref}
 				variant="default"
 				size="lg"
 				onClick={toggleAutoPlay}

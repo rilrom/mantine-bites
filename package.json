@@ -43,8 +43,8 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"@mantine/core": "8.3.14",
-			"@mantine/hooks": "8.3.14"
+			"@mantine/core": "9.0.2",
+			"@mantine/hooks": "9.0.2"
 		}
 	},
 	"packageManager": "pnpm@10.23.0"

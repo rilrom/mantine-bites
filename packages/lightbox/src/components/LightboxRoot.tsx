@@ -18,7 +18,7 @@ import {
 import {
 	useFocusReturn,
 	useFocusTrap,
-	useFullscreen,
+	useFullscreenDocument,
 	useHotkeys,
 	useMergedRef,
 } from "@mantine/hooks";
@@ -139,10 +139,11 @@ const defaultProps = {
 	},
 } satisfies Partial<LightboxRootProps>;
 
-export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
+export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 	const props = useProps("Lightbox", defaultProps, _props);
 
 	const {
+		ref,
 		opened,
 		onClose,
 		classNames,
@@ -232,7 +233,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props, ref) => {
 	);
 
 	const { fullscreen: isFullscreen, toggle: toggleFullscreen } =
-		useFullscreen();
+		useFullscreenDocument();
 
 	useEffect(() => {
 		if (

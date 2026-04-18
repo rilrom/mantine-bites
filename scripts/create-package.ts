@@ -71,8 +71,8 @@ function packageJson(slug: string, description: string): string {
 				"@mantine-bites/rollup-config": "workspace:*",
 				"@mantine-bites/typescript-config": "workspace:*",
 				"@mantine-tests/core": "^2.1.0",
-				"@mantine/core": "^8.3.18",
-				"@mantine/hooks": "^8.3.18",
+				"@mantine/core": "^9.0.2",
+				"@mantine/hooks": "^9.0.2",
 				"@testing-library/dom": "^10.4.0",
 				"@testing-library/jest-dom": "^6.6.3",
 				"@testing-library/react": "^16.3.0",
@@ -252,7 +252,7 @@ const varsResolver = createVarsResolver<${c}Factory>((theme, { color }) => ({
 \t},
 }));
 
-export const ${c} = factory<${c}Factory>((_props, ref) => {
+export const ${c} = factory<${c}Factory>((_props) => {
 \tconst props = useProps("${c}", defaultProps, _props);
 \tconst { classNames, className, style, styles, unstyled, vars, ...others } =
 \t\tprops;
@@ -270,7 +270,7 @@ export const ${c} = factory<${c}Factory>((_props, ref) => {
 \t\tvarsResolver,
 \t});
 
-\treturn <Box ref={ref} {...getStyles("root")} {...others} />;
+\treturn <Box {...getStyles("root")} {...others} />;
 });
 
 ${c}.displayName = "${c}";

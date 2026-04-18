@@ -36,85 +36,82 @@ export type LightboxToolbarFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxToolbar = factory<LightboxToolbarFactory>(
-	(_props, ref) => {
-		const props = useProps("LightboxToolbar", null, _props);
+export const LightboxToolbar = factory<LightboxToolbarFactory>((_props) => {
+	const props = useProps("LightboxToolbar", null, _props);
 
-		const { classNames, className, style, styles, vars, children, ...others } =
-			props;
+	const { classNames, className, style, styles, vars, children, ...others } =
+		props;
 
-		const {
-			onClose,
-			getStyles,
-			withFullscreen,
-			isFullscreen,
-			toggleFullscreen,
-			withZoom,
-			isZoomed,
-			canZoomCurrent,
-			toggleZoom,
-			canAutoPlay,
-			isPlaying,
-			toggleAutoPlay,
-		} = useLightboxContext();
+	const {
+		onClose,
+		getStyles,
+		withFullscreen,
+		isFullscreen,
+		toggleFullscreen,
+		withZoom,
+		isZoomed,
+		canZoomCurrent,
+		toggleZoom,
+		canAutoPlay,
+		isPlaying,
+		toggleAutoPlay,
+	} = useLightboxContext();
 
-		return (
-			<ActionIcon.Group
-				ref={ref}
-				{...getStyles("toolbar", { className, style, classNames, styles })}
-				{...others}
-			>
-				{children ?? (
-					<>
-						{withFullscreen && (
-							<ActionIcon
-								variant="default"
-								size="lg"
-								onClick={toggleFullscreen}
-								aria-label={`${isFullscreen ? "Exit" : "Enter"} fullscreen`}
-								{...getStyles("fullscreenButton", { classNames, styles })}
-							>
-								{isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
-							</ActionIcon>
-						)}
-						{withZoom && (
-							<ActionIcon
-								variant="default"
-								size="lg"
-								onClick={toggleZoom}
-								disabled={!canZoomCurrent}
-								aria-label={isZoomed ? "Zoom out" : "Zoom in"}
-								{...getStyles("zoomButton", { classNames, styles })}
-							>
-								{isZoomed ? <ZoomOut /> : <ZoomIn />}
-							</ActionIcon>
-						)}
-						{canAutoPlay && (
-							<ActionIcon
-								variant="default"
-								size="lg"
-								onClick={toggleAutoPlay}
-								aria-label={isPlaying ? "Pause autoplay" : "Play autoplay"}
-								{...getStyles("autoplayButton", { classNames, styles })}
-							>
-								{isPlaying ? <Pause /> : <Play />}
-							</ActionIcon>
-						)}
+	return (
+		<ActionIcon.Group
+			{...getStyles("toolbar", { className, style, classNames, styles })}
+			{...others}
+		>
+			{children ?? (
+				<>
+					{withFullscreen && (
 						<ActionIcon
 							variant="default"
 							size="lg"
-							onClick={onClose}
-							aria-label="Close lightbox"
-							{...getStyles("closeButton", { classNames, styles })}
+							onClick={toggleFullscreen}
+							aria-label={`${isFullscreen ? "Exit" : "Enter"} fullscreen`}
+							{...getStyles("fullscreenButton", { classNames, styles })}
 						>
-							<CloseIcon />
+							{isFullscreen ? <ExitFullscreen /> : <EnterFullscreen />}
 						</ActionIcon>
-					</>
-				)}
-			</ActionIcon.Group>
-		);
-	},
-);
+					)}
+					{withZoom && (
+						<ActionIcon
+							variant="default"
+							size="lg"
+							onClick={toggleZoom}
+							disabled={!canZoomCurrent}
+							aria-label={isZoomed ? "Zoom out" : "Zoom in"}
+							{...getStyles("zoomButton", { classNames, styles })}
+						>
+							{isZoomed ? <ZoomOut /> : <ZoomIn />}
+						</ActionIcon>
+					)}
+					{canAutoPlay && (
+						<ActionIcon
+							variant="default"
+							size="lg"
+							onClick={toggleAutoPlay}
+							aria-label={isPlaying ? "Pause autoplay" : "Play autoplay"}
+							{...getStyles("autoplayButton", { classNames, styles })}
+						>
+							{isPlaying ? <Pause /> : <Play />}
+						</ActionIcon>
+					)}
+					<ActionIcon
+						variant="default"
+						size="lg"
+						onClick={onClose}
+						aria-label="Close lightbox"
+						{...getStyles("closeButton", { classNames, styles })}
+					>
+						<CloseIcon />
+					</ActionIcon>
+				</>
+			)}
+		</ActionIcon.Group>
+	);
+});
 
 LightboxToolbar.classes = classes;
 

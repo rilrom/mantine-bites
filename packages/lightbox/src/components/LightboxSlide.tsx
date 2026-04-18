@@ -36,7 +36,7 @@ export type LightboxSlideFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
+export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 	const props = useProps("LightboxSlide", null, _props);
 
 	const { className, style, classNames, styles, vars, children, ...others } =
@@ -163,7 +163,6 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props, ref) => {
 
 	return (
 		<Box
-			ref={ref}
 			aria-current={isActive ? "true" : undefined}
 			data-active={isActive || undefined}
 			onPointerDown={isActive ? handleSlidePointerDown : undefined}

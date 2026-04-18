@@ -26,35 +26,32 @@ export type LightboxThumbnailFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxThumbnail = factory<LightboxThumbnailFactory>(
-	(_props, ref) => {
-		const props = useProps("LightboxThumbnail", null, _props);
+export const LightboxThumbnail = factory<LightboxThumbnailFactory>((_props) => {
+	const props = useProps("LightboxThumbnail", null, _props);
 
-		const { classNames, className, style, styles, vars, children, ...others } =
-			props;
+	const { classNames, className, style, styles, vars, children, ...others } =
+		props;
 
-		const { currentIndex, onThumbnailClick, getStyles } = useLightboxContext();
+	const { currentIndex, onThumbnailClick, getStyles } = useLightboxContext();
 
-		const { index } = useLightboxThumbnailContext();
+	const { index } = useLightboxThumbnailContext();
 
-		return (
-			<Box
-				ref={ref}
-				{...getStyles("thumbnail", { className, style, classNames, styles })}
-				{...others}
+	return (
+		<Box
+			{...getStyles("thumbnail", { className, style, classNames, styles })}
+			{...others}
+		>
+			<UnstyledButton
+				{...getStyles("thumbnailButton", { classNames, styles })}
+				onClick={() => onThumbnailClick(index)}
+				aria-label={`Go to slide ${index + 1}`}
+				aria-current={index === currentIndex || undefined}
 			>
-				<UnstyledButton
-					{...getStyles("thumbnailButton", { classNames, styles })}
-					onClick={() => onThumbnailClick(index)}
-					aria-label={`Go to slide ${index + 1}`}
-					aria-current={index === currentIndex || undefined}
-				>
-					{children}
-				</UnstyledButton>
-			</Box>
-		);
-	},
-);
+				{children}
+			</UnstyledButton>
+		</Box>
+	);
+});
 
 LightboxThumbnail.classes = classes;
 

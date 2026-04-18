@@ -26,7 +26,7 @@ export type LightboxCloseButtonFactory = Factory<{
 }>;
 
 export const LightboxCloseButton = factory<LightboxCloseButtonFactory>(
-	(_props, ref) => {
+	(_props) => {
 		const props = useProps("LightboxCloseButton", null, _props);
 
 		const { classNames, className, style, styles, vars, ...others } = props;
@@ -35,7 +35,6 @@ export const LightboxCloseButton = factory<LightboxCloseButtonFactory>(
 
 		return (
 			<ActionIcon
-				ref={ref}
 				variant="default"
 				size="lg"
 				onClick={onClose}

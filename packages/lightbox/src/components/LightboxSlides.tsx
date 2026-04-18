@@ -48,7 +48,7 @@ export type LightboxSlidesFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
+export const LightboxSlides = factory<LightboxSlidesFactory>((_props) => {
 	const props = useProps("LightboxSlides", defaultProps, _props);
 
 	const {
@@ -164,7 +164,6 @@ export const LightboxSlides = factory<LightboxSlidesFactory>((_props, ref) => {
 
 	return (
 		<Box
-			ref={ref}
 			{...getStyles("slides", { className, style, classNames, styles })}
 			{...others}
 		>

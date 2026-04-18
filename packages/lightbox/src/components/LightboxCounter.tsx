@@ -25,35 +25,32 @@ export type LightboxCounterFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxCounter = factory<LightboxCounterFactory>(
-	(_props, ref) => {
-		const props = useProps("LightboxCounter", null, _props);
+export const LightboxCounter = factory<LightboxCounterFactory>((_props) => {
+	const props = useProps("LightboxCounter", null, _props);
 
-		const { classNames, className, style, styles, vars, formatter, ...others } =
-			props;
+	const { classNames, className, style, styles, vars, formatter, ...others } =
+		props;
 
-		const { currentIndex, slideCount, getStyles } = useLightboxContext();
+	const { currentIndex, slideCount, getStyles } = useLightboxContext();
 
-		if (slideCount === null) {
-			return null;
-		}
+	if (slideCount === null) {
+		return null;
+	}
 
-		const label = formatter
-			? formatter(currentIndex, slideCount)
-			: `${currentIndex + 1} / ${slideCount}`;
+	const label = formatter
+		? formatter(currentIndex, slideCount)
+		: `${currentIndex + 1} / ${slideCount}`;
 
-		return (
-			<Text
-				ref={ref}
-				size="sm"
-				{...getStyles("counter", { className, style, classNames, styles })}
-				{...others}
-			>
-				{label}
-			</Text>
-		);
-	},
-);
+	return (
+		<Text
+			size="sm"
+			{...getStyles("counter", { className, style, classNames, styles })}
+			{...others}
+		>
+			{label}
+		</Text>
+	);
+});
 
 LightboxCounter.classes = classes;
 

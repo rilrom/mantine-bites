@@ -31,68 +31,56 @@ export type LightboxControlsFactory = Factory<{
 	compound: true;
 }>;
 
-export const LightboxControls = factory<LightboxControlsFactory>(
-	(_props, _ref) => {
-		const props = useProps("LightboxControls", defaultProps, _props);
+export const LightboxControls = factory<LightboxControlsFactory>((_props) => {
+	const props = useProps("LightboxControls", defaultProps, _props);
 
-		const { classNames, styles, size } = props;
+	const { classNames, styles, size } = props;
 
-		const {
-			onScrollPrev,
-			onScrollNext,
-			getStyles,
-			orientation,
-			slidesEmblaApi,
-		} = useLightboxContext();
+	const { onScrollPrev, onScrollNext, getStyles, orientation, slidesEmblaApi } =
+		useLightboxContext();
 
-		const { prevBtnDisabled, nextBtnDisabled } =
-			useScrollButtons(slidesEmblaApi);
+	const { prevBtnDisabled, nextBtnDisabled } = useScrollButtons(slidesEmblaApi);
 
-		const { dir } = useDirection();
+	const { dir } = useDirection();
 
-		const prevRotation =
-			orientation === "horizontal" ? 90 * (dir === "ltr" ? 1 : -1) : -180;
-		const nextRotation =
-			orientation === "horizontal" ? 90 * (dir === "ltr" ? -1 : 1) : 0;
+	const prevRotation =
+		orientation === "horizontal" ? 90 * (dir === "ltr" ? 1 : -1) : -180;
+	const nextRotation =
+		orientation === "horizontal" ? 90 * (dir === "ltr" ? -1 : 1) : 0;
 
-		return (
-			<>
-				<UnstyledButton
-					{...getStyles("control", {
-						style: { "--lightbox-control-size": rem(size) },
-						classNames,
-						styles,
-					})}
-					data-direction="prev"
-					aria-label="Previous slide"
-					disabled={prevBtnDisabled}
-					onClick={onScrollPrev}
-				>
-					<AccordionChevron
-						style={{ transform: `rotate(${prevRotation}deg)` }}
-					/>
-				</UnstyledButton>
-				<UnstyledButton
-					{...getStyles("control", {
-						style: {
-							"--lightbox-control-size": rem(size),
-						} as React.CSSProperties,
-						classNames,
-						styles,
-					})}
-					data-direction="next"
-					aria-label="Next slide"
-					disabled={nextBtnDisabled}
-					onClick={onScrollNext}
-				>
-					<AccordionChevron
-						style={{ transform: `rotate(${nextRotation}deg)` }}
-					/>
-				</UnstyledButton>
-			</>
-		);
-	},
-);
+	return (
+		<>
+			<UnstyledButton
+				{...getStyles("control", {
+					style: { "--lightbox-control-size": rem(size) },
+					classNames,
+					styles,
+				})}
+				data-direction="prev"
+				aria-label="Previous slide"
+				disabled={prevBtnDisabled}
+				onClick={onScrollPrev}
+			>
+				<AccordionChevron style={{ transform: `rotate(${prevRotation}deg)` }} />
+			</UnstyledButton>
+			<UnstyledButton
+				{...getStyles("control", {
+					style: {
+						"--lightbox-control-size": rem(size),
+					} as React.CSSProperties,
+					classNames,
+					styles,
+				})}
+				data-direction="next"
+				aria-label="Next slide"
+				disabled={nextBtnDisabled}
+				onClick={onScrollNext}
+			>
+				<AccordionChevron style={{ transform: `rotate(${nextRotation}deg)` }} />
+			</UnstyledButton>
+		</>
+	);
+});
 
 LightboxControls.classes = classes;
 

@@ -14,9 +14,9 @@
 	},
 	"dependencies": {
 		"@mantine-bites/lightbox": "workspace:*",
-		"@mantine/code-highlight": "8.3.14",
-		"@mantine/core": "8.3.14",
-		"@mantine/hooks": "8.3.14",
+		"@mantine/code-highlight": "9.0.2",
+		"@mantine/core": "9.0.2",
+		"@mantine/hooks": "9.0.2",
 		"@mantinex/demo": "^2.0.0",
 		"@mantinex/dev-icons": "^2.0.0",
 		"@mantinex/mantine-header": "^2.0.0",
@@ -33,8 +33,8 @@
 		"embla-carousel-fade": "^8.5.2",
 		"embla-carousel-react": "^8.5.2",
 		"next": "^15.5.14",
-		"react": "^19.2.4",
-		"react-dom": "^19.2.4",
+		"react": "^19.2.5",
+		"react-dom": "^19.2.5",
 		"remark-slug": "^7.0.1",
 		"shiki": "^3.23.0",
 		"type-fest": "^4.41.0"
@@ -46,6 +46,6 @@
 		"@types/react-dom": "^19",
 		"mantine-docgen-script": "^1.5.0",
 		"tsx": "^4.19.4",
-		"typescript": "5.8.3"
+		"typescript": "5.9.3"
 	}
 }
