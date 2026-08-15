@@ -1,5 +1,5 @@
 import { CodeHighlight } from "@mantine/code-highlight";
-import { Anchor, Code, Image, Title } from "@mantine/core";
+import { Anchor, Code, Image, Table, Title } from "@mantine/core";
 import { Demo } from "@mantinex/demo";
 import cx from "clsx";
 import type { MDXComponents } from "mdx/types";
@@ -82,6 +82,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 		img: Image as any,
 		ul: MdxUl,
 		li: MdxLi,
+		table: Table,
+		thead: Table.Thead,
+		tbody: Table.Tbody,
+		tr: Table.Tr,
+		th: Table.Th,
+		td: Table.Td,
 		p: MdxParagraph,
 		a: MdxLink,
 		code: Code as any,

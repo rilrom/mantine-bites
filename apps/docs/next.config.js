@@ -1,9 +1,10 @@
 import createMDX from "@next/mdx";
+import remarkGfm from "remark-gfm";
 import remarkSlug from "remark-slug";
 
 const withMDX = createMDX({
 	options: {
-		remarkPlugins: [remarkSlug],
+		remarkPlugins: [remarkGfm, remarkSlug],
 	},
 });
 
