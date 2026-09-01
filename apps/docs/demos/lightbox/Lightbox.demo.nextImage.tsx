@@ -6,6 +6,7 @@ import {
 	// type ComponentProps,
 	useState,
 } from "react";
+import { bg1, bg2, bg3, bg4, bg5, bg6 } from "./_data";
 
 const code = `
 import { SimpleGrid } from '@mantine/core';
@@ -18,38 +19,38 @@ import {
 
 const images = [
   {
-    src: "https://picsum.photos/id/10/2400/1600",
+    src: "/assets/bg-1.png",
+    alt: "Desert",
+    width: 2400,
+    height: 1600,
+  },
+  {
+    src: "/assets/bg-2.png",
     alt: "Forest",
-    width: 2400,
-    height: 1600,
-  },
-  {
-    src: "https://picsum.photos/id/20/1200/800",
-    alt: "Books",
     width: 1200,
     height: 800,
   },
   {
-    src: "https://picsum.photos/id/30/2400/1600",
-    alt: "Mug",
+    src: "/assets/bg-3.png",
+    alt: "Torii Gate",
     width: 2400,
     height: 1600,
   },
   {
-    src: "https://picsum.photos/id/40/1200/800",
-    alt: "Cat",
+    src: "/assets/bg-4.png",
+    alt: "Mountain",
     width: 1200,
     height: 800,
   },
   {
-    src: "https://picsum.photos/id/50/2400/1600",
-    alt: "Bird",
+    src: "/assets/bg-5.png",
+    alt: "Night Lake",
     width: 2400,
     height: 1600,
   },
   {
-    src: "https://picsum.photos/id/60/1200/800",
-    alt: "Computer",
+    src: "/assets/bg-6.png",
+    alt: "Lighthouse",
     width: 1200,
     height: 800,
   },
@@ -103,38 +104,38 @@ function Demo() {
 
 const images = [
 	{
-		src: "https://picsum.photos/id/10/2400/1600",
+		src: bg1.src,
+		alt: "Desert",
+		width: 2400,
+		height: 1600,
+	},
+	{
+		src: bg2.src,
 		alt: "Forest",
-		width: 2400,
-		height: 1600,
-	},
-	{
-		src: "https://picsum.photos/id/20/1200/800",
-		alt: "Books",
 		width: 1200,
 		height: 800,
 	},
 	{
-		src: "https://picsum.photos/id/30/2400/1600",
-		alt: "Mug",
+		src: bg3.src,
+		alt: "Torii Gate",
 		width: 2400,
 		height: 1600,
 	},
 	{
-		src: "https://picsum.photos/id/40/1200/800",
-		alt: "Cat",
+		src: bg4.src,
+		alt: "Mountain",
 		width: 1200,
 		height: 800,
 	},
 	{
-		src: "https://picsum.photos/id/50/2400/1600",
-		alt: "Bird",
+		src: bg5.src,
+		alt: "Night Lake",
 		width: 2400,
 		height: 1600,
 	},
 	{
-		src: "https://picsum.photos/id/60/1200/800",
-		alt: "Computer",
+		src: bg6.src,
+		alt: "Lighthouse",
 		width: 1200,
 		height: 800,
 	},

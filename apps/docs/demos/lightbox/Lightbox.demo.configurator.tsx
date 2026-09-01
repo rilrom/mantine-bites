@@ -2,6 +2,7 @@ import { Image, SimpleGrid } from "@mantine/core";
 import { Lightbox, type LightboxProps } from "@mantine-bites/lightbox";
 import type { MantineDemo } from "@mantinex/demo";
 import { useState } from "react";
+import { IMAGES } from "./_data";
 
 type WrapperProps = Pick<
 	LightboxProps,
@@ -14,14 +15,7 @@ type WrapperProps = Pick<
 	| "closeOnClickOutside"
 >;
 
-const images = [
-	{ src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
-	{ src: "https://picsum.photos/id/20/1200/800", alt: "Books" },
-	{ src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
-	{ src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
-	{ src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
-	{ src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
-];
+const images = IMAGES;
 
 function Wrapper({
 	withToolbar = true,
@@ -77,12 +71,12 @@ import { Lightbox } from '@mantine-bites/lightbox';
 import { useState } from 'react';
 
 const images = [
-  { src: "https://picsum.photos/id/10/2400/1600", alt: "Forest" },
-  { src: "https://picsum.photos/id/20/1200/800", alt: "Books" },
-  { src: "https://picsum.photos/id/30/2400/1600", alt: "Mug" },
-  { src: "https://picsum.photos/id/40/1200/800", alt: "Cat" },
-  { src: "https://picsum.photos/id/50/2400/1600", alt: "Bird" },
-  { src: "https://picsum.photos/id/60/1200/800", alt: "Computer" },
+  { src: "/assets/bg-1.png", alt: "Desert" },
+  { src: "/assets/bg-2.png", alt: "Forest" },
+  { src: "/assets/bg-3.png", alt: "Torii Gate" },
+  { src: "/assets/bg-4.png", alt: "Mountain" },
+  { src: "/assets/bg-5.png", alt: "Night Lake" },
+  { src: "/assets/bg-6.png", alt: "Lighthouse" },
 ];
 
 function Demo({{props}}) {

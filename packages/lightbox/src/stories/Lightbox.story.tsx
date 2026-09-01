@@ -8,44 +8,44 @@ import {
 	type SyntheticEvent,
 	useState,
 } from "react";
+import bg1 from "../../../../apps/docs/assets/bg-1.png";
+import bg2 from "../../../../apps/docs/assets/bg-2.png";
+import bg3 from "../../../../apps/docs/assets/bg-3.png";
+import bg4 from "../../../../apps/docs/assets/bg-4.png";
+import bg5 from "../../../../apps/docs/assets/bg-5.png";
+import bg6 from "../../../../apps/docs/assets/bg-6.png";
 import { Lightbox } from "../index.js";
 
 const sampleImages = [
 	{
-		src: "https://picsum.photos/id/10/2400/1600",
+		src: bg1,
+		alt: "Desert",
+		caption: "A desert landscape at sunset",
+	},
+	{
+		src: bg2,
 		alt: "Forest",
-		caption: (
-			<>
-				A peaceful forest scene
-				<br />
-				<em>Photographed in the Pacific Northwest</em>
-			</>
-		),
+		caption: "Sunlight through the forest trees",
 	},
 	{
-		src: "https://picsum.photos/id/20/1200/800",
-		alt: "Books",
-		caption: "A stack of books",
+		src: bg3,
+		alt: "Torii Gate",
+		caption: "A traditional Japanese torii gate on water",
 	},
 	{
-		src: "https://picsum.photos/id/30/2400/1600",
-		alt: "Mug",
-		caption: "Coffee break",
+		src: bg4,
+		alt: "Mountain",
+		caption: "Cherry blossoms near Mount Fuji",
 	},
 	{
-		src: "https://picsum.photos/id/40/1200/800",
-		alt: "Cat",
-		caption: "A curious cat",
+		src: bg5,
+		alt: "Night Lake",
+		caption: "A quiet lake under the full moon",
 	},
 	{
-		src: "https://picsum.photos/id/50/2400/1600",
-		alt: "Bird",
-		caption: "Bird in flight",
-	},
-	{
-		src: "https://picsum.photos/id/60/1200/800",
-		alt: "Computer",
-		caption: "Late night coding",
+		src: bg6,
+		alt: "Lighthouse",
+		caption: "A lighthouse guiding ships at night",
 	},
 ];
 
