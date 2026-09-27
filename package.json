@@ -39,13 +39,7 @@
 	},
 	"engines": {
 		"node": ">=22",
-		"pnpm": "^10.19.0"
+		"pnpm": "^11.9.0"
 	},
-	"pnpm": {
-		"overrides": {
-			"@mantine/core": "9.0.2",
-			"@mantine/hooks": "9.0.2"
-		}
-	},
-	"packageManager": "pnpm@10.23.0"
+	"packageManager": "pnpm@11.12.0"
 }

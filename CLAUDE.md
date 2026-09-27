@@ -295,7 +295,7 @@ describe("@mantine/core/ComponentName", () => {
 ## Environment & Requirements
 
 - **Node**: >= 22
-- **pnpm**: ^10.19.0 (enable via `corepack enable`)
+- **pnpm**: ^11.9.0 (enable via `corepack enable`)
 
 ## Package Scaffolding
 
