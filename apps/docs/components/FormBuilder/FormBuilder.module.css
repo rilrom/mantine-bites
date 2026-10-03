@@ -1,0 +1,309 @@
+.workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - var(--app-shell-header-height, 0px));
+
+  @mixin larger-than $mantine-breakpoint-md {
+    height: calc(100dvh - var(--app-shell-header-height, 0px));
+  }
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+
+  @mixin smaller-than $mantine-breakpoint-sm {
+    flex-wrap: wrap;
+  }
+}
+
+.heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  color: var(--mantine-color-bright);
+  font-size: var(--mantine-font-size-xl);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.description {
+  @mixin smaller-than $mantine-breakpoint-md {
+    display: none;
+  }
+}
+
+.modes {
+  @mixin smaller-than $mantine-breakpoint-sm {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+
+.more {
+  flex-shrink: 0;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.canvas {
+  flex: 1;
+  min-width: 0;
+  padding: var(--mantine-spacing-xl) var(--mantine-spacing-md);
+  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+  background-image: radial-gradient(
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-5)) 1px,
+    transparent 1px
+  );
+  background-size: 16px 16px;
+
+  @mixin larger-than $mantine-breakpoint-md {
+    overflow-y: auto;
+  }
+
+  @mixin smaller-than $mantine-breakpoint-sm {
+    padding: var(--mantine-spacing-md) var(--mantine-spacing-xs);
+  }
+}
+
+.sheet {
+  max-width: 640px;
+  margin-inline: auto;
+  padding: var(--mantine-spacing-xl);
+
+  @mixin smaller-than $mantine-breakpoint-sm {
+    padding: var(--mantine-spacing-md);
+  }
+}
+
+.inspector {
+  flex-shrink: 0;
+  width: 380px;
+  padding: var(--mantine-spacing-lg);
+  overflow-y: auto;
+  border-left: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+
+  @mixin smaller-than $mantine-breakpoint-md {
+    display: none;
+  }
+}
+
+.code {
+  flex: 1;
+  min-width: 0;
+  padding: var(--mantine-spacing-xl) var(--mantine-spacing-md);
+
+  & > * {
+    max-width: 1080px;
+    margin-inline: auto;
+  }
+
+  @mixin larger-than $mantine-breakpoint-md {
+    overflow-y: auto;
+  }
+}
+
+.nodeList {
+  display: flex;
+  flex-direction: column;
+  min-height: 24px;
+}
+
+.frame {
+  position: relative;
+  padding: var(--mantine-spacing-xs);
+  border: 1px dashed transparent;
+  border-radius: var(--mantine-radius-md);
+  pointer-events: auto;
+  transition: border-color 100ms ease, background-color 100ms ease;
+
+  @mixin hover {
+    border-color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-3));
+  }
+
+  &:focus-within {
+    border-color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-3));
+  }
+
+  &[data-kind="row"] {
+    border-color: light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  }
+
+  &[data-selected] {
+    border-style: solid;
+    border-color: var(--mantine-primary-color-filled);
+    background-color: var(--mantine-primary-color-light);
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+}
+
+.frameSelect {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.frameContent {
+  user-select: none;
+}
+
+.frameBody {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.frameTag {
+  position: absolute;
+  top: -9px;
+  left: var(--mantine-spacing-xs);
+  z-index: 3;
+  padding-inline: 6px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-white);
+  background-color: var(--mantine-primary-color-filled);
+  line-height: 18px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.frameActions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 3;
+  padding: 2px;
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--mantine-color-body);
+  box-shadow: var(--mantine-shadow-xs);
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.frame:is([data-kind="row"], [data-kind="fieldset"]) > .frameActions {
+  top: 0;
+  transform: translateY(-50%);
+}
+
+.frameHandle {
+  cursor: grab;
+}
+
+.frame:hover > .frameTag,
+.frame[data-selected] > .frameTag,
+.frame:hover:not(:has(.frame:hover)) > .frameActions,
+.frame:focus-within:not(:has(.frame:hover, .frame:focus-within)) > .frameActions,
+.frame[data-selected]:not(:has(.frame:hover, .frame:focus-within)) > .frameActions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .frame > .frameActions {
+    opacity: 1;
+  }
+}
+
+.rowZone {
+  min-height: 48px;
+}
+
+.rowEmpty {
+  padding: var(--mantine-spacing-sm);
+}
+
+.containerAdd {
+  margin-top: var(--mantine-spacing-xs);
+  pointer-events: auto;
+}
+
+.dragPreview {
+  max-width: 280px;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  cursor: grabbing;
+}
+
+.insertPoint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--list-gap, var(--mantine-spacing-md));
+  min-height: 12px;
+  pointer-events: auto;
+
+  &::before {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 1px;
+    content: "";
+    background-color: var(--mantine-primary-color-filled);
+    opacity: 0;
+    transition: opacity 100ms ease;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 0.5;
+  }
+}
+
+.insertButton {
+  position: relative;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 100ms ease;
+
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    opacity: 1;
+  }
+
+  .insertPoint:hover & {
+    opacity: 1;
+  }
+}
+
+.addField {
+  margin-top: var(--mantine-spacing-md);
+  border-style: dashed;
+}
+
+.canvasRoot {
+  &[data-drag-active] .insertPoint {
+    visibility: hidden;
+  }
+}
+
+.undo {
+  position: sticky;
+  bottom: var(--mantine-spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-xs);
+  max-width: 420px;
+  margin: var(--mantine-spacing-md) auto 0;
+  padding: 6px 6px 6px var(--mantine-spacing-sm);
+  border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+}
+
+.undoMessage {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

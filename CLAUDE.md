@@ -9,6 +9,9 @@ Mantine bites is a monorepo containing bite-sized Mantine extensions. Each exten
 **Current packages:**
 - `lightbox` - Full-screen image lightbox with thumbnails, zoom, fullscreen, and carousel navigation
 
+**Current tools:**
+- `form-builder` - Visual form builder on the docs site that generates `@mantine/form` code (not a published package, see [Docs site tools](#docs-site-tools))
+
 ## Monorepo Structure
 
 This is a pnpm workspace managed by Turbo:
@@ -16,7 +19,7 @@ This is a pnpm workspace managed by Turbo:
 ```
 mantine-bites/
 ├── apps/
-│   ├── docs/        # Next.js documentation site
+│   ├── docs/        # Next.js documentation site (also hosts tools such as the form builder)
 │   └── storybook/   # Storybook component showcase
 ├── packages/
 │   ├── lightbox/           # Lightbox extension package
@@ -200,6 +203,41 @@ Follow the Mantine convention for prop documentation:
 /** Label displayed inside the component, `'Test component'` by default */
 label?: React.ReactNode;
 ```
+
+## Docs Site Tools
+
+Tools are interactive pages on the docs site rather than published packages. They live entirely in `apps/docs`, have no build pipeline of their own, and are linked from the "Tools" section of `apps/docs/pages/index.tsx` rather than `PACKAGES_DATA`. `pnpm create-package` does not scaffold them.
+
+A tool page renders inside `<Shell fluid>`, which stretches the header to full width and drops the page padding so the tool can fill the viewport.
+
+### Form builder
+
+Lets users compose a form from fields, layout rows, fieldsets, and content blocks, try it with live validation, then copy the generated `@mantine/form` code. The page is `apps/docs/pages/form-builder.tsx` and the implementation is in `apps/docs/components/FormBuilder/`:
+
+```
+FormBuilder/
+├── FormBuilder.tsx      # Root: build/test/code modes, single-step undo, localStorage persistence
+├── FormCanvas.tsx       # Drag and drop editing canvas (@dnd-kit)
+├── FormPreview.tsx      # Live form for test mode, COMPONENTS maps names to Mantine components
+├── CodeView.tsx         # Generated code output
+├── Inspector.tsx        # Side panel for the selected node and form settings
+├── FieldInspector.tsx   # Label, options, validation rules, and column span for a field
+├── FieldPalette.tsx     # Field picker
+├── PropControls.tsx     # Renders a control for each PropDef
+├── fieldTypes.ts        # FIELD_TYPES registry: component, import source, allowed rules, props
+├── nodes.ts             # Node tree types (field, content, row, fieldset) and tree operations
+├── defaults.ts          # Starting document and FormSettings
+├── props.ts             # PropDef type and shared prop definitions (size, radius, color, etc.)
+├── resolve.ts           # describeField, shared by the preview and code generation
+├── validation.ts        # Maps field rules to @mantine/form validators
+├── generateCode.ts      # Builds the output source from the document
+├── print.ts             # Low-level printing helpers (quoting, imports, JSX elements)
+└── fieldIcons.ts        # Icons for fields, content blocks, and containers
+```
+
+The preview and the generated code both read from `FIELD_TYPES` through `describeField`, so the two cannot drift apart as long as new behaviour goes through the registry. Adding a field type means adding it to the `FieldType` union and `FIELD_TYPES` in `fieldTypes.ts`, an icon in `fieldIcons.ts`, and its component to `COMPONENTS` in `FormPreview.tsx` if it isn't there yet. The preview throws for any component name missing from that map.
+
+The builder state is saved to localStorage under `mantine-bites-form-builder`. `deserialize` in `FormBuilder.tsx` fills missing `FormSettings` keys from `DEFAULT_SETTINGS`, but nodes are loaded as stored, so a change to a node's shape must tolerate documents saved by earlier versions.
 
 ## Build System
 

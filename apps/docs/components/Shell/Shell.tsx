@@ -16,9 +16,11 @@ import classes from "./Shell.module.css";
 
 interface ShellProps {
 	children: React.ReactNode;
+	/** Stretches the header to the full width and removes the bottom padding below the page. */
+	fluid?: boolean;
 }
 
-export function Shell({ children }: ShellProps) {
+export function Shell({ children, fluid }: ShellProps) {
 	const { toggleColorScheme } = useMantineColorScheme();
 	useHotkeys([["mod + J", toggleColorScheme]]);
 
@@ -27,7 +29,7 @@ export function Shell({ children }: ShellProps) {
 			<AppShell.Header
 				className={cx(RemoveScroll.classNames.zeroRight, classes.header)}
 			>
-				<Container size="lg" px="md" className={classes.inner}>
+				<Container size="lg" fluid={fluid} px="md" className={classes.inner}>
 					<a
 						href="https://mantine.dev/"
 						target="_blank"
@@ -52,7 +54,7 @@ export function Shell({ children }: ShellProps) {
 				</Container>
 			</AppShell.Header>
 			<AppShell.Main>
-				<div className={classes.main}>{children}</div>
+				<div className={fluid ? undefined : classes.main}>{children}</div>
 			</AppShell.Main>
 		</AppShell>
 	);

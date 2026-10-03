@@ -1,0 +1,253 @@
+import {
+	Anchor,
+	Breadcrumbs,
+	Button,
+	Code,
+	Group,
+	Menu,
+	ScrollArea,
+	Stack,
+	Text,
+	ThemeIcon,
+} from "@mantine/core";
+import {
+	IconCheck,
+	IconChevronDown,
+	IconForms,
+	IconSettings,
+} from "@tabler/icons-react";
+import { Fragment } from "react";
+import {
+	DEFAULT_SETTINGS,
+	type FormSettings,
+	SETTINGS_PROPS,
+} from "./defaults";
+import { FieldInspector, Section, SpanSelect } from "./FieldInspector";
+import { FIELD_ICONS, getNodeIcon } from "./fieldIcons";
+import {
+	type BuilderField,
+	FIELD_GROUPS,
+	FIELD_TYPES,
+	FIELD_TYPES_BY_GROUP,
+	type FieldType,
+	getDefaultOptions,
+	hasOptions,
+} from "./fieldTypes";
+import {
+	type BuilderNode,
+	getNodeLabel,
+	getPropDefs,
+	getTypeLabel,
+} from "./nodes";
+import { PropControls } from "./PropControls";
+import { type PropValues, setPropValue } from "./props";
+
+interface ChangeTypeMenuProps {
+	field: BuilderField;
+	onChange: (field: BuilderField) => void;
+}
+
+function ChangeTypeMenu({ field, onChange }: ChangeTypeMenuProps) {
+	const changeType = (type: FieldType) => {
+		const needsOptions = hasOptions(type) && field.options.length === 0;
+		onChange({
+			...field,
+			type,
+			options: needsOptions ? getDefaultOptions(type) : field.options,
+		});
+	};
+
+	return (
+		<Menu position="bottom-end" shadow="md" withArrow>
+			<Menu.Target>
+				<Button
+					size="compact-xs"
+					variant="default"
+					rightSection={<IconChevronDown size={12} />}
+				>
+					Change type
+				</Button>
+			</Menu.Target>
+			<Menu.Dropdown>
+				<ScrollArea.Autosize mah={360} type="auto">
+					{FIELD_GROUPS.map((group) => (
+						<Fragment key={group}>
+							<Menu.Label>{group}</Menu.Label>
+							{FIELD_TYPES_BY_GROUP[group].map((type) => {
+								const Icon = FIELD_ICONS[type];
+
+								return (
+									<Menu.Item
+										key={type}
+										leftSection={<Icon size={16} stroke={1.5} />}
+										rightSection={
+											type === field.type && <IconCheck size={14} />
+										}
+										onClick={() => changeType(type)}
+									>
+										{FIELD_TYPES[type].label}
+									</Menu.Item>
+								);
+							})}
+						</Fragment>
+					))}
+				</ScrollArea.Autosize>
+			</Menu.Dropdown>
+		</Menu>
+	);
+}
+
+interface InspectorProps {
+	path: BuilderNode[];
+	fieldKeys: Map<string, string>;
+	settings: FormSettings;
+	autoFocusLabel: boolean;
+	onSelect: (id: string | null) => void;
+	onChange: (node: BuilderNode) => void;
+	onSettingsChange: (settings: FormSettings) => void;
+}
+
+export function Inspector({
+	path,
+	fieldKeys,
+	settings,
+	autoFocusLabel,
+	onSelect,
+	onChange,
+	onSettingsChange,
+}: InspectorProps) {
+	const node = path.at(-1);
+	const parent = path.at(-2);
+	const inRow = parent?.kind === "row";
+	const HeaderIcon = node ? getNodeIcon(node) : IconSettings;
+
+	return (
+		<Stack gap="lg">
+			<Breadcrumbs separatorMargin={4}>
+				{[null, ...path].map((item, index) => {
+					const current = index === path.length;
+					const label = item ? getNodeLabel(item) : "Form";
+
+					return current ? (
+						<Text
+							key={item?.id ?? "form"}
+							size="xs"
+							fw={500}
+							truncate
+							maw={140}
+						>
+							{label}
+						</Text>
+					) : (
+						<Anchor
+							key={item?.id ?? "form"}
+							component="button"
+							type="button"
+							size="xs"
+							c="dimmed"
+							truncate
+							maw={120}
+							onClick={() => onSelect(item?.id ?? null)}
+						>
+							{label}
+						</Anchor>
+					);
+				})}
+			</Breadcrumbs>
+
+			<Group justify="space-between" wrap="nowrap">
+				<Group gap="sm" wrap="nowrap" miw={0}>
+					<ThemeIcon variant="light" size="lg" radius="md">
+						<HeaderIcon size={18} stroke={1.5} />
+					</ThemeIcon>
+					<div>
+						<Text size="sm" fw={600} c="bright">
+							{node ? getTypeLabel(node) : "Form settings"}
+						</Text>
+						{node?.kind === "field" ? (
+							<Code fz="xs">{fieldKeys.get(node.id)}</Code>
+						) : (
+							<Text size="xs" c="dimmed">
+								{node
+									? "Layout and content, no form value"
+									: "Submit button, spacing and validation"}
+							</Text>
+						)}
+					</div>
+				</Group>
+				{node?.kind === "field" && (
+					<ChangeTypeMenu field={node} onChange={onChange} />
+				)}
+			</Group>
+
+			{!node && (
+				<PropControls
+					defs={SETTINGS_PROPS}
+					values={settings as unknown as PropValues}
+					onChange={(def, value) =>
+						onSettingsChange({
+							...settings,
+							[def.name]:
+								value ?? DEFAULT_SETTINGS[def.name as keyof FormSettings],
+						})
+					}
+				/>
+			)}
+
+			{node?.kind === "field" && (
+				<FieldInspector
+					key={node.id}
+					field={node}
+					autoFocusLabel={autoFocusLabel}
+					inRow={inRow}
+					onChange={onChange}
+				/>
+			)}
+
+			{node && node.kind !== "field" && (
+				<Stack gap="lg">
+					<Section title="Props">
+						<PropControls
+							defs={getPropDefs(node)}
+							values={node.props}
+							onChange={(def, value) =>
+								onChange({
+									...node,
+									props: setPropValue(node.props, def, value),
+								} as BuilderNode)
+							}
+						/>
+					</Section>
+
+					{node.kind === "content" && inRow && (
+						<Section title="Layout">
+							<SpanSelect node={node} onChange={onChange} />
+						</Section>
+					)}
+
+					{node.kind === "row" && (
+						<Section title="Columns">
+							{node.children.length === 0 ? (
+								<Group gap="xs" c="dimmed">
+									<IconForms size={16} stroke={1.5} />
+									<Text size="sm">
+										Drag fields into the row or use its + button.
+									</Text>
+								</Group>
+							) : (
+								node.children.map((child) => (
+									<SpanSelect
+										key={child.id}
+										node={child}
+										label={getNodeLabel(child)}
+										onChange={onChange}
+									/>
+								))
+							)}
+						</Section>
+					)}
+				</Stack>
+			)}
+		</Stack>
+	);
+}
