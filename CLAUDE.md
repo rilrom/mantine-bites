@@ -216,9 +216,9 @@ Lets users compose a form from fields, layout rows, fieldsets, and content block
 
 ```
 FormBuilder/
-├── FormBuilder.tsx      # Root: build/test/code modes, single-step undo, localStorage persistence
+├── FormBuilder.tsx      # Root: toolbar, preview toggle, code modal, single-step undo, localStorage persistence
 ├── FormCanvas.tsx       # Drag and drop editing canvas (@dnd-kit)
-├── FormPreview.tsx      # Live form for test mode, COMPONENTS maps names to Mantine components
+├── FormPreview.tsx      # Live form for preview, COMPONENTS maps names to Mantine components
 ├── CodeView.tsx         # Generated code output
 ├── Inspector.tsx        # Side panel for the selected node and form settings
 ├── FieldInspector.tsx   # Label, options, validation rules, and column span for a field

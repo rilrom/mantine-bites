@@ -38,16 +38,6 @@
   }
 }
 
-.modes {
-  @mixin smaller-than $mantine-breakpoint-sm {
-    order: 3;
-    flex-basis: 100%;
-  }
-}
-
-.more {
-  flex-shrink: 0;
-}
 
 .body {
   display: flex;
@@ -101,21 +91,6 @@
 
   @mixin smaller-than $mantine-breakpoint-md {
     display: none;
-  }
-}
-
-.code {
-  flex: 1;
-  min-width: 0;
-  padding: var(--mantine-spacing-xl) var(--mantine-spacing-md);
-
-  & > * {
-    max-width: 1080px;
-    margin-inline: auto;
-  }
-
-  @mixin larger-than $mantine-breakpoint-md {
-    overflow-y: auto;
   }
 }
 
@@ -370,4 +345,27 @@
 .undoMessage {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.primaryActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--mantine-spacing-xs);
+
+  @mixin smaller-than $mantine-breakpoint-sm {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+
+.secondaryActions {
+  flex-shrink: 0;
+}
+
+.actionIcon {
+  @mixin smaller-than $mantine-breakpoint-sm {
+    display: none;
+  }
 }

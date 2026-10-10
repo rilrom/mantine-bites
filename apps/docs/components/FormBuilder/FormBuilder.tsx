@@ -1,16 +1,17 @@
 import {
 	ActionIcon,
 	Button,
-	Center,
 	CloseButton,
+	CopyButton,
 	Drawer,
 	Group,
 	Menu,
+	Modal,
 	Paper,
 	SegmentedControl,
+	Stack,
 	Text,
 	Title,
-	Tooltip,
 	useMatches,
 } from "@mantine/core";
 import {
@@ -20,10 +21,11 @@ import {
 } from "@mantine/hooks";
 import {
 	IconArrowBackUp,
+	IconCheck,
 	IconCode,
+	IconCopy,
 	IconDots,
-	IconPencil,
-	IconPlayerPlay,
+	IconEye,
 	IconRefresh,
 	IconSettings,
 	IconTrash,
@@ -40,6 +42,7 @@ import classes from "./FormBuilder.module.css";
 import { FormCanvas } from "./FormCanvas";
 import { FormPreview } from "./FormPreview";
 import { getFieldKeys } from "./fieldTypes";
+import { generateCode } from "./generateCode";
 import { Inspector } from "./Inspector";
 import {
 	type BuilderNode,
@@ -57,13 +60,7 @@ import {
 	updateNode,
 } from "./nodes";
 
-type Mode = "build" | "test" | "code";
-
-const MODES: { value: Mode; label: string; icon: typeof IconPencil }[] = [
-	{ value: "build", label: "Build", icon: IconPencil },
-	{ value: "test", label: "Test", icon: IconPlayerPlay },
-	{ value: "code", label: "Code", icon: IconCode },
-];
+type Panel = "node" | "form";
 
 const STORAGE_KEY = "mantine-bites-form-builder";
 
@@ -108,22 +105,30 @@ export function FormBuilder() {
 		defaultValue: DEFAULT_DOCUMENT,
 		deserialize,
 	});
-	const [mode, setMode] = useState<Mode>("build");
+	const [previewOpened, setPreviewOpened] = useState(false);
+	const [panel, setPanel] = useState<Panel>("node");
+	const [codeOpened, setCodeOpened] = useState(false);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [justAddedId, setJustAddedId] = useState<string | null>(null);
 	const [undo, setUndo] = useState<UndoState | null>(null);
 	const [drawerOpened, setDrawerOpened] = useState(false);
 	const isStacked = useMatches({ base: true, md: false });
+	const isPhone = useMatches({ base: true, sm: false });
 	const mounted = useMounted();
 
 	const { nodes, settings } = document;
 	const fieldKeys = useMemo(() => getFieldKeys(flattenFields(nodes)), [nodes]);
+	const code = useMemo(() => generateCode(document), [document]);
 	const path = selectedId ? getPath(nodes, selectedId) : [];
 	const selected = path.at(-1) ?? null;
 
 	const select = (id: string | null) => {
 		setSelectedId(id);
 		setJustAddedId(null);
+
+		if (id !== null) {
+			setPanel("node");
+		}
 	};
 
 	const openInspector = () => {
@@ -149,6 +154,7 @@ export function FormBuilder() {
 		replaceNodes(insertNode(nodes, parentId, index, node));
 		setSelectedId(node.id);
 		setJustAddedId(node.kind === "field" ? node.id : null);
+		setPanel("node");
 		openInspector();
 	};
 
@@ -213,17 +219,30 @@ export function FormBuilder() {
 	);
 
 	const inspector = (
-		<Inspector
-			path={path}
-			fieldKeys={fieldKeys}
-			settings={settings}
-			autoFocusLabel={selected !== null && selected.id === justAddedId}
-			onSelect={select}
-			onChange={handleChange}
-			onSettingsChange={(next: FormSettings) =>
-				replaceDocument({ ...document, settings: next })
-			}
-		/>
+		<Stack gap="lg">
+			<SegmentedControl
+				fullWidth
+				size="xs"
+				value={panel}
+				onChange={(value) => setPanel(value as Panel)}
+				data={[
+					{ value: "node", label: "Selection" },
+					{ value: "form", label: "Form settings" },
+				]}
+			/>
+			<Inspector
+				view={panel}
+				path={path}
+				fieldKeys={fieldKeys}
+				settings={settings}
+				autoFocusLabel={selected !== null && selected.id === justAddedId}
+				onSelect={select}
+				onChange={handleChange}
+				onSettingsChange={(next: FormSettings) =>
+					replaceDocument({ ...document, settings: next })
+				}
+			/>
+		</Stack>
 	);
 
 	return (
@@ -242,163 +261,175 @@ export function FormBuilder() {
 					</Text>
 				</div>
 
-				<SegmentedControl
-					value={mode}
-					onChange={(value) => setMode(value as Mode)}
-					className={classes.modes}
-					data={MODES.map(({ value, label, icon: Icon }) => ({
-						value,
-						label: (
-							<Center style={{ gap: 6 }}>
-								<Icon size={16} stroke={1.5} />
-								<span>{label}</span>
-							</Center>
-						),
-					}))}
-				/>
-
-				<Tooltip label="Form settings" withArrow>
-					<ActionIcon
-						variant={
-							mode === "build" && selected === null ? "light" : "default"
-						}
-						size="lg"
-						aria-label="Form settings"
-						className={classes.more}
-						onClick={() => {
-							setMode("build");
-							select(null);
-							openInspector();
-						}}
+				<div className={classes.primaryActions}>
+					<Button
+						variant="default"
+						leftSection={<IconEye size={16} />}
+						classNames={{ section: classes.actionIcon }}
+						onClick={() => setPreviewOpened(true)}
 					>
-						<IconSettings size={16} />
-					</ActionIcon>
-				</Tooltip>
+						Preview
+					</Button>
 
-				<Menu position="bottom-end" shadow="md" withArrow>
-					<Menu.Target>
+					<Button
+						variant="default"
+						leftSection={<IconCode size={16} />}
+						classNames={{ section: classes.actionIcon }}
+						onClick={() => setCodeOpened(true)}
+					>
+						View code
+					</Button>
+
+					<CopyButton value={code}>
+						{({ copied, copy }) => (
+							<Button
+								color={copied ? "teal" : undefined}
+								classNames={{ section: classes.actionIcon }}
+								leftSection={
+									copied ? <IconCheck size={16} /> : <IconCopy size={16} />
+								}
+								onClick={copy}
+							>
+								{copied ? "Copied" : "Copy code"}
+							</Button>
+						)}
+					</CopyButton>
+				</div>
+
+				<Group gap="xs" wrap="nowrap" className={classes.secondaryActions}>
+					{isStacked && (
 						<ActionIcon
 							variant="default"
 							size="lg"
-							aria-label="More form actions"
-							className={classes.more}
+							aria-label="Form settings"
+							onClick={() => {
+								setPanel("form");
+								setDrawerOpened(true);
+							}}
 						>
-							<IconDots size={16} />
+							<IconSettings size={16} />
 						</ActionIcon>
-					</Menu.Target>
-					<Menu.Dropdown>
-						<Menu.Item
-							leftSection={<IconRefresh size={14} />}
-							onClick={() => {
-								replaceDocument(DEFAULT_DOCUMENT, "Loaded the example form");
-								select(null);
-							}}
-						>
-							Load example form
-						</Menu.Item>
-						<Menu.Item
-							color="red"
-							leftSection={<IconTrash size={14} />}
-							disabled={nodes.length === 0}
-							onClick={() => {
-								replaceNodes([], "Cleared the form");
-								select(null);
-							}}
-						>
-							Clear form
-						</Menu.Item>
-					</Menu.Dropdown>
-				</Menu>
+					)}
+
+					<Menu position="bottom-end" shadow="md" withArrow>
+						<Menu.Target>
+							<ActionIcon
+								variant="default"
+								size="lg"
+								aria-label="More form actions"
+							>
+								<IconDots size={16} />
+							</ActionIcon>
+						</Menu.Target>
+						<Menu.Dropdown>
+							<Menu.Item
+								leftSection={<IconRefresh size={14} />}
+								onClick={() => {
+									replaceDocument(DEFAULT_DOCUMENT, "Loaded the example form");
+									select(null);
+								}}
+							>
+								Load example form
+							</Menu.Item>
+							<Menu.Item
+								color="red"
+								leftSection={<IconTrash size={14} />}
+								disabled={nodes.length === 0}
+								onClick={() => {
+									replaceNodes([], "Cleared the form");
+									select(null);
+								}}
+							>
+								Clear form
+							</Menu.Item>
+						</Menu.Dropdown>
+					</Menu>
+				</Group>
 			</header>
 
 			{mounted && (
 				<div className={classes.body}>
-					{mode === "build" && (
-						<>
-							<div className={classes.canvasFrame}>
-								<main className={classes.canvas}>
-									<Paper withBorder radius="md" className={classes.sheet}>
-										<FormCanvas
-											nodes={nodes}
-											settings={settings}
-											fieldKeys={fieldKeys}
-											selectedId={selected?.id ?? null}
-											onSelect={canvasSelect}
-											onInsert={canvasInsert}
-											onDuplicate={canvasDuplicate}
-											onDelete={canvasDelete}
-											onMove={canvasMove}
-											onDrop={canvasDrop}
-										/>
-									</Paper>
-								</main>
+					<>
+						<div className={classes.canvasFrame}>
+							<main className={classes.canvas}>
+								<Paper withBorder radius="md" className={classes.sheet}>
+									<FormCanvas
+										nodes={nodes}
+										settings={settings}
+										fieldKeys={fieldKeys}
+										selectedId={selected?.id ?? null}
+										onSelect={canvasSelect}
+										onInsert={canvasInsert}
+										onDuplicate={canvasDuplicate}
+										onDelete={canvasDelete}
+										onMove={canvasMove}
+										onDrop={canvasDrop}
+									/>
+								</Paper>
+							</main>
 
-								{undo && (
-									<Paper shadow="md" radius="md" className={classes.undo}>
-										<Text size="sm" className={classes.undoMessage}>
-											{undo.message}
-										</Text>
-										<Group gap={4} wrap="nowrap">
-											<Button
-												size="compact-sm"
-												variant="subtle"
-												leftSection={<IconArrowBackUp size={14} />}
-												onClick={handleUndo}
-											>
-												Undo
-											</Button>
-											<CloseButton
-												size="sm"
-												aria-label="Dismiss"
-												onClick={() => setUndo(null)}
-											/>
-										</Group>
-									</Paper>
-								)}
-							</div>
-
-							{isStacked ? (
-								<Drawer
-									opened={drawerOpened}
-									onClose={() => setDrawerOpened(false)}
-									position="bottom"
-									size="80%"
-									title="Field properties"
-								>
-									{inspector}
-								</Drawer>
-							) : (
-								<aside
-									className={classes.inspector}
-									aria-label="Field properties"
-								>
-									{inspector}
-								</aside>
-							)}
-						</>
-					)}
-
-					{mode === "test" && (
-						<main className={classes.canvas}>
-							<Paper withBorder radius="md" className={classes.sheet}>
-								{nodes.length > 0 && (
-									<Text size="sm" c="dimmed" mb="lg">
-										Fill in the form and submit it to check the validation
-										rules.
+							{undo && (
+								<Paper shadow="md" radius="md" className={classes.undo}>
+									<Text size="sm" className={classes.undoMessage}>
+										{undo.message}
 									</Text>
-								)}
-								<FormPreview document={document} />
-							</Paper>
-						</main>
-					)}
+									<Group gap={4} wrap="nowrap">
+										<Button
+											size="compact-sm"
+											variant="subtle"
+											leftSection={<IconArrowBackUp size={14} />}
+											onClick={handleUndo}
+										>
+											Undo
+										</Button>
+										<CloseButton
+											size="sm"
+											aria-label="Dismiss"
+											onClick={() => setUndo(null)}
+										/>
+									</Group>
+								</Paper>
+							)}
+						</div>
 
-					{mode === "code" && (
-						<main className={classes.code}>
-							<CodeView document={document} />
-						</main>
-					)}
+						{isStacked ? (
+							<Drawer
+								opened={drawerOpened}
+								onClose={() => setDrawerOpened(false)}
+								position="bottom"
+								size="80%"
+								title="Edit form"
+							>
+								{inspector}
+							</Drawer>
+						) : (
+							<aside className={classes.inspector} aria-label="Properties">
+								{inspector}
+							</aside>
+						)}
+					</>
 				</div>
 			)}
+
+			<Modal
+				opened={previewOpened}
+				onClose={() => setPreviewOpened(false)}
+				title="Preview"
+				size="40rem"
+				fullScreen={isPhone}
+			>
+				<FormPreview document={document} />
+			</Modal>
+
+			<Modal
+				opened={codeOpened}
+				onClose={() => setCodeOpened(false)}
+				title="Code"
+				size="72rem"
+				fullScreen={isPhone}
+			>
+				<CodeView document={document} />
+			</Modal>
 		</div>
 	);
 }

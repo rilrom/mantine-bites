@@ -13,6 +13,7 @@ import {
 import {
 	IconCheck,
 	IconChevronDown,
+	IconClick,
 	IconForms,
 	IconSettings,
 } from "@tabler/icons-react";
@@ -98,6 +99,7 @@ function ChangeTypeMenu({ field, onChange }: ChangeTypeMenuProps) {
 }
 
 interface InspectorProps {
+	view: "node" | "form";
 	path: BuilderNode[];
 	fieldKeys: Map<string, string>;
 	settings: FormSettings;
@@ -108,6 +110,7 @@ interface InspectorProps {
 }
 
 export function Inspector({
+	view,
 	path,
 	fieldKeys,
 	settings,
@@ -116,71 +119,22 @@ export function Inspector({
 	onChange,
 	onSettingsChange,
 }: InspectorProps) {
-	const node = path.at(-1);
-	const parent = path.at(-2);
-	const inRow = parent?.kind === "row";
-	const HeaderIcon = node ? getNodeIcon(node) : IconSettings;
-
-	return (
-		<Stack gap="lg">
-			<Breadcrumbs separatorMargin={4}>
-				{[null, ...path].map((item, index) => {
-					const current = index === path.length;
-					const label = item ? getNodeLabel(item) : "Form";
-
-					return current ? (
-						<Text
-							key={item?.id ?? "form"}
-							size="xs"
-							fw={500}
-							truncate
-							maw={140}
-						>
-							{label}
-						</Text>
-					) : (
-						<Anchor
-							key={item?.id ?? "form"}
-							component="button"
-							type="button"
-							size="xs"
-							c="dimmed"
-							truncate
-							maw={120}
-							onClick={() => onSelect(item?.id ?? null)}
-						>
-							{label}
-						</Anchor>
-					);
-				})}
-			</Breadcrumbs>
-
-			<Group justify="space-between" wrap="nowrap">
-				<Group gap="sm" wrap="nowrap" miw={0}>
+	if (view === "form") {
+		return (
+			<Stack gap="lg">
+				<Group gap="sm" wrap="nowrap">
 					<ThemeIcon variant="light" size="lg" radius="md">
-						<HeaderIcon size={18} stroke={1.5} />
+						<IconSettings size={18} stroke={1.5} />
 					</ThemeIcon>
 					<div>
 						<Text size="sm" fw={600} c="bright">
-							{node ? getTypeLabel(node) : "Form settings"}
+							Form settings
 						</Text>
-						{node?.kind === "field" ? (
-							<Code fz="xs">{fieldKeys.get(node.id)}</Code>
-						) : (
-							<Text size="xs" c="dimmed">
-								{node
-									? "Layout and content, no form value"
-									: "Submit button, spacing and validation"}
-							</Text>
-						)}
+						<Text size="xs" c="dimmed">
+							Submit button, spacing and validation
+						</Text>
 					</div>
 				</Group>
-				{node?.kind === "field" && (
-					<ChangeTypeMenu field={node} onChange={onChange} />
-				)}
-			</Group>
-
-			{!node && (
 				<PropControls
 					defs={SETTINGS_PROPS}
 					values={settings as unknown as PropValues}
@@ -192,9 +146,76 @@ export function Inspector({
 						})
 					}
 				/>
+			</Stack>
+		);
+	}
+
+	const node = path.at(-1);
+	const parent = path.at(-2);
+	const inRow = parent?.kind === "row";
+
+	if (!node) {
+		return (
+			<Stack align="center" gap={4} py="xl" c="dimmed" ta="center">
+				<IconClick size={24} stroke={1.5} />
+				<Text size="sm">Select a field on the canvas to edit it.</Text>
+			</Stack>
+		);
+	}
+
+	const HeaderIcon = getNodeIcon(node);
+
+	return (
+		<Stack gap="lg">
+			{path.length > 1 && (
+				<Breadcrumbs separatorMargin={4}>
+					{path.map((item, index) =>
+						index === path.length - 1 ? (
+							<Text key={item.id} size="xs" fw={500} truncate maw={140}>
+								{getNodeLabel(item)}
+							</Text>
+						) : (
+							<Anchor
+								key={item.id}
+								component="button"
+								type="button"
+								size="xs"
+								c="dimmed"
+								truncate
+								maw={120}
+								onClick={() => onSelect(item.id)}
+							>
+								{getNodeLabel(item)}
+							</Anchor>
+						),
+					)}
+				</Breadcrumbs>
 			)}
 
-			{node?.kind === "field" && (
+			<Group justify="space-between" wrap="nowrap">
+				<Group gap="sm" wrap="nowrap" miw={0}>
+					<ThemeIcon variant="light" size="lg" radius="md">
+						<HeaderIcon size={18} stroke={1.5} />
+					</ThemeIcon>
+					<div>
+						<Text size="sm" fw={600} c="bright">
+							{getTypeLabel(node)}
+						</Text>
+						{node.kind === "field" ? (
+							<Code fz="xs">{fieldKeys.get(node.id)}</Code>
+						) : (
+							<Text size="xs" c="dimmed">
+								Layout and content, no form value
+							</Text>
+						)}
+					</div>
+				</Group>
+				{node.kind === "field" && (
+					<ChangeTypeMenu field={node} onChange={onChange} />
+				)}
+			</Group>
+
+			{node.kind === "field" && (
 				<FieldInspector
 					key={node.id}
 					field={node}
@@ -204,7 +225,7 @@ export function Inspector({
 				/>
 			)}
 
-			{node && node.kind !== "field" && (
+			{node.kind !== "field" && (
 				<Stack gap="lg">
 					<Section title="Props">
 						<PropControls
