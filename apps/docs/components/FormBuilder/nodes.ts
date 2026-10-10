@@ -350,13 +350,6 @@ export function findNode(nodes: BuilderNode[], id: string) {
 	return getPath(nodes, id).at(-1) ?? null;
 }
 
-export function getParent(nodes: BuilderNode[], id: string) {
-	const path = getPath(nodes, id);
-	const parent = path.at(-2);
-
-	return parent && isContainer(parent) ? parent : null;
-}
-
 export function getSiblings(nodes: BuilderNode[], parentId: string | null) {
 	if (parentId === null) {
 		return nodes;

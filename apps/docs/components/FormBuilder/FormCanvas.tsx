@@ -284,6 +284,7 @@ function NodeFrame({ node, handle, isDragging, children }: NodeFrameProps) {
 	return (
 		<div
 			className={classes.frame}
+			data-frame-id={node.id}
 			data-kind={node.kind}
 			data-selected={selected || undefined}
 			data-dragging={isDragging || undefined}
@@ -540,11 +541,15 @@ function NodeList({ parent }: { parent: ContainerNode | null }) {
 	);
 }
 
+function getDragStart(activatorEvent: Event | null) {
+	return activatorEvent ? getEventCoordinates(activatorEvent) : null;
+}
+
 function getPointer({
 	activatorEvent,
 	delta,
 }: DragMoveEvent): Coordinates | null {
-	const start = activatorEvent && getEventCoordinates(activatorEvent);
+	const start = getDragStart(activatorEvent);
 
 	return start ? { x: start.x + delta.x, y: start.y + delta.y } : null;
 }
@@ -598,7 +603,7 @@ const followCursor: Modifier = ({
 	draggingNodeRect,
 	transform,
 }) => {
-	const start = activatorEvent && getEventCoordinates(activatorEvent);
+	const start = getDragStart(activatorEvent);
 
 	if (!draggingNodeRect || !start) {
 		return transform;
@@ -611,7 +616,7 @@ const followCursor: Modifier = ({
 	};
 };
 
-const MOVE_DURATION = 200;
+const MOVE_TIMING: KeyframeAnimationOptions = { duration: 200, easing: "ease" };
 
 /** Grows the dropped node out of the drag preview's box rather than scaling it, so its contents never look squashed. */
 function growFromPreview(frame: HTMLElement, preview: DOMRect, rect: DOMRect) {
@@ -632,18 +637,16 @@ function growFromPreview(frame: HTMLElement, preview: DOMRect, rect: DOMRect) {
 				opacity: 1,
 			},
 		],
-		{ duration: MOVE_DURATION, easing: "ease" },
+		MOVE_TIMING,
 	);
 }
 
 function measureFrames(root: HTMLElement) {
 	const frames = new Map<string, { frame: HTMLElement; rect: DOMRect }>();
 
-	for (const button of root.querySelectorAll<HTMLElement>("[data-node-id]")) {
-		const frame = button.parentElement;
-
-		if (button.dataset.nodeId && frame) {
-			frames.set(button.dataset.nodeId, {
+	for (const frame of root.querySelectorAll<HTMLElement>("[data-frame-id]")) {
+		if (frame.dataset.frameId) {
+			frames.set(frame.dataset.frameId, {
 				frame,
 				rect: frame.getBoundingClientRect(),
 			});
@@ -689,17 +692,14 @@ function getDropTarget(
 				};
 	}
 
-	const sameParent = data.parentId === from.parentId;
-	const siblings = sameParent
-		? from.siblings
-		: getSiblings(nodes, data.parentId);
+	const siblings = getSiblings(nodes, data.parentId);
 	const parent = data.parentId ? findNode(nodes, data.parentId) : null;
 	const remaining = siblings.filter((node) => node.id !== id);
 	const overIndex = remaining.findIndex((node) => node.id === over.id);
 	const index =
 		overIndex + (isAfter(pointer, over, parent?.kind === "row") ? 1 : 0);
 
-	if (sameParent && from.index === index) {
+	if (data.parentId === from.parentId && from.index === index) {
 		return null;
 	}
 
@@ -905,7 +905,7 @@ export const FormCanvas = memo(function FormCanvas({
 			if (Math.abs(x) >= 1 || Math.abs(y) >= 1) {
 				frame.animate(
 					[{ transform: `translate(${x}px, ${y}px)` }, { transform: "none" }],
-					{ duration: MOVE_DURATION, easing: "ease" },
+					MOVE_TIMING,
 				);
 			}
 		}
