@@ -315,21 +315,23 @@ export function FormBuilder() {
 				<div className={classes.body}>
 					{mode === "build" && (
 						<>
-							<main className={classes.canvas}>
-								<Paper withBorder radius="md" className={classes.sheet}>
-									<FormCanvas
-										nodes={nodes}
-										settings={settings}
-										fieldKeys={fieldKeys}
-										selectedId={selected?.id ?? null}
-										onSelect={canvasSelect}
-										onInsert={canvasInsert}
-										onDuplicate={canvasDuplicate}
-										onDelete={canvasDelete}
-										onMove={canvasMove}
-										onDrop={canvasDrop}
-									/>
-								</Paper>
+							<div className={classes.canvasFrame}>
+								<main className={classes.canvas}>
+									<Paper withBorder radius="md" className={classes.sheet}>
+										<FormCanvas
+											nodes={nodes}
+											settings={settings}
+											fieldKeys={fieldKeys}
+											selectedId={selected?.id ?? null}
+											onSelect={canvasSelect}
+											onInsert={canvasInsert}
+											onDuplicate={canvasDuplicate}
+											onDelete={canvasDelete}
+											onMove={canvasMove}
+											onDrop={canvasDrop}
+										/>
+									</Paper>
+								</main>
 
 								{undo && (
 									<Paper shadow="md" radius="md" className={classes.undo}>
@@ -353,7 +355,7 @@ export function FormBuilder() {
 										</Group>
 									</Paper>
 								)}
-							</main>
+							</div>
 
 							{isStacked ? (
 								<Drawer

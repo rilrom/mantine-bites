@@ -55,6 +55,13 @@
   min-height: 0;
 }
 
+.canvasFrame {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
 .canvas {
   flex: 1;
   min-width: 0;
@@ -291,16 +298,23 @@
 }
 
 .undo {
-  position: sticky;
+  position: absolute;
   bottom: var(--mantine-spacing-md);
+  left: 50%;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--mantine-spacing-xs);
-  max-width: 420px;
-  margin: var(--mantine-spacing-md) auto 0;
+  width: max-content;
+  max-width: min(420px, calc(100% - 2 * var(--mantine-spacing-md)));
   padding: 6px 6px 6px var(--mantine-spacing-sm);
   border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  transform: translateX(-50%);
+
+  @mixin smaller-than $mantine-breakpoint-md {
+    position: fixed;
+  }
 }
 
 .undoMessage {
