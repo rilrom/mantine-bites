@@ -13,6 +13,7 @@ type WrapperProps = Pick<
 	| "withZoom"
 	| "withFullscreen"
 	| "closeOnClickOutside"
+	| "closeOnSwipe"
 >;
 
 const images = IMAGES;
@@ -25,6 +26,7 @@ function Wrapper({
 	withZoom = true,
 	withFullscreen = true,
 	closeOnClickOutside = true,
+	closeOnSwipe = false,
 }: WrapperProps) {
 	const [opened, setOpened] = useState(false);
 	const [initialSlide, setInitialSlide] = useState(0);
@@ -59,6 +61,7 @@ function Wrapper({
 				withZoom={withZoom}
 				withFullscreen={withFullscreen}
 				closeOnClickOutside={closeOnClickOutside}
+				closeOnSwipe={closeOnSwipe}
 				initialSlide={initialSlide}
 			/>
 		</>
@@ -162,6 +165,12 @@ export const configurator: MantineDemo = {
 			type: "boolean",
 			initialValue: true,
 			libraryValue: true,
+		},
+		{
+			prop: "closeOnSwipe",
+			type: "boolean",
+			initialValue: false,
+			libraryValue: false,
 		},
 	],
 };

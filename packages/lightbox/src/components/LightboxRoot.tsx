@@ -26,6 +26,7 @@ import type { EmblaCarouselType } from "embla-carousel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LightboxProvider } from "../context/LightboxContext.js";
 import { useAutoPlay } from "../hooks/useAutoPlay.js";
+import { useSwipeToClose } from "../hooks/useSwipeToClose.js";
 import { useZoom } from "../hooks/useZoom.js";
 import classes from "../styles/Lightbox.module.css";
 import { LightboxAutoplayButton } from "./LightboxAutoplayButton.js";
@@ -76,6 +77,8 @@ export interface LightboxRootProps
 	initialSlide?: number;
 	/** Whether to close when clicking outside the content, `true` by default */
 	closeOnClickOutside?: boolean;
+	/** Whether to close when the active slide is swiped across the slide direction (up or down when horizontal, left or right when vertical), `false` by default */
+	closeOnSwipe?: boolean;
 	/** Whether to keep content mounted when closed, `false` by default */
 	keepMounted?: boolean;
 	/** Whether to trap focus while open, `true` by default */
@@ -121,6 +124,7 @@ export type LightboxRootFactory = Factory<{
 
 const defaultProps = {
 	closeOnClickOutside: true,
+	closeOnSwipe: false,
 	keepMounted: false,
 	trapFocus: true,
 	lockScroll: true,
@@ -158,6 +162,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 		children,
 		initialSlide,
 		closeOnClickOutside,
+		closeOnSwipe,
 		keepMounted,
 		trapFocus,
 		lockScroll,
@@ -196,6 +201,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 
 	const slidesEmblaRef = useRef<EmblaCarouselType | null>(null);
 	const thumbnailsEmblaRef = useRef<EmblaCarouselType | null>(null);
+	const overlayRef = useRef<HTMLDivElement | null>(null);
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [slideCount, setSlideCount] = useState<number | null>(null);
@@ -227,6 +233,28 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 		notifyAutoPlayInteraction,
 		handleEmblaApiForAutoPlay,
 	} = useAutoPlay();
+
+	const {
+		isSwiping,
+		isSwipeActive,
+		handleSwipePointerDown,
+		handleSwipePointerMove,
+		handleSwipePointerEnd,
+		resetSwipe,
+	} = useSwipeToClose({
+		opened,
+		closeOnSwipe,
+		orientation,
+		isZoomedRef,
+		containerRef: activeZoomContainerRef,
+		overlayRef,
+		onClose,
+	});
+
+	const handleTransitionExited = useCallback(() => {
+		resetSwipe();
+		transitionProps?.onExited?.();
+	}, [resetSwipe, transitionProps?.onExited]);
 
 	const handleSlidesEmblaApi = useCallback(
 		(embla: EmblaCarouselType) => {
@@ -359,6 +387,7 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 			<RemoveScroll enabled={lockScroll && opened}>
 				<Transition
 					{..._transitionProps}
+					onExited={handleTransitionExited}
 					mounted={opened}
 					keepMounted={keepMounted}
 				>
@@ -403,16 +432,23 @@ export const LightboxRoot = factory<LightboxRootFactory>((_props) => {
 								handleZoomPointerMove,
 								handleZoomPointerEnd,
 								panZoom,
+								closeOnSwipe,
+								isSwiping,
+								handleSwipePointerDown,
+								handleSwipePointerMove,
+								handleSwipePointerEnd,
 							}}
 						>
 							<Overlay
 								{..._overlayProps}
+								ref={overlayRef}
 								{...getStyles("overlay", { style: transitionStyles })}
 							/>
 							<Box
 								ref={mergedRef}
 								{...getStyles("root", { style: transitionStyles })}
 								data-orientation={orientation}
+								data-swipe-active={isSwipeActive || undefined}
 								{...others}
 							>
 								{children}

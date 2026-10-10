@@ -21,6 +21,18 @@
   height: 100%;
 }
 
+.root[data-swipe-active] :is(.slides, .slidesViewport) {
+  overflow: clip visible;
+}
+
+.root[data-swipe-active][data-orientation='vertical'] :is(.slides, .slidesViewport) {
+  overflow: visible clip;
+}
+
+.root[data-swipe-active] :is(.thumbnails, .caption) {
+  position: relative;
+}
+
 .slidesContainer {
   display: flex;
   height: 100%;
@@ -157,6 +169,15 @@
   min-height: 0;
   overflow: hidden;
   line-height: 1;
+  transition: translate 200ms ease;
+
+  &:is([data-zoom-enabled], [data-swipe-enabled]) {
+    touch-action: none;
+  }
+
+  &[data-swiping] {
+    transition: none;
+  }
 
   img {
     max-width: 100%;
@@ -167,8 +188,6 @@
   }
 
   &[data-zoom-enabled] {
-    touch-action: none;
-
     img {
 			cursor: zoom-in;
 		}

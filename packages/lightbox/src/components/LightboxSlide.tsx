@@ -58,6 +58,11 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
 		updateCanZoomAvailability,
+		closeOnSwipe,
+		isSwiping,
+		handleSwipePointerDown,
+		handleSwipePointerMove,
+		handleSwipePointerEnd,
 	} = useLightboxContext();
 
 	const { index } = useLightboxSlideContext();
@@ -66,6 +71,8 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 
 	const handleSlidePointerDown = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
+			handleSwipePointerDown(event);
+
 			outsideClosePointerRef.current = event.isPrimary
 				? createOutsideClosePointerState({
 						pointerId: event.pointerId,
@@ -80,7 +87,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 
 			handleZoomPointerDown(event);
 		},
-		[handleZoomPointerDown],
+		[handleZoomPointerDown, handleSwipePointerDown],
 	);
 
 	const handleSlidePointerMove = useCallback(
@@ -100,13 +107,15 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 				);
 			}
 
+			handleSwipePointerMove(event);
 			handleZoomPointerMove(event);
 		},
-		[handleZoomPointerMove],
+		[handleZoomPointerMove, handleSwipePointerMove],
 	);
 
 	const handleSlidePointerUp = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
+			handleSwipePointerEnd(event);
 			handleZoomPointerEnd(event);
 
 			const outsideClosePointer = outsideClosePointerRef.current;
@@ -132,15 +141,16 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 				onOutsideClick();
 			}
 		},
-		[onOutsideClick, handleZoomPointerEnd],
+		[onOutsideClick, handleZoomPointerEnd, handleSwipePointerEnd],
 	);
 
 	const handleSlidePointerCancel = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
 			outsideClosePointerRef.current = null;
+			handleSwipePointerEnd(event);
 			handleZoomPointerEnd(event);
 		},
-		[handleZoomPointerEnd],
+		[handleZoomPointerEnd, handleSwipePointerEnd],
 	);
 
 	const handleSlideLoadCapture = useCallback(
@@ -185,6 +195,8 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 				data-zoomed={(isActive && isZoomed) || undefined}
 				data-can-zoom={isActive ? String(canZoomCurrent) : undefined}
 				data-dragging={(isActive && isDraggingZoom) || undefined}
+				data-swipe-enabled={closeOnSwipe || undefined}
+				data-swiping={(isActive && isSwiping) || undefined}
 				{...getStyles("zoomContainer")}
 			>
 				<Box

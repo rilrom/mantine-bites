@@ -46,6 +46,12 @@ export interface LightboxContext {
 	handleZoomPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	handleZoomPointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 	panZoom: (direction: "up" | "down" | "left" | "right") => void;
+	// Swipe to close
+	closeOnSwipe: boolean;
+	isSwiping: boolean;
+	handleSwipePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleSwipePointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
+	handleSwipePointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
 }
 
 export const [LightboxProvider, useLightboxContext] =

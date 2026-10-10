@@ -1240,3 +1240,283 @@ describe("@mantine-bites/lightbox/LightboxCloseButton", () => {
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 });
+
+describe("@mantine-bites/lightbox/Lightbox swipe to close", () => {
+	const OriginalPointerEvent = window.PointerEvent;
+
+	class TestPointerEvent extends MouseEvent {
+		pointerId: number;
+		isPrimary: boolean;
+
+		constructor(type: string, init: PointerEventInit = {}) {
+			super(type, init);
+			this.pointerId = init.pointerId ?? 0;
+			this.isPrimary = init.isPrimary ?? false;
+		}
+	}
+
+	beforeAll(() => {
+		window.PointerEvent = TestPointerEvent as typeof PointerEvent;
+	});
+
+	afterAll(() => {
+		window.PointerEvent = OriginalPointerEvent;
+	});
+
+	const pointer = (clientX: number, clientY: number, pointerId = 1) => ({
+		pointerId,
+		isPrimary: pointerId === 1,
+		clientX,
+		clientY,
+	});
+
+	const getActiveSlide = () => {
+		const slide = screen
+			.getByAltText("Forest landscape slide")
+			.closest<HTMLElement>("[aria-current='true']");
+
+		if (!slide) {
+			throw new Error("Active slide not found");
+		}
+
+		return slide;
+	};
+
+	const getZoomContainer = (slide: HTMLElement) =>
+		slide.firstElementChild as HTMLElement;
+
+	const getOverlay = () =>
+		document.querySelector<HTMLElement>(".mantine-Lightbox-overlay");
+
+	const swipe = (
+		slide: HTMLElement,
+		[startX, startY]: [number, number],
+		[endX, endY]: [number, number],
+	) => {
+		fireEvent.pointerDown(slide, pointer(startX, startY));
+		fireEvent.pointerMove(slide, pointer(endX, endY));
+		fireEvent.pointerUp(slide, pointer(endX, endY));
+	};
+
+	it("should not close on swipe by default", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose } });
+
+		swipe(getActiveSlide(), [400, 300], [400, 600]);
+
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("should close when swiped down past the threshold", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose, closeOnSwipe: true } });
+
+		swipe(getActiveSlide(), [400, 300], [410, 450]);
+
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("should close when swiped up past the threshold", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose, closeOnSwipe: true } });
+
+		swipe(getActiveSlide(), [400, 300], [400, 150]);
+
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("should stay open and spring back when released before the threshold", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose, closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+		const zoomContainer = getZoomContainer(slide);
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 360));
+
+		expect(zoomContainer).toHaveAttribute("data-swiping");
+		expect(zoomContainer.style.translate).toBe("0 60px");
+
+		fireEvent.pointerUp(slide, pointer(400, 360));
+
+		expect(onClose).not.toHaveBeenCalled();
+		expect(zoomContainer).not.toHaveAttribute("data-swiping");
+		expect(zoomContainer.style.translate).toBeFalsy();
+	});
+
+	it("should keep the swipe active until the slide finishes springing back", async () => {
+		renderLightbox({ rootProps: { closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+		const zoomContainer = getZoomContainer(slide);
+		const root = document.querySelector(".mantine-Lightbox-root");
+		let finishTransition = () => {};
+		const finished = new Promise<void>((resolve) => {
+			finishTransition = resolve;
+		});
+		zoomContainer.getAnimations = () =>
+			[{ transitionProperty: "translate", finished }] as unknown as Animation[];
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 360));
+		fireEvent.pointerUp(slide, pointer(400, 360));
+
+		expect(zoomContainer.style.translate).toBeFalsy();
+		expect(root).toHaveAttribute("data-swipe-active");
+
+		finishTransition();
+
+		await waitFor(() => expect(root).not.toHaveAttribute("data-swipe-active"));
+	});
+
+	it("should dim the overlay as the slide is swiped further", () => {
+		renderLightbox({ rootProps: { closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+		const initialOpacity = Number(getOverlay()?.style.opacity || 1);
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 350));
+		const nearOpacity = Number(getOverlay()?.style.opacity);
+
+		fireEvent.pointerMove(slide, pointer(400, 450));
+		const farOpacity = Number(getOverlay()?.style.opacity);
+
+		expect(nearOpacity).toBeLessThan(initialOpacity);
+		expect(farOpacity).toBeLessThan(nearOpacity);
+	});
+
+	it("should restore the overlay when the slide springs back", () => {
+		renderLightbox({ rootProps: { closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+		const overlay = getOverlay();
+
+		if (!overlay) {
+			throw new Error("Overlay not found");
+		}
+
+		// Browsers round the opacity they store, unlike jsdom.
+		let storedOpacity = overlay.style.opacity;
+		Object.defineProperty(overlay.style, "opacity", {
+			configurable: true,
+			get: () => storedOpacity,
+			set: (value: string) => {
+				storedOpacity =
+					value === "" ? "" : String(Number(value).toPrecision(6));
+			},
+		});
+
+		const { opacity, transitionDuration } = overlay.style;
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 380));
+
+		expect(overlay.style.opacity).not.toBe(opacity);
+		expect(overlay.style.transitionDuration).toBe("0ms");
+
+		fireEvent.pointerUp(slide, pointer(400, 380));
+
+		expect(overlay.style.opacity).toBe(opacity);
+		expect(overlay.style.transitionDuration).toBe(transitionDuration);
+	});
+
+	it("should leave horizontal drags to the carousel", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose, closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(300, 305));
+		fireEvent.pointerMove(slide, pointer(250, 500));
+		fireEvent.pointerUp(slide, pointer(250, 500));
+
+		expect(onClose).not.toHaveBeenCalled();
+		expect(getZoomContainer(slide).style.translate).toBeFalsy();
+	});
+
+	it("should block carousel mouse drags while swiping to close", () => {
+		renderLightbox({ rootProps: { closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+		const carouselListener = jest.fn();
+		document.addEventListener("mousemove", carouselListener);
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 350));
+		fireEvent.mouseMove(slide);
+
+		expect(carouselListener).not.toHaveBeenCalled();
+
+		fireEvent.pointerUp(slide, pointer(400, 350));
+		fireEvent.mouseMove(slide);
+
+		expect(carouselListener).toHaveBeenCalledTimes(1);
+		document.removeEventListener("mousemove", carouselListener);
+	});
+
+	it("should close on a horizontal swipe when orientation is vertical", () => {
+		const onClose = jest.fn();
+		renderLightbox({
+			rootProps: { onClose, closeOnSwipe: true, orientation: "vertical" },
+		});
+
+		const slide = getActiveSlide();
+
+		swipe(slide, [400, 300], [400, 500]);
+		expect(onClose).not.toHaveBeenCalled();
+
+		swipe(slide, [400, 300], [600, 300]);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("should not close when the swipe is cancelled", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose, closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 500));
+		fireEvent.pointerCancel(slide, pointer(400, 500));
+
+		expect(onClose).not.toHaveBeenCalled();
+		expect(getZoomContainer(slide).style.translate).toBeFalsy();
+	});
+
+	it("should stop swiping when a second pointer goes down", () => {
+		const onClose = jest.fn();
+		renderLightbox({ rootProps: { onClose, closeOnSwipe: true } });
+
+		const slide = getActiveSlide();
+
+		fireEvent.pointerDown(slide, pointer(400, 300));
+		fireEvent.pointerMove(slide, pointer(400, 500));
+		fireEvent.pointerDown(slide, pointer(500, 300, 2));
+		fireEvent.pointerUp(slide, pointer(400, 500));
+
+		expect(onClose).not.toHaveBeenCalled();
+		expect(getZoomContainer(slide).style.translate).toBeFalsy();
+	});
+
+	it("should not start a swipe from the caption", () => {
+		const onClose = jest.fn();
+
+		render(
+			<Lightbox.Root opened onClose={onClose} closeOnSwipe>
+				<Lightbox.Slides>
+					<Lightbox.Slide>
+						<img src="/photo.jpg" alt="Forest slide" />
+						<Lightbox.Caption>A forest scene</Lightbox.Caption>
+					</Lightbox.Slide>
+				</Lightbox.Slides>
+			</Lightbox.Root>,
+		);
+
+		swipe(screen.getByText("A forest scene"), [400, 300], [400, 500]);
+
+		expect(onClose).not.toHaveBeenCalled();
+	});
+});

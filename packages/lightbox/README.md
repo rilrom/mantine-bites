@@ -14,7 +14,7 @@ Full-screen image lightbox with thumbnails, controls, and carousel navigation.
 - [x] Custom thumbnail URLs and alt text.
 - [x] Image captions.
 - [x] Pinch to zoom functionality.
-- [ ] Swipe up or down to close functionality.
+- [x] Swipe up or down to close functionality.
 - [x] Documentation examples for HTML content, iframes, maps etc.
 - [x] Documentation examples for Mantine Image and Next.js Image.
 - [x] Documentation examples for compound component inspiration.
