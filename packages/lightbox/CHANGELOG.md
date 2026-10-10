@@ -1,5 +1,12 @@
 # @mantine-bites/lightbox
 
+## 2.1.0
+
+### Minor Changes
+
+- feat: swipe up or down to close ([08686dc](https://github.com/rilrom/mantine-bites/commit/08686dc))
+- feat: pinch to zoom ([48a64cc](https://github.com/rilrom/mantine-bites/commit/48a64cc))
+
 ## 2.0.0
 
 ### Major Changes
