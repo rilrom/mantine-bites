@@ -18,6 +18,8 @@ import {
 	IconSettings,
 } from "@tabler/icons-react";
 import { Fragment } from "react";
+import { ConditionEditor } from "./ConditionEditor";
+import { type ConditionScope, getStaticPropDefs } from "./conditions";
 import {
 	DEFAULT_SETTINGS,
 	type FormSettings,
@@ -102,6 +104,7 @@ interface InspectorProps {
 	view: "node" | "form";
 	path: BuilderNode[];
 	fieldKeys: Map<string, string>;
+	scope: ConditionScope;
 	settings: FormSettings;
 	autoFocusLabel: boolean;
 	onSelect: (id: string | null) => void;
@@ -113,6 +116,7 @@ export function Inspector({
 	view,
 	path,
 	fieldKeys,
+	scope,
 	settings,
 	autoFocusLabel,
 	onSelect,
@@ -225,6 +229,7 @@ export function Inspector({
 					field={node}
 					autoFocusLabel={autoFocusLabel}
 					inRow={inRow}
+					scope={scope}
 					onChange={onChange}
 				/>
 			)}
@@ -233,7 +238,7 @@ export function Inspector({
 				<Stack gap="lg">
 					<Section title="Props">
 						<PropControls
-							defs={getPropDefs(node)}
+							defs={getStaticPropDefs(node, getPropDefs(node))}
 							values={node.props}
 							onChange={(def, value) =>
 								onChange({
@@ -243,6 +248,8 @@ export function Inspector({
 							}
 						/>
 					</Section>
+
+					<ConditionEditor node={node} scope={scope} onChange={onChange} />
 
 					{node.kind === "content" && inRow && (
 						<Section title="Layout">

@@ -11,8 +11,16 @@ import { quote } from "./print";
 
 type Validator = (value: unknown) => ReactNode;
 
+export const VALIDATOR_NAMES = [
+	"isNotEmpty",
+	"isEmail",
+	"hasLength",
+	"isInRange",
+	"matches",
+] as const;
+
 export interface ValidatorSpec {
-	name: "isNotEmpty" | "isEmail" | "hasLength" | "isInRange" | "matches";
+	name: (typeof VALIDATOR_NAMES)[number];
 	args: string;
 	validate: Validator;
 }
@@ -110,9 +118,27 @@ export function getValidators(field: BuilderField): ValidatorSpec[] {
 	return validators;
 }
 
-export function composeValidators(validators: ValidatorSpec[]): Validator {
-	return (value) => {
+export type Values = Record<string, unknown>;
+
+interface ValidatorGuards {
+	visible?: (values: Values) => boolean;
+	required?: (values: Values) => boolean;
+}
+
+export function composeValidators(
+	validators: ValidatorSpec[],
+	{ visible, required }: ValidatorGuards = {},
+) {
+	return (value: unknown, values: Values): ReactNode => {
+		if (visible && !visible(values)) {
+			return null;
+		}
+
 		for (const validator of validators) {
+			if (validator.name === "isNotEmpty" && required && !required(values)) {
+				continue;
+			}
+
 			const error = validator.validate(value);
 
 			if (error) {

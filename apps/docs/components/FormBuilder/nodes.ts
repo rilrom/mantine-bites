@@ -1,4 +1,5 @@
 import { randomId } from "@mantine/hooks";
+import type { NodeConditions } from "./conditions";
 import {
 	type BuilderField,
 	FIELD_TYPES,
@@ -26,6 +27,7 @@ export interface ContentNode {
 	type: ContentType;
 	props: PropValues;
 	span?: number;
+	conditions?: NodeConditions;
 }
 
 export type LeafNode = BuilderField | ContentNode;
@@ -35,6 +37,7 @@ export interface RowNode {
 	id: string;
 	props: PropValues;
 	children: LeafNode[];
+	conditions?: NodeConditions;
 }
 
 export interface FieldsetNode {
@@ -42,6 +45,7 @@ export interface FieldsetNode {
 	id: string;
 	props: PropValues;
 	children: (RowNode | LeafNode)[];
+	conditions?: NodeConditions;
 }
 
 export type ContainerNode = RowNode | FieldsetNode;

@@ -9,6 +9,7 @@ export interface FormSettings {
 	size: string;
 	gap: string;
 	validateInputOnBlur: boolean;
+	excludeHiddenValues: boolean;
 }
 
 export interface FormDocument {
@@ -23,6 +24,7 @@ export const DEFAULT_SETTINGS: FormSettings = {
 	size: "sm",
 	gap: "md",
 	validateInputOnBlur: false,
+	excludeHiddenValues: true,
 };
 
 export interface SettingsSection {
@@ -90,6 +92,19 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
 				description: "Shows errors as soon as a field loses focus",
 				control: { type: "switch" },
 				default: DEFAULT_SETTINGS.validateInputOnBlur,
+			},
+		],
+	},
+	{
+		title: "Conditional fields",
+		props: [
+			{
+				name: "excludeHiddenValues",
+				label: "Leave hidden fields out of submitted values",
+				description:
+					"Hidden fields are never validated. This also drops their values on submit.",
+				control: { type: "switch" },
+				default: DEFAULT_SETTINGS.excludeHiddenValues,
 			},
 		],
 	},

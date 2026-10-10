@@ -23,6 +23,7 @@ import {
 import { type Coordinates, CSS, getEventCoordinates } from "@dnd-kit/utilities";
 import {
 	ActionIcon,
+	Badge,
 	Button,
 	Fieldset,
 	Grid,
@@ -37,6 +38,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useReducedMotion } from "@mantine/hooks";
 import {
+	IconBolt,
 	IconCopy,
 	IconGripVertical,
 	IconPlus,
@@ -56,15 +58,17 @@ import {
 	useRef,
 	useState,
 } from "react";
+import {
+	type ConditionScope,
+	describeCondition,
+	EFFECT_LABELS,
+	EFFECTS,
+	getActiveCondition,
+} from "./conditions";
 import type { FormSettings } from "./defaults";
 import { FieldPalette, FieldPalettePopover } from "./FieldPalette";
 import classes from "./FormBuilder.module.css";
-import {
-	PreviewContent,
-	PreviewField,
-	SubmitRow,
-	type Values,
-} from "./FormPreview";
+import { PreviewContent, PreviewField, SubmitRow } from "./FormPreview";
 import { getNodeIcon } from "./fieldIcons";
 import { type BuilderField, getInitialValue } from "./fieldTypes";
 import {
@@ -84,6 +88,7 @@ import {
 	type RowNode,
 } from "./nodes";
 import { getColSpan } from "./resolve";
+import type { Values } from "./validation";
 
 type DropData =
 	| { type: "item"; parentId: string | null }
@@ -100,6 +105,7 @@ interface CanvasContextValue {
 	nodes: BuilderNode[];
 	settings: FormSettings;
 	fieldKeys: Map<string, string>;
+	scope: ConditionScope;
 	selectedId: string | null;
 	onSelect: (id: string | null) => void;
 	onInsert: (
@@ -245,10 +251,18 @@ function NodeFrame({ node, handle, isDragging, children }: NodeFrameProps) {
 		onDelete,
 		onMove,
 		onInsert,
+		scope,
 	} = useCanvas();
 	const label = getNodeLabel(node);
 	const selected = node.id === selectedId;
 	const container = isContainer(node);
+	const logic = EFFECTS.flatMap((effect) => {
+		const condition = getActiveCondition(node, effect, scope);
+
+		return condition
+			? [`${EFFECT_LABELS[effect]} when ${describeCondition(condition, scope)}`]
+			: [];
+	});
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
 		const location = getLocation(nodes, node.id);
@@ -299,10 +313,39 @@ function NodeFrame({ node, handle, isDragging, children }: NodeFrameProps) {
 				onClick={() => onSelect(node.id)}
 				onKeyDown={handleKeyDown}
 			/>
-			{container && (
-				<Text className={classes.frameTag} size="xs" fw={600}>
-					{getTypeLabel(node)}
-				</Text>
+			{(container || logic.length > 0) && (
+				<Group gap={4} wrap="nowrap" className={classes.frameLabels}>
+					{container && (
+						<Text className={classes.frameTag} size="xs" fw={600}>
+							{getTypeLabel(node)}
+						</Text>
+					)}
+					{logic.length > 0 && (
+						<Tooltip
+							withArrow
+							multiline
+							maw={280}
+							label={
+								<Stack gap={2}>
+									{logic.map((line) => (
+										<Text key={line} size="xs">
+											{line}
+										</Text>
+									))}
+								</Stack>
+							}
+						>
+							<Badge
+								size="xs"
+								color="violet"
+								leftSection={<IconBolt size={10} />}
+								className={classes.frameLogic}
+							>
+								Conditional
+							</Badge>
+						</Tooltip>
+					)}
+				</Group>
 			)}
 			{container ? (
 				<div className={classes.frameBody}>{children}</div>
@@ -575,8 +618,7 @@ function sharesLine(id: string) {
 
 	return Array.from(columns).some(
 		(other) =>
-			other !== column &&
-			Math.abs(other.getBoundingClientRect().top - top) < 1,
+			other !== column && Math.abs(other.getBoundingClientRect().top - top) < 1,
 	);
 }
 
@@ -742,6 +784,7 @@ export const FormCanvas = memo(function FormCanvas({
 	nodes,
 	settings,
 	fieldKeys,
+	scope,
 	selectedId,
 	onSelect,
 	onInsert,
@@ -771,6 +814,7 @@ export const FormCanvas = memo(function FormCanvas({
 			nodes,
 			settings,
 			fieldKeys,
+			scope,
 			selectedId,
 			onSelect,
 			onInsert,
@@ -784,6 +828,7 @@ export const FormCanvas = memo(function FormCanvas({
 			nodes,
 			settings,
 			fieldKeys,
+			scope,
 			selectedId,
 			onSelect,
 			onInsert,

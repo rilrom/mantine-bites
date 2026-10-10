@@ -1,3 +1,16 @@
+import {
+	type Condition,
+	type ConditionScope,
+	createScope,
+	getActiveCondition,
+	getOwnVisibility,
+	getReferencedIds,
+	getValueType,
+	getVisibilityConditions,
+	type PropEffect,
+	printCondition,
+	printConditions,
+} from "./conditions";
 import type { FormDocument, FormSettings } from "./defaults";
 import {
 	type BuilderField,
@@ -22,19 +35,91 @@ import {
 	printValue,
 	quote,
 } from "./print";
-import { printProps } from "./props";
+import { Expression, printProps } from "./props";
 import {
 	describeField,
 	type FieldDescription,
 	getColSpan,
 	splitTextChild,
 } from "./resolve";
-import { getValidators } from "./validation";
+import { getValidators, VALIDATOR_NAMES } from "./validation";
 
 interface PrintContext {
 	keys: Map<string, string>;
 	settings: FormSettings;
 	stackProps: string[];
+	scope: ConditionScope;
+	/** Maps a field key to the variable holding its watched value. */
+	watched: Map<string, string>;
+}
+
+const RESERVED_NAMES = new Set<string>([
+	"form",
+	"useForm",
+	...VALIDATOR_NAMES,
+	"break",
+	"case",
+	"catch",
+	"class",
+	"const",
+	"continue",
+	"debugger",
+	"default",
+	"delete",
+	"do",
+	"else",
+	"enum",
+	"export",
+	"extends",
+	"false",
+	"finally",
+	"for",
+	"function",
+	"if",
+	"import",
+	"in",
+	"instanceof",
+	"let",
+	"new",
+	"null",
+	"return",
+	"static",
+	"super",
+	"switch",
+	"this",
+	"throw",
+	"true",
+	"try",
+	"typeof",
+	"var",
+	"void",
+	"while",
+	"with",
+	"yield",
+]);
+
+function getWatchedName(key: string) {
+	return RESERVED_NAMES.has(key) ? `${key}Value` : key;
+}
+
+const fromValues = (key: string) => `values.${key}`;
+
+function printWatched(condition: Condition, ctx: PrintContext) {
+	return printCondition(
+		condition,
+		ctx.scope,
+		(key) => ctx.watched.get(key) ?? key,
+	);
+}
+
+function printLogicProp(
+	node: BuilderNode,
+	effect: "required" | PropEffect,
+	ctx: PrintContext,
+) {
+	const condition = getActiveCondition(node, effect, ctx.scope);
+
+	return condition ? new Expression(printWatched(condition, ctx)) : undefined;
 }
 
 function printOptions(
@@ -60,7 +145,11 @@ function printOptions(
 
 function printField(field: BuilderField, depth: number, ctx: PrintContext) {
 	const { component, props, wrapper, options, binding, validators } =
-		describeField(field, ctx.settings);
+		describeField(field, ctx.settings, {
+			required: printLogicProp(field, "required", ctx),
+			disabled: printLogicProp(field, "disabled", ctx),
+			readOnly: printLogicProp(field, "readOnly", ctx),
+		});
 	const key = ctx.keys.get(field.id) ?? field.id;
 	const bindings = [
 		`key={form.key(${quote(key)})}`,
@@ -124,7 +213,43 @@ function printSpan(node: BuilderNode) {
 	return `span={{ base: ${base}, sm: ${printValue(sm)} }}`;
 }
 
+function printVisible(
+	node: BuilderNode,
+	depth: number,
+	ctx: PrintContext,
+	print: (depth: number) => string[],
+) {
+	const conditions = getOwnVisibility(node, ctx.scope);
+
+	if (conditions.length === 0) {
+		return print(depth);
+	}
+
+	const pad = INDENT.repeat(depth);
+	const guard = printConditions(
+		conditions,
+		ctx.scope,
+		(key) => ctx.watched.get(key) ?? key,
+	);
+
+	return [
+		`${pad}{${guard.includes("||") ? `(${guard})` : guard} && (`,
+		...print(depth + 1),
+		`${pad})}`,
+	];
+}
+
 function printNode(
+	node: BuilderNode,
+	depth: number,
+	ctx: PrintContext,
+): string[] {
+	return printVisible(node, depth, ctx, (inner) =>
+		printBareNode(node, inner, ctx),
+	);
+}
+
+function printBareNode(
 	node: BuilderNode,
 	depth: number,
 	ctx: PrintContext,
@@ -140,18 +265,22 @@ function printNode(
 				printProps(node.props),
 				depth,
 				node.children.flatMap((child) =>
-					printElement(
-						"Grid.Col",
-						[printSpan(child)],
-						depth + 1,
-						printNode(child, depth + 2, ctx),
+					printVisible(child, depth + 1, ctx, (inner) =>
+						printElement(
+							"Grid.Col",
+							[printSpan(child)],
+							inner,
+							printBareNode(child, inner + 1, ctx),
+						),
 					),
 				),
 			);
-		default:
+		default: {
+			const disabled = printLogicProp(node, "disabled", ctx);
+
 			return printElement(
 				"Fieldset",
-				printProps(node.props),
+				printProps(disabled ? { ...node.props, disabled } : node.props),
 				depth,
 				printElement(
 					"Stack",
@@ -160,6 +289,7 @@ function printNode(
 					node.children.flatMap((child) => printNode(child, depth + 2, ctx)),
 				),
 			);
+		}
 	}
 }
 
@@ -210,21 +340,78 @@ function printValidate(
 	field: BuilderField,
 	key: string,
 	depth: number,
+	ctx: PrintContext,
+	visibility: Condition[],
 ): string[] {
 	const validators = getValidators(field);
 	const pad = INDENT.repeat(depth);
+	const required = getActiveCondition(field, "required", ctx.scope);
 	const calls = validators.map((v) => `${v.name}(${v.args})`);
 
-	if (calls.length === 1) {
+	if (calls.length === 1 && !required && visibility.length === 0) {
 		return [`${pad}${key}: ${calls[0]},`];
 	}
 
+	const checks = validators.map((validator, index) => {
+		const call = `${calls[index]}(value)`;
+
+		if (validator.name !== "isNotEmpty" || !required) {
+			return call;
+		}
+
+		const ternary = `${printCondition(required, ctx.scope, fromValues)} ? ${call} : null`;
+
+		return validators.length === 1 ? ternary : `(${ternary})`;
+	});
+	const params =
+		required || visibility.length > 0 ? "(value, values)" : "(value)";
+
+	if (visibility.length === 0) {
+		return [
+			`${pad}${key}: ${params} =>`,
+			...checks.map(
+				(check, index) =>
+					`${pad}${INDENT}${check}${index === checks.length - 1 ? "," : " ||"}`,
+			),
+		];
+	}
+
 	return [
-		`${pad}${key}: (value) =>`,
-		...calls.map(
-			(call, index) =>
-				`${pad}${INDENT}${call}(value)${index === calls.length - 1 ? "," : " ||"}`,
+		`${pad}${key}: ${params} =>`,
+		`${pad}${INDENT}${printConditions(visibility, ctx.scope, fromValues)}`,
+		...checks.map(
+			(check, index) =>
+				`${pad}${INDENT.repeat(2)}${index === 0 ? "? " : "  "}${check}${index === checks.length - 1 ? "" : " ||"}`,
 		),
+		`${pad}${INDENT.repeat(2)}: null,`,
+	];
+}
+
+function printTransformValues(
+	fields: BuilderField[],
+	visibility: Map<string, Condition[]>,
+	ctx: PrintContext,
+) {
+	const hidden = fields.filter((field) => visibility.has(field.id));
+
+	if (!ctx.settings.excludeHiddenValues || hidden.length === 0) {
+		return [];
+	}
+
+	return [
+		`${INDENT.repeat(2)}transformValues: (values) => ({`,
+		`${INDENT.repeat(3)}...values,`,
+		...hidden.map((field) => {
+			const key = ctx.keys.get(field.id) ?? field.id;
+			const conditions = printConditions(
+				visibility.get(field.id) ?? [],
+				ctx.scope,
+				fromValues,
+			);
+
+			return `${INDENT.repeat(3)}${key}: ${conditions} ? values.${key} : undefined,`;
+		}),
+		`${INDENT.repeat(2)}}),`,
 	];
 }
 
@@ -249,23 +436,43 @@ export function generateCode({ nodes, settings }: FormDocument) {
 	const fields = flattenFields(nodes);
 	const keys = getFieldKeys(fields);
 	const keyOf = (field: BuilderField) => keys.get(field.id) ?? field.id;
-	const validated = fields.filter((field) => getValidators(field).length > 0);
-	const initialValues = fields.map(
-		(field) =>
-			`${INDENT.repeat(3)}${keyOf(field)}: ${printValue(getInitialValue(field))},`,
+	const scope = createScope(nodes, keys);
+	const referenced = getReferencedIds(nodes, scope);
+	const watched = new Map(
+		fields
+			.filter((field) => referenced.has(field.id))
+			.map((field) => [keyOf(field), getWatchedName(keyOf(field))]),
 	);
+	const visibility = getVisibilityConditions(nodes, scope);
+	const stackProps = settings.gap === "md" ? [] : [`gap="${settings.gap}"`];
+	const ctx: PrintContext = { keys, settings, stackProps, scope, watched };
+	const validated = fields.filter((field) => getValidators(field).length > 0);
+	const initialValues = fields.map((field) => {
+		const type = referenced.has(field.id) ? getValueType(field) : null;
+		const value = printValue(getInitialValue(field));
+
+		return `${INDENT.repeat(3)}${keyOf(field)}: ${type ? `${value} as ${type}` : value},`;
+	});
 	const validate =
 		validated.length > 0
 			? [
 					`${INDENT.repeat(2)}validate: {`,
 					...validated.flatMap((field) =>
-						printValidate(field, keyOf(field), 3),
+						printValidate(
+							field,
+							keyOf(field),
+							3,
+							ctx,
+							visibility.get(field.id) ?? [],
+						),
 					),
 					`${INDENT.repeat(2)}},`,
 				]
 			: [];
-	const stackProps = settings.gap === "md" ? [] : [`gap="${settings.gap}"`];
-	const ctx: PrintContext = { keys, settings, stackProps };
+	const watches = [...watched].map(
+		([key, name]) =>
+			`${INDENT}const ${name} = form.useWatchValue(${quote(key)});`,
+	);
 
 	return [
 		...getImports(nodes),
@@ -284,8 +491,10 @@ export function generateCode({ nodes, settings }: FormDocument) {
 				]
 			: [`${INDENT.repeat(2)}initialValues: {},`]),
 		...validate,
+		...printTransformValues(fields, visibility, ctx),
 		`${INDENT}});`,
 		"",
+		...(watches.length > 0 ? [...watches, ""] : []),
 		`${INDENT}return (`,
 		`${INDENT.repeat(2)}<form onSubmit={form.onSubmit((values) => console.log(values))}>`,
 		...printElement(

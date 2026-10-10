@@ -220,6 +220,7 @@ FormBuilder/
 ├── FormCanvas.tsx       # Drag and drop editing canvas (@dnd-kit)
 ├── FormPreview.tsx      # Live form for preview, COMPONENTS maps names to Mantine components
 ├── CodeView.tsx         # Generated code output
+├── ConditionEditor.tsx  # Logic section: show, hide, require, disable, and read only conditions
 ├── Inspector.tsx        # Side panel for the selected node and form settings
 ├── FieldInspector.tsx   # Label, options, validation rules, and column span for a field
 ├── FieldPalette.tsx     # Field picker
@@ -230,12 +231,15 @@ FormBuilder/
 ├── props.ts             # PropDef type and shared prop definitions (size, radius, color, etc.)
 ├── resolve.ts           # describeField, shared by the preview and code generation
 ├── validation.ts        # Maps field rules to @mantine/form validators
+├── conditions.ts        # Condition model, OPERATORS registry, evaluation and printing
 ├── generateCode.ts      # Builds the output source from the document
 ├── print.ts             # Low-level printing helpers (quoting, imports, JSX elements)
 └── fieldIcons.ts        # Icons for fields, content blocks, and containers
 ```
 
-The preview and the generated code both read from `FIELD_TYPES` through `describeField`, so the two cannot drift apart as long as new behaviour goes through the registry. Adding a field type means adding it to the `FieldType` union and `FIELD_TYPES` in `fieldTypes.ts`, an icon in `fieldIcons.ts`, and its component to `COMPONENTS` in `FormPreview.tsx` if it isn't there yet. The preview throws for any component name missing from that map.
+The preview and the generated code both read from `FIELD_TYPES` through `describeField`, so the two cannot drift apart as long as new behaviour goes through the registry. Adding a field type means adding it to the `FieldType` union and `FIELD_TYPES` in `fieldTypes.ts` (including its `valueKind`, which decides the condition operators it offers), an icon in `fieldIcons.ts`, and its component to `COMPONENTS` in `FormPreview.tsx` if it isn't there yet. The preview throws for any component name missing from that map.
+
+Conditions reference fields by id rather than key, because keys are derived from labels. Each operator in `OPERATORS` has a `test` for the preview and a `print` for the generated code, and the two must stay equivalent. Clauses that point at a deleted field, or at the node's own fields, are skipped by `getActiveCondition` and flagged in the inspector.
 
 The builder state is saved to localStorage under `mantine-bites-form-builder`. `deserialize` in `FormBuilder.tsx` fills missing `FormSettings` keys from `DEFAULT_SETTINGS`, but nodes are loaded as stored, so a change to a node's shape must tolerate documents saved by earlier versions.
 

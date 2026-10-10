@@ -1,4 +1,5 @@
 import { lowerFirst, upperFirst } from "@mantine/hooks";
+import type { NodeConditions } from "./conditions";
 import {
 	clearableProp,
 	colorProp,
@@ -75,6 +76,7 @@ export interface BuilderField {
 	description?: string;
 	/** Column span out of 12, only read when the field sits in a row. */
 	span?: number;
+	conditions?: NodeConditions;
 }
 
 export type FieldGroup = "Text" | "Number" | "Choice" | "Dates" | "Other";
@@ -92,12 +94,18 @@ export type OptionsRender =
 
 export type FieldBinding = "value" | "checkbox" | "raw";
 
+/** The shape of the form value, which decides the operators a condition can apply to the field. `presence` values can only be tested for emptiness. */
+export type ValueKind = "text" | "number" | "boolean" | "list" | "presence";
+
 interface FieldTypeDefinition {
 	label: string;
 	group: FieldGroup;
+	valueKind: ValueKind;
 	component: string;
 	source: "@mantine/core" | "@mantine/dates";
 	options?: OptionsRender;
+	/** The component accepts values outside its options, so a condition compares against free text. */
+	freeText?: boolean;
 	rules: RuleName[];
 	props: PropDef[];
 	initialValue: (field: BuilderField) => unknown;
@@ -208,6 +216,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	text: {
 		label: "Text",
 		group: "Text",
+		valueKind: "text",
 		component: "TextInput",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
@@ -218,6 +227,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	email: {
 		label: "Email",
 		group: "Text",
+		valueKind: "text",
 		component: "TextInput",
 		source: "@mantine/core",
 		rules: ["required", "email", "minLength", "maxLength", "pattern"],
@@ -229,6 +239,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	password: {
 		label: "Password",
 		group: "Text",
+		valueKind: "text",
 		component: "PasswordInput",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
@@ -247,6 +258,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	tel: {
 		label: "Tel",
 		group: "Text",
+		valueKind: "text",
 		component: "TextInput",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
@@ -258,6 +270,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	url: {
 		label: "URL",
 		group: "Text",
+		valueKind: "text",
 		component: "TextInput",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
@@ -269,6 +282,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	mask: {
 		label: "Masked",
 		group: "Text",
+		valueKind: "text",
 		component: "MaskInput",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
@@ -303,6 +317,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	textarea: {
 		label: "Textarea",
 		group: "Text",
+		valueKind: "text",
 		component: "Textarea",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
@@ -313,6 +328,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	json: {
 		label: "JSON",
 		group: "Text",
+		valueKind: "presence",
 		component: "JsonInput",
 		source: "@mantine/core",
 		rules: ["required"],
@@ -332,6 +348,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	number: {
 		label: "Number",
 		group: "Number",
+		valueKind: "number",
 		component: "NumberInput",
 		source: "@mantine/core",
 		rules: ["required", "min", "max"],
@@ -353,6 +370,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	slider: {
 		label: "Slider",
 		group: "Number",
+		valueKind: "number",
 		component: "Slider",
 		source: "@mantine/core",
 		rules: [],
@@ -376,6 +394,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	rating: {
 		label: "Rating",
 		group: "Number",
+		valueKind: "number",
 		component: "Rating",
 		source: "@mantine/core",
 		rules: ["min", "max"],
@@ -402,6 +421,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	pin: {
 		label: "PIN",
 		group: "Number",
+		valueKind: "text",
 		component: "PinInput",
 		source: "@mantine/core",
 		rules: ["required"],
@@ -434,6 +454,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	select: {
 		label: "Select",
 		group: "Choice",
+		valueKind: "text",
 		component: "Select",
 		source: "@mantine/core",
 		options: "data",
@@ -445,6 +466,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	multiselect: {
 		label: "Multi select",
 		group: "Choice",
+		valueKind: "list",
 		component: "MultiSelect",
 		source: "@mantine/core",
 		options: "data",
@@ -471,9 +493,11 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	autocomplete: {
 		label: "Autocomplete",
 		group: "Choice",
+		valueKind: "text",
 		component: "Autocomplete",
 		source: "@mantine/core",
 		options: "data",
+		freeText: true,
 		rules: TEXT_RULES,
 		props: [clearableProp, ...INPUT_APPEARANCE],
 		initialValue: empty,
@@ -482,9 +506,11 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	tags: {
 		label: "Tags",
 		group: "Choice",
+		valueKind: "list",
 		component: "TagsInput",
 		source: "@mantine/core",
 		options: "data",
+		freeText: true,
 		rules: ["required"],
 		props: [
 			clearableProp,
@@ -502,6 +528,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	nativeselect: {
 		label: "Native select",
 		group: "Choice",
+		valueKind: "text",
 		component: "NativeSelect",
 		source: "@mantine/core",
 		options: "data",
@@ -512,6 +539,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	segmented: {
 		label: "Segmented",
 		group: "Choice",
+		valueKind: "text",
 		component: "SegmentedControl",
 		source: "@mantine/core",
 		options: "data",
@@ -537,6 +565,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	radio: {
 		label: "Radio",
 		group: "Choice",
+		valueKind: "text",
 		component: "Radio.Group",
 		source: "@mantine/core",
 		options: {
@@ -551,6 +580,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	chips: {
 		label: "Chips",
 		group: "Choice",
+		valueKind: "text",
 		component: "Chip.Group",
 		source: "@mantine/core",
 		options: {
@@ -566,6 +596,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	multichips: {
 		label: "Multi chips",
 		group: "Choice",
+		valueKind: "list",
 		component: "Chip.Group",
 		source: "@mantine/core",
 		options: {
@@ -582,6 +613,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	checkbox: {
 		label: "Checkbox",
 		group: "Choice",
+		valueKind: "boolean",
 		component: "Checkbox",
 		source: "@mantine/core",
 		rules: ["required"],
@@ -592,6 +624,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	checkboxgroup: {
 		label: "Checkbox group",
 		group: "Choice",
+		valueKind: "list",
 		component: "Checkbox.Group",
 		source: "@mantine/core",
 		options: {
@@ -611,6 +644,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	switch: {
 		label: "Switch",
 		group: "Choice",
+		valueKind: "boolean",
 		component: "Switch",
 		source: "@mantine/core",
 		rules: ["required"],
@@ -621,6 +655,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	switchgroup: {
 		label: "Switch group",
 		group: "Choice",
+		valueKind: "list",
 		component: "Switch.Group",
 		source: "@mantine/core",
 		options: {
@@ -635,6 +670,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	color: {
 		label: "Color",
 		group: "Other",
+		valueKind: "text",
 		component: "ColorInput",
 		source: "@mantine/core",
 		rules: ["required"],
@@ -656,6 +692,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	file: {
 		label: "File",
 		group: "Other",
+		valueKind: "presence",
 		component: "FileInput",
 		source: "@mantine/core",
 		rules: ["required"],
@@ -674,6 +711,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	date: {
 		label: "Date",
 		group: "Dates",
+		valueKind: "presence",
 		component: "DateInput",
 		source: "@mantine/dates",
 		rules: ["required"],
@@ -684,6 +722,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	datetime: {
 		label: "Date and time",
 		group: "Dates",
+		valueKind: "presence",
 		component: "DateTimePicker",
 		source: "@mantine/dates",
 		rules: ["required"],
@@ -694,6 +733,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	time: {
 		label: "Time",
 		group: "Dates",
+		valueKind: "presence",
 		component: "TimePicker",
 		source: "@mantine/dates",
 		rules: ["required"],
@@ -718,6 +758,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 	month: {
 		label: "Month",
 		group: "Dates",
+		valueKind: "presence",
 		component: "MonthPickerInput",
 		source: "@mantine/dates",
 		rules: ["required"],

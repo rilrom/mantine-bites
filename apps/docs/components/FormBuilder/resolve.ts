@@ -6,14 +6,27 @@ import {
 	getPlaceholder,
 } from "./fieldTypes";
 import { type BuilderNode, getPropDefs, TEXT_CHILD } from "./nodes";
-import { type ElementProps, type PropValues, pickProps } from "./props";
+import {
+	type ElementProps,
+	type Expression,
+	type PropValues,
+	pickProps,
+} from "./props";
 import { getValidators, type ValidatorSpec } from "./validation";
+
+/** Conditional prop values, already evaluated for the preview or printed for the generated code. */
+export interface FieldLogic {
+	required?: boolean | Expression;
+	disabled?: boolean | Expression;
+	readOnly?: boolean | Expression;
+}
 
 /** Merges the form-wide input size, derived props, and the field's own props. Later sources win. */
 function resolveFieldProps(
 	field: BuilderField,
 	settings: FormSettings,
-): PropValues {
+	logic: FieldLogic,
+): ElementProps {
 	const definition = FIELD_TYPES[field.type];
 	const sizable = definition.props.some((prop) => prop.name === "size");
 	const size: PropValues =
@@ -23,6 +36,8 @@ function resolveFieldProps(
 		...size,
 		...definition.derivedProps?.(field),
 		...pickProps(field.props, definition.props),
+		...(logic.disabled === undefined ? {} : { disabled: logic.disabled }),
+		...(logic.readOnly === undefined ? {} : { readOnly: logic.readOnly }),
 	};
 }
 
@@ -78,6 +93,7 @@ function compact(values: Record<string, ElementProps[string] | undefined>) {
 export function describeField(
 	field: BuilderField,
 	settings: FormSettings,
+	logic: FieldLogic = {},
 ): FieldDescription {
 	const definition = FIELD_TYPES[field.type];
 	const validators = getValidators(field);
@@ -89,9 +105,13 @@ export function describeField(
 	const withAsterisk =
 		binding !== "checkbox" &&
 		validators.some((validator) => validator.name === "isNotEmpty")
-			? true
+			? (logic.required ?? true)
 			: undefined;
-	const { orientation, ...resolved } = resolveFieldProps(field, settings);
+	const { orientation, ...resolved } = resolveFieldProps(
+		field,
+		settings,
+		logic,
+	);
 	const render = definition.options;
 	const options =
 		render && render !== "data"

@@ -10,6 +10,12 @@ import {
 	TextInput,
 } from "@mantine/core";
 import type { ReactNode } from "react";
+import { ConditionEditor } from "./ConditionEditor";
+import {
+	type ConditionScope,
+	getStaticPropDefs,
+	setCondition,
+} from "./conditions";
 import classes from "./FormBuilder.module.css";
 import {
 	type BuilderField,
@@ -86,6 +92,7 @@ interface FieldInspectorProps {
 	field: BuilderField;
 	autoFocusLabel: boolean;
 	inRow: boolean;
+	scope: ConditionScope;
 	onChange: (field: BuilderField) => void;
 }
 
@@ -93,6 +100,7 @@ export function FieldInspector({
 	field,
 	autoFocusLabel,
 	inRow,
+	scope,
 	onChange,
 }: FieldInspectorProps) {
 	const definition = FIELD_TYPES[field.type];
@@ -111,6 +119,17 @@ export function FieldInspector({
 			delete next[name];
 		} else {
 			next[name] = value;
+		}
+
+		if (name === "required" && !next.required) {
+			onChange(
+				setCondition(
+					{ ...field, rules: next },
+					"required",
+					null,
+				) as BuilderField,
+			);
+			return;
 		}
 
 		update({ rules: next });
@@ -142,15 +161,15 @@ export function FieldInspector({
 		</SimpleGrid>
 	);
 
+	const toggles = getStaticPropDefs(field, definition.props).filter(
+		(def) => def.control.type === "switch",
+	);
 	const propSections = [
 		{
 			title: "Props",
 			defs: definition.props.filter((def) => def.control.type !== "switch"),
 		},
-		{
-			title: "Toggles",
-			defs: definition.props.filter((def) => def.control.type === "switch"),
-		},
+		{ title: "Toggles", defs: toggles },
 	];
 
 	return (
@@ -206,9 +225,11 @@ export function FieldInspector({
 						<Switch
 							label="Required"
 							description={
-								isCheckboxLike(field)
-									? "Must be checked to submit"
-									: "Shows an asterisk and blocks empty submissions"
+								field.conditions?.required
+									? "Only while the Require when condition below matches"
+									: isCheckboxLike(field)
+										? "Must be checked to submit"
+										: "Shows an asterisk and blocks empty submissions"
 							}
 							checked={Boolean(field.rules.required)}
 							onChange={(event) =>
@@ -253,6 +274,12 @@ export function FieldInspector({
 					)}
 				</Section>
 			)}
+
+			<ConditionEditor
+				node={field}
+				scope={scope}
+				onChange={(next) => onChange(next as BuilderField)}
+			/>
 
 			{inRow && (
 				<Section title="Layout">

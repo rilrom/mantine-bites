@@ -42,7 +42,18 @@ import {
 	TimePicker,
 } from "@mantine/dates";
 import { type UseFormReturnType, useForm } from "@mantine/form";
-import { type ComponentType, type ReactNode, useState } from "react";
+import { type ComponentType, type ReactNode, useMemo, useState } from "react";
+import {
+	type ConditionEffect,
+	type ConditionScope,
+	createScope,
+	evaluate,
+	evaluateAll,
+	getActiveCondition,
+	getOwnVisibility,
+	getReferencedIds,
+	getVisibilityConditions,
+} from "./conditions";
 import type { FormDocument, FormSettings } from "./defaults";
 import { type BuilderField, getFieldKeys, getInitialValue } from "./fieldTypes";
 import {
@@ -54,12 +65,11 @@ import {
 import {
 	describeField,
 	type FieldDescription,
+	type FieldLogic,
 	getColSpan,
 	splitTextChild,
 } from "./resolve";
-import { composeValidators, getValidators } from "./validation";
-
-export type Values = Record<string, unknown>;
+import { composeValidators, getValidators, type Values } from "./validation";
 
 type AnyComponent = ComponentType<Record<string, unknown>>;
 
@@ -134,6 +144,7 @@ interface PreviewFieldProps {
 	fieldKey: string;
 	form: UseFormReturnType<Values>;
 	settings: FormSettings;
+	logic?: FieldLogic;
 }
 
 export function PreviewField({
@@ -141,9 +152,10 @@ export function PreviewField({
 	fieldKey,
 	form,
 	settings,
+	logic,
 }: PreviewFieldProps) {
 	const { component, props, wrapper, options, binding, validators } =
-		describeField(field, settings);
+		describeField(field, settings, logic);
 	const Component = getComponent(component);
 	const inputProps = form.getInputProps(
 		fieldKey,
@@ -188,22 +200,46 @@ export function PreviewContent({ node }: { node: ContentNode }) {
 
 interface PreviewNodesProps {
 	nodes: BuilderNode[];
-	keys: Map<string, string>;
+	scope: ConditionScope;
+	values: Values;
 	form: UseFormReturnType<Values>;
 	settings: FormSettings;
 }
 
-function PreviewNodes({ nodes, keys, form, settings }: PreviewNodesProps) {
+function PreviewNodes({
+	nodes,
+	scope,
+	values,
+	form,
+	settings,
+}: PreviewNodesProps) {
+	const resolve = (node: BuilderNode, effect: ConditionEffect) => {
+		const condition = getActiveCondition(node, effect, scope);
+		return condition ? evaluate(condition, values, scope) : undefined;
+	};
+
+	const isVisible = (node: BuilderNode) =>
+		evaluateAll(getOwnVisibility(node, scope), values, scope);
+
 	const render = (node: BuilderNode): ReactNode => {
+		if (!isVisible(node)) {
+			return null;
+		}
+
 		switch (node.kind) {
 			case "field":
 				return (
 					<PreviewField
 						key={node.id}
 						field={node}
-						fieldKey={keys.get(node.id) ?? node.id}
+						fieldKey={scope.keys.get(node.id) ?? node.id}
 						form={form}
 						settings={settings}
+						logic={{
+							required: resolve(node, "required"),
+							disabled: resolve(node, "disabled"),
+							readOnly: resolve(node, "readOnly"),
+						}}
 					/>
 				);
 			case "content":
@@ -211,7 +247,7 @@ function PreviewNodes({ nodes, keys, form, settings }: PreviewNodesProps) {
 			case "row":
 				return (
 					<Grid key={node.id} {...node.props}>
-						{node.children.map((child) => (
+						{node.children.filter(isVisible).map((child) => (
 							<Grid.Col key={child.id} span={getColSpan(child)}>
 								{render(child)}
 							</Grid.Col>
@@ -220,7 +256,11 @@ function PreviewNodes({ nodes, keys, form, settings }: PreviewNodesProps) {
 				);
 			default:
 				return (
-					<Fieldset key={node.id} {...node.props}>
+					<Fieldset
+						key={node.id}
+						{...node.props}
+						disabled={resolve(node, "disabled") ?? node.props.disabled === true}
+					>
 						<Stack gap={settings.gap}>{node.children.map(render)}</Stack>
 					</Fieldset>
 				);
@@ -261,20 +301,62 @@ interface FormPreviewProps {
 export function FormPreview({ document }: FormPreviewProps) {
 	const { nodes, settings } = document;
 	const [submitted, setSubmitted] = useState<Values | null>(null);
-	const fields = flattenFields(nodes);
-	const keys = getFieldKeys(fields);
+	const { fields, keys, scope, visibility, watchedKeys } = useMemo(() => {
+		const fields = flattenFields(nodes);
+		const keys = getFieldKeys(fields);
+		const scope = createScope(nodes, keys);
+
+		return {
+			fields,
+			keys,
+			scope,
+			visibility: getVisibilityConditions(nodes, scope),
+			watchedKeys: [...getReferencedIds(nodes, scope)].map(
+				(id) => keys.get(id) ?? id,
+			),
+		};
+	}, [nodes]);
 	const keyOf = (field: BuilderField) => keys.get(field.id) ?? field.id;
+	const isVisible = (field: BuilderField, values: Values) =>
+		evaluateAll(visibility.get(field.id) ?? [], values, scope);
+	const initialValues = Object.fromEntries(
+		fields.map((field) => [keyOf(field), getInitialValue(field)]),
+	);
+	const [values, setValues] = useState<Values>(initialValues);
 	const form = useForm<Values>({
 		mode: "uncontrolled",
 		validateInputOnBlur: settings.validateInputOnBlur,
-		initialValues: Object.fromEntries(
-			fields.map((field) => [keyOf(field), getInitialValue(field)]),
-		),
+		initialValues,
+		onValuesChange: (next, previous) => {
+			if (watchedKeys.some((key) => next[key] !== previous[key])) {
+				setValues(next);
+			}
+		},
+		transformValues: (submitted) =>
+			settings.excludeHiddenValues
+				? Object.fromEntries(
+						fields
+							.filter((field) => isVisible(field, submitted))
+							.map((field) => [keyOf(field), submitted[keyOf(field)]]),
+					)
+				: submitted,
 		validate: Object.fromEntries(
 			fields
-				.map((field) => [keyOf(field), getValidators(field)] as const)
+				.map((field) => [field, getValidators(field)] as const)
 				.filter(([, validators]) => validators.length > 0)
-				.map(([key, validators]) => [key, composeValidators(validators)]),
+				.map(([field, validators]) => {
+					const required = getActiveCondition(field, "required", scope);
+
+					return [
+						keyOf(field),
+						composeValidators(validators, {
+							visible: (current) => isVisible(field, current),
+							required: required
+								? (current) => evaluate(required, current, scope)
+								: undefined,
+						}),
+					];
+				}),
 		),
 	});
 
@@ -292,7 +374,8 @@ export function FormPreview({ document }: FormPreviewProps) {
 				<Stack gap={settings.gap}>
 					<PreviewNodes
 						nodes={nodes}
-						keys={keys}
+						scope={scope}
+						values={values}
 						form={form}
 						settings={settings}
 					/>

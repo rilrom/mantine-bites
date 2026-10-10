@@ -4,8 +4,16 @@ export type PropValue = string | number | boolean;
 
 export type PropValues = Record<string, PropValue>;
 
+/** A prop computed when the form renders, printed as `{code}` in the generated source. */
+export class Expression {
+	constructor(readonly code: string) {}
+}
+
 /** Props handed to a rendered component, which unlike stored props can hold option lists. */
-export type ElementProps = Record<string, PropValue | string[] | PropValues>;
+export type ElementProps = Record<
+	string,
+	PropValue | string[] | PropValues | Expression
+>;
 
 export type PropOption = string | { value: string; label: string };
 
@@ -141,6 +149,10 @@ export function pickProps(values: PropValues, defs: PropDef[]) {
 }
 
 function printProp(name: string, value: ElementProps[string]) {
+	if (value instanceof Expression) {
+		return `${name}={${value.code}}`;
+	}
+
 	if (value === true) {
 		return name;
 	}

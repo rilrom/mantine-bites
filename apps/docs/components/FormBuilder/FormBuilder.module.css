@@ -153,11 +153,19 @@
   pointer-events: none;
 }
 
-.frameTag {
+.frameLabels {
   position: absolute;
   top: -9px;
   left: var(--mantine-spacing-xs);
   z-index: 3;
+  pointer-events: none;
+}
+
+.frameLogic {
+  pointer-events: auto;
+}
+
+.frameTag {
   padding-inline: 6px;
   border-radius: var(--mantine-radius-sm);
   color: var(--mantine-color-white);
@@ -190,8 +198,8 @@
   cursor: grab;
 }
 
-.frame:hover > .frameTag,
-.frame[data-selected] > .frameTag,
+.frame:hover > .frameLabels > .frameTag,
+.frame[data-selected] > .frameLabels > .frameTag,
 .frame:hover:not(:has(.frame:hover)) > .frameActions,
 .frame:focus-within:not(:has(.frame:hover, .frame:focus-within)) > .frameActions,
 .frame[data-selected]:not(:has(.frame:hover, .frame:focus-within)) > .frameActions {

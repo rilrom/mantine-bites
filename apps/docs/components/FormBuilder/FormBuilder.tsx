@@ -32,6 +32,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { CodeView } from "./CodeView";
+import { createScope } from "./conditions";
 import {
 	DEFAULT_DOCUMENT,
 	DEFAULT_SETTINGS,
@@ -118,6 +119,10 @@ export function FormBuilder() {
 
 	const { nodes, settings } = document;
 	const fieldKeys = useMemo(() => getFieldKeys(flattenFields(nodes)), [nodes]);
+	const scope = useMemo(
+		() => createScope(nodes, fieldKeys),
+		[nodes, fieldKeys],
+	);
 	const code = useMemo(() => generateCode(document), [document]);
 	const path = selectedId ? getPath(nodes, selectedId) : [];
 	const selected = path.at(-1) ?? null;
@@ -234,6 +239,7 @@ export function FormBuilder() {
 				view={panel}
 				path={path}
 				fieldKeys={fieldKeys}
+				scope={scope}
 				settings={settings}
 				autoFocusLabel={selected !== null && selected.id === justAddedId}
 				onSelect={select}
@@ -357,6 +363,7 @@ export function FormBuilder() {
 										nodes={nodes}
 										settings={settings}
 										fieldKeys={fieldKeys}
+										scope={scope}
 										selectedId={selected?.id ?? null}
 										onSelect={canvasSelect}
 										onInsert={canvasInsert}
