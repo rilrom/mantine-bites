@@ -94,6 +94,10 @@
   }
 }
 
+.section {
+  border-top: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
 .nodeList {
   display: flex;
   flex-direction: column;

@@ -21,7 +21,7 @@ import { Fragment } from "react";
 import {
 	DEFAULT_SETTINGS,
 	type FormSettings,
-	SETTINGS_PROPS,
+	SETTINGS_SECTIONS,
 } from "./defaults";
 import { FieldInspector, Section, SpanSelect } from "./FieldInspector";
 import { FIELD_ICONS, getNodeIcon } from "./fieldIcons";
@@ -135,17 +135,21 @@ export function Inspector({
 						</Text>
 					</div>
 				</Group>
-				<PropControls
-					defs={SETTINGS_PROPS}
-					values={settings as unknown as PropValues}
-					onChange={(def, value) =>
-						onSettingsChange({
-							...settings,
-							[def.name]:
-								value ?? DEFAULT_SETTINGS[def.name as keyof FormSettings],
-						})
-					}
-				/>
+				{SETTINGS_SECTIONS.map((section) => (
+					<Section key={section.title} title={section.title}>
+						<PropControls
+							defs={section.props}
+							values={settings as unknown as PropValues}
+							onChange={(def, value) =>
+								onSettingsChange({
+									...settings,
+									[def.name]:
+										value ?? DEFAULT_SETTINGS[def.name as keyof FormSettings],
+								})
+							}
+						/>
+					</Section>
+				))}
 			</Stack>
 		);
 	}

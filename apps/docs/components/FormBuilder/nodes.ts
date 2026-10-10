@@ -83,7 +83,7 @@ export const CONTENT_TYPES: Record<ContentType, NodeDefinition> = {
 			{
 				name: "size",
 				label: "Size",
-				control: { type: "segmented", data: SIZES },
+				control: { type: "radio", data: SIZES },
 				default: "md",
 			},
 			textColorProp,
@@ -103,19 +103,19 @@ export const CONTENT_TYPES: Record<ContentType, NodeDefinition> = {
 			{
 				name: "labelPosition",
 				label: "Label position",
-				control: { type: "segmented", data: ["left", "center", "right"] },
+				control: { type: "radio", data: ["left", "center", "right"] },
 				default: "center",
 			},
 			{
 				name: "variant",
 				label: "Variant",
-				control: { type: "segmented", data: ["solid", "dashed", "dotted"] },
+				control: { type: "radio", data: ["solid", "dashed", "dotted"] },
 				default: "solid",
 			},
 			{
 				name: "my",
 				label: "Vertical margin",
-				control: { type: "segmented", data: SIZES },
+				control: { type: "radio", data: SIZES },
 			},
 		],
 		initialProps: {},
@@ -127,7 +127,7 @@ export const CONTENT_TYPES: Record<ContentType, NodeDefinition> = {
 			{
 				name: "h",
 				label: "Height",
-				control: { type: "segmented", data: SIZES },
+				control: { type: "radio", data: SIZES },
 			},
 		],
 		initialProps: { h: "md" },
@@ -143,7 +143,7 @@ export const CONTENT_TYPES: Record<ContentType, NodeDefinition> = {
 				name: "variant",
 				label: "Variant",
 				control: {
-					type: "segmented",
+					type: "radio",
 					data: ["light", "filled", "outline", "default"],
 				},
 				default: "light",
@@ -165,7 +165,7 @@ export const CONTAINER_TYPES: Record<ContainerKind, NodeDefinition> = {
 			{
 				name: "gap",
 				label: "Gap",
-				control: { type: "segmented", data: SIZES },
+				control: { type: "radio", data: SIZES },
 				default: "md",
 			},
 			{
@@ -189,7 +189,7 @@ export const CONTAINER_TYPES: Record<ContainerKind, NodeDefinition> = {
 				name: "variant",
 				label: "Variant",
 				control: {
-					type: "segmented",
+					type: "radio",
 					data: ["default", "filled", "unstyled"],
 				},
 				default: "default",

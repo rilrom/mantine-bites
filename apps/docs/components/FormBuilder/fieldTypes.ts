@@ -157,7 +157,7 @@ const pillsReorderProp: PropDef = {
 const choiceVariantProp: PropDef = {
 	name: "variant",
 	label: "Variant",
-	control: { type: "segmented", data: ["filled", "outline", "light"] },
+	control: { type: "radio", data: ["filled", "outline", "light"] },
 	default: "filled",
 };
 
@@ -194,7 +194,7 @@ const groupedChoiceProps: PropDef[] = [sizeProp, colorProp(), disabledProp];
 export const orientationProp: PropDef = {
 	name: "orientation",
 	label: "Orientation",
-	control: { type: "segmented", data: ["horizontal", "vertical"] },
+	control: { type: "radio", data: ["horizontal", "vertical"] },
 	default: "horizontal",
 };
 
@@ -415,7 +415,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 			{
 				name: "type",
 				label: "Characters",
-				control: { type: "segmented", data: ["alphanumeric", "number"] },
+				control: { type: "radio", data: ["alphanumeric", "number"] },
 				default: "alphanumeric",
 			},
 			{
@@ -701,7 +701,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 			{
 				name: "format",
 				label: "Format",
-				control: { type: "segmented", data: ["24h", "12h"] },
+				control: { type: "radio", data: ["24h", "12h"] },
 				default: "24h",
 			},
 			{

@@ -10,6 +10,7 @@ import {
 	TextInput,
 } from "@mantine/core";
 import type { ReactNode } from "react";
+import classes from "./FormBuilder.module.css";
 import {
 	type BuilderField,
 	FIELD_TYPES,
@@ -31,8 +32,8 @@ interface SectionProps {
 
 export function Section({ title, children }: SectionProps) {
 	return (
-		<Stack gap="sm">
-			<Text size="xs" fw={700} c="dimmed" tt="uppercase">
+		<Stack gap="md" pt="lg" className={classes.section}>
+			<Text fw={600} c="bright">
 				{title}
 			</Text>
 			{children}
@@ -140,6 +141,17 @@ export function FieldInspector({
 			/>
 		</SimpleGrid>
 	);
+
+	const propSections = [
+		{
+			title: "Props",
+			defs: definition.props.filter((def) => def.control.type !== "switch"),
+		},
+		{
+			title: "Toggles",
+			defs: definition.props.filter((def) => def.control.type === "switch"),
+		},
+	];
 
 	return (
 		<Stack gap="lg">
@@ -251,15 +263,20 @@ export function FieldInspector({
 				</Section>
 			)}
 
-			<Section title="Props">
-				<PropControls
-					defs={definition.props}
-					values={field.props}
-					onChange={(def, value) =>
-						update({ props: setPropValue(field.props, def, value) })
-					}
-				/>
-			</Section>
+			{propSections.map(
+				(section) =>
+					section.defs.length > 0 && (
+						<Section key={section.title} title={section.title}>
+							<PropControls
+								defs={section.defs}
+								values={field.props}
+								onChange={(def, value) =>
+									update({ props: setPropValue(field.props, def, value) })
+								}
+							/>
+						</Section>
+					),
+			)}
 		</Stack>
 	);
 }

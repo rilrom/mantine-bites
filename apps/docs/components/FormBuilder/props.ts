@@ -15,7 +15,7 @@ export type PropControl =
 	| { type: "number"; min?: number; max?: number; step?: number }
 	| { type: "switch" }
 	| { type: "select"; data: PropOption[] }
-	| { type: "segmented"; data: PropOption[] };
+	| { type: "radio"; data: PropOption[] };
 
 export interface PropDef {
 	name: string;
@@ -50,14 +50,14 @@ const TEXT_COLORS = ["dimmed", "bright", ...COLORS];
 export const sizeProp: PropDef = {
 	name: "size",
 	label: "Size",
-	control: { type: "segmented", data: SIZES },
+	control: { type: "radio", data: SIZES },
 	default: "sm",
 };
 
 export const radiusProp: PropDef = {
 	name: "radius",
 	label: "Radius",
-	control: { type: "segmented", data: SIZES },
+	control: { type: "radio", data: SIZES },
 	default: "sm",
 };
 
@@ -77,7 +77,7 @@ export const textColorProp: PropDef = {
 export const alignProp: PropDef = {
 	name: "ta",
 	label: "Alignment",
-	control: { type: "segmented", data: ["left", "center", "right"] },
+	control: { type: "radio", data: ["left", "center", "right"] },
 	default: "left",
 };
 
@@ -108,7 +108,7 @@ export const INPUT_APPEARANCE: PropDef[] = [
 	{
 		name: "variant",
 		label: "Variant",
-		control: { type: "segmented", data: ["default", "filled", "unstyled"] },
+		control: { type: "radio", data: ["default", "filled", "unstyled"] },
 		default: "default",
 	},
 	disabledProp,

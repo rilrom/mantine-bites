@@ -1,7 +1,7 @@
 import {
-	Input,
+	Group,
 	NumberInput,
-	SegmentedControl,
+	Radio,
 	Select,
 	Stack,
 	Switch,
@@ -86,16 +86,26 @@ function PropControl({ def, value, onChange }: PropControlProps) {
 					: control.data;
 
 			return (
-				<Input.Wrapper label={label} description={description}>
-					<SegmentedControl
-						fullWidth
-						size="xs"
-						mt={4}
-						data={data}
-						value={value === undefined ? (fallback ?? "") : String(value)}
-						onChange={onChange}
-					/>
-				</Input.Wrapper>
+				<Radio.Group
+					label={label}
+					description={description}
+					value={value === undefined ? (fallback ?? "") : String(value)}
+					onChange={onChange}
+				>
+					<Group gap="md" mt="xs">
+						{data.map((option) =>
+							typeof option === "string" ? (
+								<Radio key={option} value={option} label={option} />
+							) : (
+								<Radio
+									key={option.value}
+									value={option.value}
+									label={option.label}
+								/>
+							),
+						)}
+					</Group>
+				</Radio.Group>
 			);
 		}
 	}
@@ -109,7 +119,7 @@ interface PropControlsProps {
 
 export function PropControls({ defs, values, onChange }: PropControlsProps) {
 	return (
-		<Stack gap="sm">
+		<Stack gap="md">
 			{defs.map((def) => (
 				<PropControl
 					key={def.name}

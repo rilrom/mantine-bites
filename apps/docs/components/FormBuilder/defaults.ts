@@ -25,53 +25,73 @@ export const DEFAULT_SETTINGS: FormSettings = {
 	validateInputOnBlur: false,
 };
 
-export const SETTINGS_PROPS: PropDef[] = [
+export interface SettingsSection {
+	title: string;
+	props: PropDef[];
+}
+
+export const SETTINGS_SECTIONS: SettingsSection[] = [
 	{
-		name: "submitLabel",
-		label: "Submit label",
-		control: { type: "text" },
-		default: DEFAULT_SETTINGS.submitLabel,
+		title: "Submit button",
+		props: [
+			{
+				name: "submitLabel",
+				label: "Label",
+				control: { type: "text" },
+				default: DEFAULT_SETTINGS.submitLabel,
+			},
+			{
+				name: "submitAlign",
+				label: "Alignment",
+				control: {
+					type: "radio",
+					data: [
+						{ value: "flex-start", label: "Start" },
+						{ value: "center", label: "Center" },
+						{ value: "flex-end", label: "End" },
+						{ value: "stretch", label: "Full" },
+					],
+				},
+				default: DEFAULT_SETTINGS.submitAlign,
+			},
+			{
+				name: "withReset",
+				label: "Reset button",
+				description: "Adds a button that calls form.reset()",
+				control: { type: "switch" },
+				default: DEFAULT_SETTINGS.withReset,
+			},
+		],
 	},
 	{
-		name: "submitAlign",
-		label: "Button alignment",
-		control: {
-			type: "segmented",
-			data: [
-				{ value: "flex-start", label: "Start" },
-				{ value: "center", label: "Center" },
-				{ value: "flex-end", label: "End" },
-				{ value: "stretch", label: "Full" },
-			],
-		},
-		default: DEFAULT_SETTINGS.submitAlign,
+		title: "Inputs",
+		props: [
+			{
+				name: "size",
+				label: "Size",
+				description: "Applies to every input unless a field sets its own",
+				control: { type: "radio", data: SIZES },
+				default: DEFAULT_SETTINGS.size,
+			},
+			{
+				name: "gap",
+				label: "Spacing between fields",
+				control: { type: "radio", data: SIZES },
+				default: DEFAULT_SETTINGS.gap,
+			},
+		],
 	},
 	{
-		name: "withReset",
-		label: "Reset button",
-		description: "Adds a button that calls form.reset()",
-		control: { type: "switch" },
-		default: DEFAULT_SETTINGS.withReset,
-	},
-	{
-		name: "size",
-		label: "Input size",
-		description: "Applies to every input unless a field sets its own",
-		control: { type: "segmented", data: SIZES },
-		default: DEFAULT_SETTINGS.size,
-	},
-	{
-		name: "gap",
-		label: "Spacing between fields",
-		control: { type: "segmented", data: SIZES },
-		default: DEFAULT_SETTINGS.gap,
-	},
-	{
-		name: "validateInputOnBlur",
-		label: "Validate on blur",
-		description: "Shows errors as soon as a field loses focus",
-		control: { type: "switch" },
-		default: DEFAULT_SETTINGS.validateInputOnBlur,
+		title: "Validation",
+		props: [
+			{
+				name: "validateInputOnBlur",
+				label: "Validate on blur",
+				description: "Shows errors as soon as a field loses focus",
+				control: { type: "switch" },
+				default: DEFAULT_SETTINGS.validateInputOnBlur,
+			},
+		],
 	},
 ];
 
