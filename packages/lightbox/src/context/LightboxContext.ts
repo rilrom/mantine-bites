@@ -39,6 +39,7 @@ export interface LightboxContext {
 	zoomOffset: ZoomOffset;
 	zoomScale: number;
 	activeZoomContainerRef: RefObject<HTMLDivElement | null>;
+	activeZoomContentRef: RefObject<HTMLDivElement | null>;
 	toggleZoom: () => void;
 	updateCanZoomAvailability: () => void;
 	handleZoomPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;

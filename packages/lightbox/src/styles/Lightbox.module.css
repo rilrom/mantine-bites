@@ -167,6 +167,8 @@
   }
 
   &[data-zoom-enabled] {
+    touch-action: none;
+
     img {
 			cursor: zoom-in;
 		}

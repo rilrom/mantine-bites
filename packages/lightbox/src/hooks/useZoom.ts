@@ -11,9 +11,16 @@ import {
 	DEFAULT_ZOOM_SCALE,
 	getImageMaxZoomScale,
 	getInitialZoomOffset,
+	getPinchGeometry,
+	getPinchZoom,
 	getTargetZoomScale,
+	getZoomTransform,
+	MIN_ZOOM_SCALE,
+	type PinchPoint,
+	type PinchStart,
 	ZERO_ZOOM_OFFSET,
 	type ZoomOffset,
+	type ZoomSize,
 } from "../utils/zoom.js";
 
 interface UseZoomInput {
@@ -29,6 +36,7 @@ export interface UseZoomOutput {
 	zoomScale: number;
 	canZoomCurrent: boolean;
 	activeZoomContainerRef: RefObject<HTMLDivElement | null>;
+	activeZoomContentRef: RefObject<HTMLDivElement | null>;
 	resetZoom: () => void;
 	toggleZoom: () => void;
 	updateCanZoomAvailability: () => void;
@@ -60,10 +68,11 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 	const [canZoomCurrent, setCanZoomCurrent] = useState(false);
 
 	const isZoomedRef = useRef(false);
+	const zoomScaleRef = useRef(DEFAULT_ZOOM_SCALE);
+	const zoomOffsetRef = useRef<ZoomOffset>(ZERO_ZOOM_OFFSET);
 	const activeZoomContainerRef = useRef<HTMLDivElement | null>(null);
-	const zoomBaseSizeRef = useRef<{ width: number; height: number } | null>(
-		null,
-	);
+	const activeZoomContentRef = useRef<HTMLDivElement | null>(null);
+	const zoomBaseSizeRef = useRef<ZoomSize | null>(null);
 	const dragRef = useRef<{
 		pointerId: number;
 		startX: number;
@@ -73,16 +82,57 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		canPan: boolean;
 		moved: boolean;
 	} | null>(null);
+	const pointersRef = useRef(new Map<number, PinchPoint>());
+	const pinchRef = useRef<{
+		start: PinchStart;
+		scale: number;
+		offset: ZoomOffset;
+	} | null>(null);
+
+	// Drag and pinch moves only write the DOM so they skip re-rendering every context consumer.
+	// commitZoom writes the transform here too, so the DOM never keeps a value React has moved past.
+	const previewZoom = useCallback(
+		(zoomed: boolean, scale: number, offset: ZoomOffset) => {
+			isZoomedRef.current = zoomed;
+			zoomScaleRef.current = scale;
+			zoomOffsetRef.current = offset;
+
+			const content = activeZoomContentRef.current;
+
+			if (content) {
+				content.style.transform = getZoomTransform({
+					isZoomed: zoomed,
+					offset,
+					scale,
+				});
+			}
+		},
+		[],
+	);
+
+	const commitZoom = useCallback(
+		(zoomed: boolean, scale: number, offset: ZoomOffset) => {
+			previewZoom(zoomed, scale, offset);
+			setIsZoomed(zoomed);
+			setZoomScale(scale);
+			setZoomOffset(offset);
+		},
+		[previewZoom],
+	);
+
+	const clearZoom = useCallback(() => {
+		commitZoom(false, DEFAULT_ZOOM_SCALE, ZERO_ZOOM_OFFSET);
+		setIsDraggingZoom(false);
+	}, [commitZoom]);
 
 	const resetZoom = useCallback(() => {
-		setIsZoomed(false);
-		setZoomOffset(ZERO_ZOOM_OFFSET);
-		setZoomScale(DEFAULT_ZOOM_SCALE);
-		setIsDraggingZoom(false);
+		clearZoom();
 		setCanZoomCurrent(false);
 		dragRef.current = null;
+		pinchRef.current = null;
+		pointersRef.current.clear();
 		zoomBaseSizeRef.current = null;
-	}, []);
+	}, [clearZoom]);
 
 	const updateCanZoomAvailability = useCallback(() => {
 		if (!withZoom) {
@@ -109,58 +159,55 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 
 	const setZoomFromOrigin = useCallback(
 		(origin?: { clientX: number; clientY: number }) => {
-			setIsZoomed((current) => {
-				if (current) {
-					setZoomOffset(ZERO_ZOOM_OFFSET);
-					setZoomScale(DEFAULT_ZOOM_SCALE);
-					return false;
-				}
+			if (isZoomedRef.current) {
+				commitZoom(false, DEFAULT_ZOOM_SCALE, ZERO_ZOOM_OFFSET);
+				return;
+			}
 
-				const activeContainer = activeZoomContainerRef.current;
+			const activeContainer = activeZoomContainerRef.current;
 
-				if (!activeContainer) {
-					return current;
-				}
+			if (!activeContainer) {
+				return;
+			}
 
-				const image = activeContainer.querySelector("img");
+			const image = activeContainer.querySelector("img");
 
-				if (!(image instanceof HTMLImageElement)) {
-					return current;
-				}
+			if (!(image instanceof HTMLImageElement)) {
+				return;
+			}
 
-				const containerRect = activeContainer.getBoundingClientRect();
-				const imageRect = image.getBoundingClientRect();
-				const targetScale = getTargetZoomScale({
-					image,
-					containerWidth: containerRect.width,
-					containerHeight: containerRect.height,
-				});
-				const maxZoomScale = getImageMaxZoomScale(image);
-
-				if (maxZoomScale <= 1.01 || targetScale <= 1.01) {
-					return current;
-				}
-
-				zoomBaseSizeRef.current = {
-					width: imageRect.width,
-					height: imageRect.height,
-				};
-				setZoomScale(targetScale);
-				setZoomOffset(
-					origin
-						? getInitialZoomOffset({
-								containerRect,
-								imageRect,
-								zoomScale: targetScale,
-								pointerClientX: origin.clientX,
-								pointerClientY: origin.clientY,
-							})
-						: ZERO_ZOOM_OFFSET,
-				);
-				return true;
+			const containerRect = activeContainer.getBoundingClientRect();
+			const imageRect = image.getBoundingClientRect();
+			const targetScale = getTargetZoomScale({
+				image,
+				containerWidth: containerRect.width,
+				containerHeight: containerRect.height,
 			});
+			const maxZoomScale = getImageMaxZoomScale(image);
+
+			if (maxZoomScale <= MIN_ZOOM_SCALE || targetScale <= MIN_ZOOM_SCALE) {
+				return;
+			}
+
+			zoomBaseSizeRef.current = {
+				width: imageRect.width,
+				height: imageRect.height,
+			};
+			commitZoom(
+				true,
+				targetScale,
+				origin
+					? getInitialZoomOffset({
+							containerRect,
+							imageRect,
+							zoomScale: targetScale,
+							pointerClientX: origin.clientX,
+							pointerClientY: origin.clientY,
+						})
+					: ZERO_ZOOM_OFFSET,
+			);
 		},
-		[],
+		[commitZoom],
 	);
 
 	const toggleZoom = useCallback(() => {
@@ -182,22 +229,96 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		[setZoomFromOrigin, withZoom],
 	);
 
+	const startPinch = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+		const container = activeZoomContainerRef.current;
+		const image = container?.querySelector("img");
+		const geometry = getPinchGeometry(pointersRef.current.values());
+
+		if (!container || !(image instanceof HTMLImageElement) || !geometry) {
+			return;
+		}
+
+		const zoomed = isZoomedRef.current;
+
+		if (!zoomed || !zoomBaseSizeRef.current) {
+			const imageRect = image.getBoundingClientRect();
+			zoomBaseSizeRef.current = {
+				width: imageRect.width,
+				height: imageRect.height,
+			};
+		}
+
+		const containerRect = container.getBoundingClientRect();
+		const scale = zoomed ? zoomScaleRef.current : 1;
+		const offset = zoomed ? zoomOffsetRef.current : ZERO_ZOOM_OFFSET;
+
+		pinchRef.current = {
+			start: {
+				...geometry,
+				containerRect,
+				imageSize: zoomBaseSizeRef.current,
+				maxScale: getTargetZoomScale({
+					image,
+					containerWidth: containerRect.width,
+					containerHeight: containerRect.height,
+					renderedSize: zoomBaseSizeRef.current,
+				}),
+				scale,
+				offset,
+			},
+			scale,
+			offset,
+		};
+		dragRef.current = null;
+		event.currentTarget.setPointerCapture?.(event.pointerId);
+		setIsDraggingZoom(true);
+	}, []);
+
 	const handleZoomPointerDown = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
+			if (event.isPrimary) {
+				pointersRef.current.clear();
+				pinchRef.current = null;
+			}
+
 			if (!withZoom || !canZoomCurrent) {
 				return;
 			}
 
-			const target = event.target as HTMLElement | null;
+			const target = event.target;
+			const container = activeZoomContainerRef.current;
 
-			if (!isImageTarget(target)) {
+			if (
+				!container ||
+				!(target instanceof Node) ||
+				!container.contains(target)
+			) {
+				return;
+			}
+
+			const pointers = pointersRef.current;
+
+			if (pointers.size >= 2) {
 				return;
 			}
 
 			const startX = getPointerCoordinate(event.clientX, 0);
 			const startY = getPointerCoordinate(event.clientY, 0);
 
-			if (isZoomed) {
+			pointers.set(event.pointerId, { x: startX, y: startY });
+
+			if (pointers.size === 2) {
+				startPinch(event);
+				return;
+			}
+
+			if (!isImageTarget(target)) {
+				return;
+			}
+
+			const zoomed = isZoomedRef.current;
+
+			if (zoomed) {
 				event.currentTarget.setPointerCapture?.(event.pointerId);
 				event.currentTarget.style.cursor = "grabbing";
 				setIsDraggingZoom(true);
@@ -207,17 +328,47 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				pointerId: event.pointerId,
 				startX,
 				startY,
-				originX: zoomOffset.x,
-				originY: zoomOffset.y,
-				canPan: isZoomed,
+				originX: zoomOffsetRef.current.x,
+				originY: zoomOffsetRef.current.y,
+				canPan: zoomed,
 				moved: false,
 			};
 		},
-		[withZoom, canZoomCurrent, isZoomed, zoomOffset.x, zoomOffset.y],
+		[withZoom, canZoomCurrent, startPinch],
 	);
 
 	const handleZoomPointerMove = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
+			const pointers = pointersRef.current;
+			const pointer = pointers.get(event.pointerId);
+
+			if (pointer) {
+				pointer.x = getPointerCoordinate(event.clientX, pointer.x);
+				pointer.y = getPointerCoordinate(event.clientY, pointer.y);
+			}
+
+			const pinch = pinchRef.current;
+
+			if (pinch) {
+				const geometry = getPinchGeometry(pointers.values());
+
+				if (!pointer || !geometry) {
+					return;
+				}
+
+				const { scale, offset } = getPinchZoom(pinch.start, geometry);
+
+				pinch.scale = scale;
+				pinch.offset = offset;
+
+				if (isZoomedRef.current) {
+					previewZoom(true, scale, offset);
+				} else {
+					commitZoom(true, scale, offset);
+				}
+				return;
+			}
+
 			const drag = dragRef.current;
 
 			if (!drag || drag.pointerId !== event.pointerId) {
@@ -256,18 +407,55 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				containerHeight: containerRect.height,
 				imageWidth: baseSize.width,
 				imageHeight: baseSize.height,
-				zoomScale,
+				zoomScale: zoomScaleRef.current,
 				nextX: drag.originX + deltaX,
 				nextY: drag.originY + deltaY,
 			});
 
-			setZoomOffset(nextOffset);
+			previewZoom(true, zoomScaleRef.current, nextOffset);
 		},
-		[zoomScale],
+		[previewZoom, commitZoom],
 	);
 
 	const handleZoomPointerEnd = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
+			const pointers = pointersRef.current;
+			const wasTracked = pointers.delete(event.pointerId);
+			const pinch = pinchRef.current;
+
+			if (pinch && wasTracked) {
+				pinchRef.current = null;
+				event.currentTarget.releasePointerCapture?.(event.pointerId);
+				event.currentTarget.style.cursor = "";
+
+				if (pinch.scale <= MIN_ZOOM_SCALE) {
+					clearZoom();
+					return;
+				}
+
+				commitZoom(true, pinch.scale, pinch.offset);
+
+				const remaining = pointers.entries().next().value;
+
+				if (!remaining) {
+					setIsDraggingZoom(false);
+					return;
+				}
+
+				const [pointerId, position] = remaining;
+
+				dragRef.current = {
+					pointerId,
+					startX: position.x,
+					startY: position.y,
+					originX: pinch.offset.x,
+					originY: pinch.offset.y,
+					canPan: true,
+					moved: true,
+				};
+				return;
+			}
+
 			const drag = dragRef.current;
 
 			if (!drag || drag.pointerId !== event.pointerId) {
@@ -277,6 +465,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 			if (drag.canPan) {
 				event.currentTarget.releasePointerCapture?.(event.pointerId);
 				event.currentTarget.style.cursor = "";
+				commitZoom(true, zoomScaleRef.current, zoomOffsetRef.current);
 			}
 
 			const endX = getPointerCoordinate(event.clientX, drag.startX);
@@ -301,7 +490,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 				toggleZoomAt({ clientX: endX, clientY: endY });
 			}
 		},
-		[toggleZoomAt],
+		[toggleZoomAt, clearZoom, commitZoom],
 	);
 
 	const panZoom = useCallback(
@@ -319,21 +508,24 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 			const deltaX = dx * containerRect.width * PAN_STEP_RATIO;
 			const deltaY = dy * containerRect.height * PAN_STEP_RATIO;
 
-			// zoomScale is stable while panning (scale only changes on toggle),
-			// so capturing it from the closure here is safe.
-			setZoomOffset((prev) =>
+			const scale = zoomScaleRef.current;
+			const offset = zoomOffsetRef.current;
+
+			commitZoom(
+				isZoomedRef.current,
+				scale,
 				clampZoomOffset({
 					containerWidth: containerRect.width,
 					containerHeight: containerRect.height,
 					imageWidth: baseSize.width,
 					imageHeight: baseSize.height,
-					zoomScale,
-					nextX: prev.x + deltaX,
-					nextY: prev.y + deltaY,
+					zoomScale: scale,
+					nextX: offset.x + deltaX,
+					nextY: offset.y + deltaY,
 				}),
 			);
 		},
-		[zoomScale],
+		[commitZoom],
 	);
 
 	useEffect(() => {
@@ -373,10 +565,6 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 	}, [opened, resetZoom, updateCanZoomAvailability]);
 
 	useEffect(() => {
-		isZoomedRef.current = isZoomed;
-	}, [isZoomed]);
-
-	useEffect(() => {
 		if (!opened) {
 			setCanZoomCurrent(false);
 			return;
@@ -401,6 +589,7 @@ export function useZoom(props: UseZoomInput): UseZoomOutput {
 		zoomScale,
 		canZoomCurrent,
 		activeZoomContainerRef,
+		activeZoomContentRef,
 		resetZoom,
 		toggleZoom,
 		updateCanZoomAvailability,

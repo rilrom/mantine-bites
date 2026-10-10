@@ -3,6 +3,8 @@ import {
 	clampZoomOffset,
 	DEFAULT_ZOOM_SCALE,
 	getInitialZoomOffset,
+	getPinchGeometry,
+	getPinchZoom,
 	getTargetZoomScale,
 	getZoomTransform,
 	ZERO_ZOOM_OFFSET,
@@ -150,5 +152,65 @@ describe("zoom utilities", () => {
 		});
 		expect(result.x).toBeCloseTo((1000 * 2 - 800) / 2);
 		expect(result.y).toBeCloseTo((750 * 2 - 600) / 2);
+	});
+
+	it("should measure pinch geometry from the first two points", () => {
+		expect(
+			getPinchGeometry([
+				{ x: 0, y: 0 },
+				{ x: 30, y: 40 },
+			]),
+		).toEqual({ distance: 50, midpoint: { x: 15, y: 20 } });
+		expect(getPinchGeometry([{ x: 0, y: 0 }])).toBeNull();
+	});
+
+	const pinchStart = {
+		containerRect: createRect(1000, 800),
+		imageSize: { width: 1000, height: 800 },
+		maxScale: 4,
+		scale: 1,
+		offset: ZERO_ZOOM_OFFSET,
+		distance: 100,
+		midpoint: { x: 500, y: 400 },
+	};
+	const center = { x: 500, y: 400 };
+
+	it("should scale by the change in pinch distance", () => {
+		expect(
+			getPinchZoom(pinchStart, { distance: 250, midpoint: center }),
+		).toEqual({ scale: 2.5, offset: { x: 0, y: 0 } });
+	});
+
+	it("should clamp pinch scale between 1 and the max scale", () => {
+		expect(
+			getPinchZoom(pinchStart, { distance: 50, midpoint: center }).scale,
+		).toBe(1);
+		expect(
+			getPinchZoom(pinchStart, { distance: 1000, midpoint: center }).scale,
+		).toBe(4);
+	});
+
+	it("should keep the image point under the pinch midpoint anchored", () => {
+		const { scale, offset } = getPinchZoom(
+			{ ...pinchStart, midpoint: { x: 700, y: 500 } },
+			{ distance: 200, midpoint: { x: 700, y: 500 } },
+		);
+
+		expect(scale).toBe(2);
+		expect(offset).toEqual({ x: -200, y: -100 });
+	});
+
+	it("should pan with the pinch midpoint when zoomed", () => {
+		const { offset } = getPinchZoom(
+			{
+				...pinchStart,
+				scale: 2,
+				offset: { x: -200, y: -100 },
+				midpoint: { x: 700, y: 500 },
+			},
+			{ distance: 100, midpoint: { x: 750, y: 450 } },
+		);
+
+		expect(offset).toEqual({ x: -150, y: -150 });
 	});
 });

@@ -53,6 +53,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 		zoomOffset,
 		zoomScale,
 		activeZoomContainerRef,
+		activeZoomContentRef,
 		handleZoomPointerDown,
 		handleZoomPointerMove,
 		handleZoomPointerEnd,
@@ -65,17 +66,17 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 
 	const handleSlidePointerDown = useCallback(
 		(event: ReactPointerEvent<HTMLDivElement>) => {
-			const startedInsideContent = isEventTargetWithinSelector(
-				event.target,
-				":is([data-lightbox-slide-content], [data-lightbox-caption])",
-			);
-
-			outsideClosePointerRef.current = createOutsideClosePointerState({
-				pointerId: event.pointerId,
-				clientX: event.clientX,
-				clientY: event.clientY,
-				startedOutsideContent: !startedInsideContent,
-			});
+			outsideClosePointerRef.current = event.isPrimary
+				? createOutsideClosePointerState({
+						pointerId: event.pointerId,
+						clientX: event.clientX,
+						clientY: event.clientY,
+						startedOutsideContent: !isEventTargetWithinSelector(
+							event.target,
+							":is([data-lightbox-slide-content], [data-lightbox-caption])",
+						),
+					})
+				: null;
 
 			handleZoomPointerDown(event);
 		},
@@ -187,6 +188,7 @@ export const LightboxSlide = factory<LightboxSlideFactory>((_props) => {
 				{...getStyles("zoomContainer")}
 			>
 				<Box
+					ref={isActive ? activeZoomContentRef : undefined}
 					{...getStyles("zoomContent", {
 						style: {
 							transform: getZoomTransform({

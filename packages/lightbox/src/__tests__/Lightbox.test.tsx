@@ -563,6 +563,134 @@ describe("@mantine-bites/lightbox/Lightbox compound API", () => {
 		expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
 	});
 
+	describe("pinch zoom", () => {
+		const OriginalPointerEvent = window.PointerEvent;
+
+		class TestPointerEvent extends MouseEvent {
+			pointerId: number;
+			isPrimary: boolean;
+
+			constructor(type: string, init: PointerEventInit = {}) {
+				super(type, init);
+				this.pointerId = init.pointerId ?? 0;
+				this.isPrimary = init.isPrimary ?? false;
+			}
+		}
+
+		beforeEach(() => {
+			window.PointerEvent = TestPointerEvent as typeof PointerEvent;
+		});
+
+		afterEach(() => {
+			window.PointerEvent = OriginalPointerEvent;
+		});
+
+		const rect = (width: number, height: number) => ({
+			x: 0,
+			y: 0,
+			width,
+			height,
+			top: 0,
+			left: 0,
+			right: width,
+			bottom: height,
+			toJSON: () => ({}),
+		});
+
+		const touch = (pointerId: number, x: number, y: number) => ({
+			pointerId,
+			isPrimary: pointerId === 1,
+			clientX: x,
+			clientY: y,
+		});
+
+		const setup = () => {
+			renderLightbox();
+
+			const image = screen.getByAltText("Forest landscape slide");
+			const zoomContainer = image
+				.closest("[aria-current='true']")
+				?.querySelector("[data-zoom-enabled]");
+			const zoomContent = zoomContainer?.firstElementChild as HTMLElement;
+
+			Object.defineProperty(image, "naturalWidth", { value: 4000 });
+			Object.defineProperty(image, "naturalHeight", { value: 3200 });
+
+			return { image, zoomContainer, zoomContent };
+		};
+
+		it("should zoom with a two finger pinch and snap back when pinched out", async () => {
+			const { image, zoomContainer, zoomContent } = setup();
+
+			Object.defineProperty(image, "getBoundingClientRect", {
+				value: () => rect(1000, 800),
+			});
+			Object.defineProperty(zoomContainer, "getBoundingClientRect", {
+				value: () => rect(1000, 800),
+			});
+
+			fireEvent.load(image);
+			await waitFor(() =>
+				expect(screen.getByLabelText("Zoom in")).toBeEnabled(),
+			);
+
+			fireEvent.pointerDown(image, touch(1, 450, 400));
+			fireEvent.pointerDown(image, touch(2, 550, 400));
+			fireEvent.pointerMove(image, touch(1, 400, 400));
+			fireEvent.pointerMove(image, touch(2, 600, 400));
+
+			expect(zoomContent.style.transform).toBe("translate(0px, 0px) scale(2)");
+			expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+
+			fireEvent.pointerUp(image, touch(2, 600, 400));
+			fireEvent.pointerUp(image, touch(1, 400, 400));
+			expect(screen.getByLabelText("Zoom out")).toBeInTheDocument();
+
+			fireEvent.pointerDown(image, touch(1, 400, 400));
+			fireEvent.pointerDown(image, touch(2, 600, 400));
+			fireEvent.pointerMove(image, touch(1, 480, 400));
+			fireEvent.pointerMove(image, touch(2, 520, 400));
+			fireEvent.pointerUp(image, touch(1, 480, 400));
+			fireEvent.pointerUp(image, touch(2, 520, 400));
+
+			expect(screen.getByLabelText("Zoom in")).toBeInTheDocument();
+		});
+
+		it("should cap pinch zoom at the toolbar zoom scale across repeated pinches", async () => {
+			const { image, zoomContainer, zoomContent } = setup();
+			const currentScale = () =>
+				Number(/scale\(([\d.]+)\)/.exec(zoomContent.style.transform)?.[1] ?? 1);
+
+			Object.defineProperty(image, "getBoundingClientRect", {
+				value: () => rect(500 * currentScale(), 400 * currentScale()),
+			});
+			Object.defineProperty(zoomContainer, "getBoundingClientRect", {
+				value: () => rect(1500, 1200),
+			});
+
+			fireEvent.load(image);
+			await waitFor(() =>
+				expect(screen.getByLabelText("Zoom in")).toBeEnabled(),
+			);
+
+			fireEvent.pointerDown(image, touch(1, 700, 600));
+			fireEvent.pointerDown(image, touch(2, 800, 600));
+			fireEvent.pointerMove(image, touch(1, 300, 600));
+			fireEvent.pointerMove(image, touch(2, 1200, 600));
+			fireEvent.pointerUp(image, touch(2, 1200, 600));
+			fireEvent.pointerUp(image, touch(1, 300, 600));
+
+			expect(zoomContent.style.transform).toBe("translate(0px, 0px) scale(3)");
+
+			fireEvent.pointerDown(image, touch(1, 550, 600));
+			fireEvent.pointerDown(image, touch(2, 950, 600));
+			fireEvent.pointerMove(image, touch(1, 540, 600));
+			fireEvent.pointerMove(image, touch(2, 960, 600));
+
+			expect(zoomContent.style.transform).toBe("translate(0px, 0px) scale(3)");
+		});
+	});
+
 	it("should not toggle zoom when clicking active slide image and withZoom={false}", async () => {
 		renderLightbox({ rootProps: { withZoom: false } });
 

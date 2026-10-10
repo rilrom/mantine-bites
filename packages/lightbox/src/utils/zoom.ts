@@ -98,26 +98,41 @@ export const getZoomTransform = ({
 		isZoomed ? scale : 1
 	})`;
 
-const RESOLUTION_EPSILON = 1.01;
+/** Scale at or below which an image is treated as unzoomed. */
+export const MIN_ZOOM_SCALE = 1.01;
 
-const getImageMeasurements = (image: HTMLImageElement) => {
-	const rect = image.getBoundingClientRect();
+/** Width and height of an image as rendered without the zoom transform. */
+export interface ZoomSize {
+	width: number;
+	height: number;
+}
+
+const getImageMeasurements = (
+	image: HTMLImageElement,
+	renderedSize?: ZoomSize,
+) => {
+	const { width, height } = renderedSize ?? image.getBoundingClientRect();
 	return {
 		naturalWidth: image.naturalWidth,
 		naturalHeight: image.naturalHeight,
-		renderedWidth: rect.width,
-		renderedHeight: rect.height,
+		renderedWidth: width,
+		renderedHeight: height,
 	};
 };
 
 /**
  * Returns the maximum zoom scale at which the image would still be rendered at
  * its native resolution (1:1 pixel ratio). Falls back to `DEFAULT_ZOOM_SCALE`
- * when image dimensions are unavailable.
+ * when image dimensions are unavailable. Pass `renderedSize` with the unzoomed
+ * size when the image is already zoomed, because its bounding rect includes
+ * the zoom transform.
  */
-export const getImageMaxZoomScale = (image: HTMLImageElement) => {
+export const getImageMaxZoomScale = (
+	image: HTMLImageElement,
+	renderedSize?: ZoomSize,
+) => {
 	const { naturalWidth, naturalHeight, renderedWidth, renderedHeight } =
-		getImageMeasurements(image);
+		getImageMeasurements(image, renderedSize);
 
 	if (!naturalWidth || !naturalHeight || !renderedWidth || !renderedHeight) {
 		return DEFAULT_ZOOM_SCALE;
@@ -135,18 +150,23 @@ export const getTargetZoomScale = ({
 	image,
 	containerWidth,
 	containerHeight,
+	renderedSize,
 }: {
 	image: HTMLImageElement;
 	containerWidth: number;
 	containerHeight: number;
+	renderedSize?: ZoomSize;
 }) => {
-	const { renderedWidth, renderedHeight } = getImageMeasurements(image);
+	const { renderedWidth, renderedHeight } = getImageMeasurements(
+		image,
+		renderedSize,
+	);
 	const fillWidthScale =
 		renderedWidth > 0 ? containerWidth / renderedWidth : DEFAULT_ZOOM_SCALE;
 	const fillHeightScale =
 		renderedHeight > 0 ? containerHeight / renderedHeight : DEFAULT_ZOOM_SCALE;
 	const fillViewportScale = Math.max(fillWidthScale, fillHeightScale);
-	const maxZoomScale = getImageMaxZoomScale(image);
+	const maxZoomScale = getImageMaxZoomScale(image, renderedSize);
 	const fallbackStepScale = Math.min(maxZoomScale, DEFAULT_ZOOM_SCALE);
 	const targetScale =
 		fillViewportScale > 1 ? fillViewportScale : fallbackStepScale;
@@ -156,7 +176,81 @@ export const getTargetZoomScale = ({
 
 /**
  * Returns `true` if the image has sufficient resolution to be meaningfully
- * zoomed (i.e. its max zoom scale exceeds the resolution epsilon threshold).
+ * zoomed (i.e. its max zoom scale exceeds `MIN_ZOOM_SCALE`).
  */
 export const canZoomImageElement = (image: HTMLImageElement) =>
-	getImageMaxZoomScale(image) > RESOLUTION_EPSILON;
+	getImageMaxZoomScale(image) > MIN_ZOOM_SCALE;
+
+/** Client coordinates of a pointer on screen. */
+export type PinchPoint = ZoomOffset;
+
+/** Distance between two pointers and the point halfway between them. */
+export interface PinchGeometry {
+	distance: number;
+	midpoint: PinchPoint;
+}
+
+/** Values captured when a pinch gesture starts. */
+export interface PinchStart {
+	containerRect: DOMRect;
+	imageSize: ZoomSize;
+	maxScale: number;
+	scale: number;
+	offset: ZoomOffset;
+	distance: number;
+	midpoint: PinchPoint;
+}
+
+/**
+ * Returns the geometry of the first two points, or `null` when there are
+ * fewer than two.
+ */
+export const getPinchGeometry = (
+	points: Iterable<PinchPoint>,
+): PinchGeometry | null => {
+	const [a, b] = points;
+
+	if (!a || !b) {
+		return null;
+	}
+
+	return {
+		distance: Math.hypot(a.x - b.x, a.y - b.y),
+		midpoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+	};
+};
+
+/**
+ * Calculates the zoom scale and pan offset for an in-progress pinch gesture.
+ * The scale follows the change in distance between the two pointers, and the
+ * image point that was under the starting midpoint stays under the current
+ * midpoint, so the gesture can zoom and pan at the same time.
+ */
+export const getPinchZoom = (
+	start: PinchStart,
+	{ distance, midpoint }: PinchGeometry,
+): { scale: number; offset: ZoomOffset } => {
+	const { containerRect, imageSize, maxScale } = start;
+	const rawScale =
+		start.distance > 0
+			? start.scale * (distance / start.distance)
+			: start.scale;
+	const scale = Math.min(Math.max(rawScale, 1), Math.max(1, maxScale));
+	const centerX = containerRect.left + containerRect.width / 2;
+	const centerY = containerRect.top + containerRect.height / 2;
+	const anchorX = (start.midpoint.x - centerX - start.offset.x) / start.scale;
+	const anchorY = (start.midpoint.y - centerY - start.offset.y) / start.scale;
+
+	return {
+		scale,
+		offset: clampZoomOffset({
+			containerWidth: containerRect.width,
+			containerHeight: containerRect.height,
+			imageWidth: imageSize.width,
+			imageHeight: imageSize.height,
+			zoomScale: scale,
+			nextX: midpoint.x - centerX - scale * anchorX,
+			nextY: midpoint.y - centerY - scale * anchorY,
+		}),
+	};
+};
