@@ -123,19 +123,25 @@ export const DEFAULT_DOCUMENT: FormDocument = {
 			props: { children: "Create your account", order: 3 },
 		},
 		{
+			kind: "content",
+			id: "intro-text",
+			type: "text",
+			props: {
+				children: "It takes less than a minute. No credit card required.",
+				size: "sm",
+				c: "dimmed",
+			},
+		},
+		{
 			kind: "fieldset",
-			id: "personal",
-			props: { legend: "Personal details" },
+			id: "account",
+			props: { legend: "Account" },
 			children: [
 				{
 					kind: "row",
 					id: "name-row",
 					props: {},
 					children: [
-						field("title", "Title", "select", {
-							options: ["Mr", "Mrs", "Miss", "Dr"],
-							span: 4,
-						}),
 						field("first-name", "First name", "text", {
 							rules: { required: true, maxLength: 80 },
 						}),
@@ -145,22 +151,30 @@ export const DEFAULT_DOCUMENT: FormDocument = {
 					],
 				},
 				field("email", "Email", "email", {
+					placeholder: "you@example.com",
 					rules: { required: true, email: true },
 				}),
-				field("mobile-number", "Mobile number", "tel", {
-					rules: { required: true, minLength: 6, maxLength: 12 },
+				field("password", "Password", "password", {
+					description: "At least 8 characters",
+					rules: { required: true, minLength: 8 },
 				}),
 			],
 		},
 		{
-			kind: "content",
-			id: "divider",
-			type: "divider",
-			props: { label: "Preferences", my: "xs" },
+			kind: "fieldset",
+			id: "about",
+			props: { legend: "About you" },
+			children: [
+				field("role", "What best describes you?", "radio", {
+					options: ["Developer", "Designer", "Product manager", "Other"],
+					props: { orientation: "vertical" },
+					rules: { required: true },
+				}),
+				field("updates", "Send me product updates", "switch", {
+					description: "Roughly once a month, unsubscribe any time",
+				}),
+			],
 		},
-		field("developer", "Are you a developer?", "segmented", {
-			options: ["Yes", "No", "Learning"],
-		}),
 		field("terms", "I agree to the terms and conditions", "checkbox", {
 			rules: { required: true },
 		}),
