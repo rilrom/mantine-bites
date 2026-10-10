@@ -59,14 +59,26 @@ function printOptions(
 }
 
 function printField(field: BuilderField, depth: number, ctx: PrintContext) {
-	const { component, props, wrapper, options, checkbox, validators } =
-		describeField(field, ctx.settings);
+	const {
+		component,
+		props,
+		wrapper,
+		options,
+		checkbox,
+		rawChange,
+		validators,
+	} = describeField(field, ctx.settings);
 	const key = ctx.keys.get(field.id) ?? field.id;
 	const bindings = [
 		`key={form.key(${quote(key)})}`,
 		checkbox
 			? `{...form.getInputProps(${quote(key)}, { type: 'checkbox' })}`
 			: `{...form.getInputProps(${quote(key)})}`,
+		...(rawChange
+			? [
+					`onChangeRaw={(value) => form.setFieldValue(${quote(key)}, value, { forceUpdate: false })}`,
+				]
+			: []),
 	];
 	const innerDepth = wrapper ? depth + 1 : depth;
 	const element = printElement(

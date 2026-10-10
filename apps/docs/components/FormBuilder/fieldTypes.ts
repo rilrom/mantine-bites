@@ -17,6 +17,7 @@ export type FieldType =
 	| "password"
 	| "tel"
 	| "url"
+	| "mask"
 	| "textarea"
 	| "json"
 	| "number"
@@ -104,6 +105,8 @@ interface FieldTypeDefinition {
 	/** Label and description go on an `Input.Wrapper` because the component has no label of its own. */
 	wrapped?: boolean;
 	checkbox?: boolean;
+	/** The form stores the unmasked value from `onChangeRaw`. MaskInput edits the input on keydown, so `onChange` never fires. */
+	rawChange?: boolean;
 	/** Props computed from the field rather than stored. */
 	derivedProps?: (field: BuilderField) => PropValues;
 	/** Props that stay on the component itself when the field's own props are passed to each option instead. */
@@ -116,6 +119,8 @@ const TEXT_RULES: RuleName[] = [
 	"maxLength",
 	"pattern",
 ];
+
+const DEFAULT_MASK = "(999) 999-9999";
 
 const labelPlaceholder = (field: BuilderField) => field.label;
 const empty = () => "";
@@ -141,6 +146,27 @@ const textareaProps: PropDef[] = [
 	},
 ];
 
+const pillsReorderProp: PropDef = {
+	name: "withPillsReorder",
+	label: "Reorder pills",
+	control: { type: "switch" },
+	default: false,
+};
+
+const choiceVariantProp: PropDef = {
+	name: "variant",
+	label: "Variant",
+	control: { type: "segmented", data: ["filled", "outline", "light"] },
+	default: "filled",
+};
+
+const nativeLevelSelectProp: PropDef = {
+	name: "withNativeLevelSelect",
+	label: "Native month and year select",
+	control: { type: "switch" },
+	default: false,
+};
+
 const comboboxProps: PropDef[] = [
 	{
 		name: "searchable",
@@ -153,6 +179,7 @@ const comboboxProps: PropDef[] = [
 
 const dateProps: PropDef[] = [
 	clearableProp,
+	nativeLevelSelectProp,
 	{
 		name: "valueFormat",
 		label: "Display format",
@@ -209,7 +236,15 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		component: "PasswordInput",
 		source: "@mantine/core",
 		rules: TEXT_RULES,
-		props: INPUT_APPEARANCE,
+		props: [
+			{
+				name: "visibilityToggleFocusable",
+				label: "Focusable visibility toggle",
+				control: { type: "switch" },
+				default: false,
+			},
+			...INPUT_APPEARANCE,
+		],
 		initialValue: empty,
 		placeholder: labelPlaceholder,
 	},
@@ -234,6 +269,40 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		initialValue: empty,
 		placeholder: labelPlaceholder,
 		inputType: "url",
+	},
+	mask: {
+		label: "Masked",
+		group: "Text",
+		component: "MaskInput",
+		source: "@mantine/core",
+		rules: TEXT_RULES,
+		props: [
+			{
+				name: "mask",
+				label: "Mask",
+				description:
+					"9 is a digit, a is a letter, A is an uppercase letter, * is either",
+				control: { type: "text", placeholder: DEFAULT_MASK },
+			},
+			{
+				name: "alwaysShowMask",
+				label: "Always show mask",
+				control: { type: "switch" },
+				default: false,
+			},
+			{
+				name: "autoClear",
+				label: "Clear incomplete value on blur",
+				control: { type: "switch" },
+				default: false,
+			},
+			...INPUT_APPEARANCE,
+		],
+		initialValue: empty,
+		placeholder: labelPlaceholder,
+		// MaskInput requires a mask, so a cleared mask control falls back to the default.
+		derivedProps: () => ({ mask: DEFAULT_MASK }),
+		rawChange: true,
 	},
 	textarea: {
 		label: "Textarea",
@@ -386,6 +455,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		rules: ["required"],
 		props: [
 			...comboboxProps,
+			pillsReorderProp,
 			{
 				name: "hidePickedOptions",
 				label: "Hide picked options",
@@ -422,6 +492,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		rules: ["required"],
 		props: [
 			clearableProp,
+			pillsReorderProp,
 			{
 				name: "maxTags",
 				label: "Max tags",
@@ -478,7 +549,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 			groupProps: { mt: "xs" },
 		},
 		rules: ["required"],
-		props: [orientationProp, ...groupedChoiceProps],
+		props: [choiceVariantProp, orientationProp, ...groupedChoiceProps],
 		initialValue: empty,
 	},
 	chips: {
@@ -518,7 +589,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		component: "Checkbox",
 		source: "@mantine/core",
 		rules: ["required"],
-		props: [...groupedChoiceProps, radiusProp],
+		props: [choiceVariantProp, ...groupedChoiceProps, radiusProp],
 		initialValue: () => false,
 		checkbox: true,
 	},
@@ -533,7 +604,12 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 			groupProps: { mt: "xs" },
 		},
 		rules: ["required"],
-		props: [orientationProp, ...groupedChoiceProps, radiusProp],
+		props: [
+			choiceVariantProp,
+			orientationProp,
+			...groupedChoiceProps,
+			radiusProp,
+		],
 		initialValue: () => [],
 	},
 	switch: {
@@ -649,7 +725,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		component: "MonthPickerInput",
 		source: "@mantine/dates",
 		rules: ["required"],
-		props: [clearableProp, ...INPUT_APPEARANCE],
+		props: [clearableProp, nativeLevelSelectProp, ...INPUT_APPEARANCE],
 		initialValue: nothing,
 		placeholder: () => "Pick month",
 	},

@@ -57,6 +57,7 @@ export interface FieldDescription {
 		items: OptionItem[];
 	} | null;
 	checkbox: boolean;
+	rawChange: boolean;
 	validators: ValidatorSpec[];
 }
 
@@ -128,6 +129,7 @@ export function describeField(
 			: null,
 		options,
 		checkbox,
+		rawChange: Boolean(definition.rawChange),
 		validators,
 	};
 }

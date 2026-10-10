@@ -14,6 +14,7 @@ import {
 	Group,
 	Input,
 	JsonInput,
+	MaskInput,
 	MultiSelect,
 	NativeSelect,
 	NumberInput,
@@ -75,6 +76,7 @@ const COMPONENTS = {
 	Divider,
 	FileInput,
 	JsonInput,
+	MaskInput,
 	MonthPickerInput,
 	MultiSelect,
 	NativeSelect,
@@ -140,15 +142,30 @@ export function PreviewField({
 	form,
 	settings,
 }: PreviewFieldProps) {
-	const { component, props, wrapper, options, checkbox, validators } =
-		describeField(field, settings);
+	const {
+		component,
+		props,
+		wrapper,
+		options,
+		checkbox,
+		rawChange,
+		validators,
+	} = describeField(field, settings);
 	const Component = getComponent(component);
 	const inputProps = form.getInputProps(
 		fieldKey,
 		checkbox ? { type: "checkbox" } : undefined,
 	);
 	const element = (
-		<Component key={form.key(fieldKey)} {...props} {...inputProps}>
+		<Component
+			key={form.key(fieldKey)}
+			{...props}
+			{...inputProps}
+			{...(rawChange && {
+				onChangeRaw: (value: string) =>
+					form.setFieldValue(fieldKey, value, { forceUpdate: false }),
+			})}
+		>
 			{options && renderOptions(options)}
 		</Component>
 	);
