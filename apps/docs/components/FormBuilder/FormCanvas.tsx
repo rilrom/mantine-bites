@@ -4,9 +4,10 @@ import {
 	closestCenter,
 	DndContext,
 	type DragEndEvent,
-	type DragOverEvent,
+	type DragMoveEvent,
 	DragOverlay,
 	type DragStartEvent,
+	type Modifier,
 	type Over,
 	PointerSensor,
 	pointerWithin,
@@ -15,12 +16,11 @@ import {
 	useSensors,
 } from "@dnd-kit/core";
 import {
-	rectSortingStrategy,
 	SortableContext,
+	type SortingStrategy,
 	useSortable,
-	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { type Coordinates, CSS, getEventCoordinates } from "@dnd-kit/utilities";
 import {
 	ActionIcon,
 	Button,
@@ -35,6 +35,7 @@ import {
 	UnstyledButton,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useReducedMotion } from "@mantine/hooks";
 import {
 	IconCopy,
 	IconGripVertical,
@@ -47,8 +48,10 @@ import {
 	type KeyboardEvent,
 	memo,
 	type ReactNode,
+	type Ref,
 	use,
 	useId,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -73,7 +76,6 @@ import {
 	getFallbackId,
 	getLocation,
 	getNodeLabel,
-	getParent,
 	getSiblings,
 	getTypeLabel,
 	isContainer,
@@ -91,6 +93,9 @@ const ROOT_ZONE = "root:zone";
 
 const zoneId = (containerId: string) => `${containerId}:zone`;
 
+/** Nodes stay in place while dragging, and the drop indicator shows where the dragged node will land. */
+const keepInPlace: SortingStrategy = () => null;
+
 interface CanvasContextValue {
 	nodes: BuilderNode[];
 	settings: FormSettings;
@@ -107,7 +112,18 @@ interface CanvasContextValue {
 	onMove: (id: string, parentId: string | null, index: number) => void;
 }
 
-const CanvasContext = createContext<CanvasContextValue | null>(null);
+interface DropTarget {
+	parentId: string | null;
+	/** Position among the target's children once the dragged node is removed, as `moveNode` expects. */
+	index: number;
+}
+
+interface CanvasState extends CanvasContextValue {
+	activeId: string | null;
+	dropTarget: DropTarget | null;
+}
+
+const CanvasContext = createContext<CanvasState | null>(null);
 
 function useCanvas() {
 	const context = use(CanvasContext);
@@ -399,7 +415,26 @@ function NodeContent({ node }: { node: BuilderNode }) {
 	}
 }
 
+function useDropSlots(parentId: string | null, children: BuilderNode[]) {
+	const { activeId, dropTarget } = useCanvas();
+
+	if (dropTarget?.parentId !== parentId) {
+		return { targeted: false, getSlot: () => undefined };
+	}
+
+	const remaining = children.filter((child) => child.id !== activeId);
+	const before = remaining[dropTarget.index]?.id;
+	const after = before ? undefined : remaining.at(-1)?.id;
+
+	return {
+		targeted: true,
+		getSlot: (id: string) =>
+			id === before ? "before" : id === after ? "after" : undefined,
+	};
+}
+
 function RowContent({ row }: { row: RowNode }) {
+	const { targeted, getSlot } = useDropSlots(row.id, row.children);
 	const { setNodeRef } = useDroppable({
 		id: zoneId(row.id),
 		data: { type: "zone", containerId: row.id } satisfies DropData,
@@ -408,9 +443,13 @@ function RowContent({ row }: { row: RowNode }) {
 	return (
 		<SortableContext
 			items={row.children.map((child) => child.id)}
-			strategy={rectSortingStrategy}
+			strategy={keepInPlace}
 		>
-			<div ref={setNodeRef} className={classes.rowZone}>
+			<div
+				ref={setNodeRef}
+				className={classes.rowZone}
+				data-drop-target={targeted || undefined}
+			>
 				{row.children.length === 0 ? (
 					<Text size="sm" c="dimmed" ta="center" className={classes.rowEmpty}>
 						Drag fields here, or use the + button above
@@ -420,7 +459,13 @@ function RowContent({ row }: { row: RowNode }) {
 						{row.children.map((child) => (
 							<SortableNode key={child.id} id={child.id} parentId={row.id}>
 								{({ ref, style, handle, isDragging }) => (
-									<Grid.Col ref={ref} style={style} span={getColSpan(child)}>
+									<Grid.Col
+										ref={ref}
+										style={style}
+										span={getColSpan(child)}
+										className={classes.columnSlot}
+										data-drop={getSlot(child.id)}
+									>
 										<NodeFrame
 											node={child}
 											handle={handle}
@@ -442,6 +487,7 @@ function RowContent({ row }: { row: RowNode }) {
 function NodeList({ parent }: { parent: ContainerNode | null }) {
 	const { nodes, settings } = useCanvas();
 	const children = parent ? parent.children : nodes;
+	const { targeted, getSlot } = useDropSlots(parent?.id ?? null, children);
 	const { setNodeRef } = useDroppable({
 		id: parent ? zoneId(parent.id) : ROOT_ZONE,
 		data: { type: "zone", containerId: parent?.id ?? null } satisfies DropData,
@@ -450,11 +496,12 @@ function NodeList({ parent }: { parent: ContainerNode | null }) {
 	return (
 		<SortableContext
 			items={children.map((child) => child.id)}
-			strategy={verticalListSortingStrategy}
+			strategy={keepInPlace}
 		>
 			<div
 				ref={setNodeRef}
 				className={classes.nodeList}
+				data-drop-target={(parent && targeted) || undefined}
 				style={
 					{
 						"--list-gap": `var(--mantine-spacing-${settings.gap})`,
@@ -468,7 +515,12 @@ function NodeList({ parent }: { parent: ContainerNode | null }) {
 						parentId={parent?.id ?? null}
 					>
 						{({ ref, style, handle, isDragging }) => (
-							<div ref={ref} style={style}>
+							<div
+								ref={ref}
+								style={style}
+								className={classes.listSlot}
+								data-drop={getSlot(child.id)}
+							>
 								<NodeFrame node={child} handle={handle} isDragging={isDragging}>
 									<NodeContent node={child} />
 								</NodeFrame>
@@ -488,23 +540,41 @@ function NodeList({ parent }: { parent: ContainerNode | null }) {
 	);
 }
 
-function isAfter(active: Active, over: Over, horizontal: boolean) {
-	const rect = active.rect.current.translated;
+function getPointer({
+	activatorEvent,
+	delta,
+}: DragMoveEvent): Coordinates | null {
+	const start = activatorEvent && getEventCoordinates(activatorEvent);
 
-	if (!rect) {
+	return start ? { x: start.x + delta.x, y: start.y + delta.y } : null;
+}
+
+function isAfter(pointer: Coordinates | null, over: Over, horizontal: boolean) {
+	if (!pointer) {
 		return false;
 	}
 
 	return horizontal
-		? rect.left + rect.width / 2 > over.rect.left + over.rect.width / 2
-		: rect.top + rect.height / 2 > over.rect.top + over.rect.height / 2;
+		? pointer.x > over.rect.left + over.rect.width / 2
+		: pointer.y > over.rect.top + over.rect.height / 2;
 }
 
-function DragPreview({ node }: { node: BuilderNode }) {
+interface DragPreviewProps {
+	node: BuilderNode;
+	ref: Ref<HTMLDivElement>;
+}
+
+function DragPreview({ node, ref }: DragPreviewProps) {
 	const Icon = getNodeIcon(node);
 
 	return (
-		<Paper shadow="md" radius="md" withBorder className={classes.dragPreview}>
+		<Paper
+			ref={ref}
+			shadow="md"
+			radius="md"
+			withBorder
+			className={classes.dragPreview}
+		>
 			<Group gap="sm" wrap="nowrap">
 				<ThemeIcon variant="light" size="md" radius="sm">
 					<Icon size={16} stroke={1.5} />
@@ -522,8 +592,69 @@ function DragPreview({ node }: { node: BuilderNode }) {
 	);
 }
 
+/** Keeps the drag preview beside the cursor, since it would otherwise sit at the source node's top left corner, which is far away for wide fields. */
+const followCursor: Modifier = ({
+	activatorEvent,
+	draggingNodeRect,
+	transform,
+}) => {
+	const start = activatorEvent && getEventCoordinates(activatorEvent);
+
+	if (!draggingNodeRect || !start) {
+		return transform;
+	}
+
+	return {
+		...transform,
+		x: transform.x + start.x - draggingNodeRect.left - 12,
+		y: transform.y + start.y - draggingNodeRect.top - 20,
+	};
+};
+
+const MOVE_DURATION = 200;
+
+/** Grows the dropped node out of the drag preview's box rather than scaling it, so its contents never look squashed. */
+function growFromPreview(frame: HTMLElement, preview: DOMRect, rect: DOMRect) {
+	const radius = getComputedStyle(frame).borderRadius;
+	const right = Math.max(0, rect.width - preview.width);
+	const bottom = Math.max(0, rect.height - preview.height);
+
+	frame.animate(
+		[
+			{
+				transform: `translate(${preview.left - rect.left}px, ${preview.top - rect.top}px)`,
+				clipPath: `inset(0 ${right}px ${bottom}px 0 round ${radius})`,
+				opacity: 0.6,
+			},
+			{
+				transform: "none",
+				clipPath: `inset(0 0 0 0 round ${radius})`,
+				opacity: 1,
+			},
+		],
+		{ duration: MOVE_DURATION, easing: "ease" },
+	);
+}
+
+function measureFrames(root: HTMLElement) {
+	const frames = new Map<string, { frame: HTMLElement; rect: DOMRect }>();
+
+	for (const button of root.querySelectorAll<HTMLElement>("[data-node-id]")) {
+		const frame = button.parentElement;
+
+		if (button.dataset.nodeId && frame) {
+			frames.set(button.dataset.nodeId, {
+				frame,
+				rect: frame.getBoundingClientRect(),
+			});
+		}
+	}
+
+	return frames;
+}
+
 interface FormCanvasProps extends CanvasContextValue {
-	/** Receives the final tree once a drag ends. Moves during the drag stay local so nothing is persisted mid-drag. */
+	/** Receives the final tree once a drag ends. */
 	onDrop: (nodes: BuilderNode[]) => void;
 }
 
@@ -531,12 +662,52 @@ interface DragState {
 	dragged: BuilderNode;
 	/** The dragged container's own zones and descendants, which it cannot be dropped into. */
 	inside: Set<string>;
-	/** Container kinds never change mid-drag, so this lookup stays valid while nodes move. */
 	containers: Map<string, ContainerNode>;
 }
 
+function getDropTarget(
+	nodes: BuilderNode[],
+	active: Active,
+	over: Over | null,
+	pointer: Coordinates | null,
+): DropTarget | null {
+	const data = over?.data.current as DropData | undefined;
+
+	if (!over || !data || over.id === active.id) {
+		return null;
+	}
+
+	const id = String(active.id);
+	const from = getLocation(nodes, id);
+
+	if (data.type === "zone") {
+		return data.containerId === from.parentId
+			? null
+			: {
+					parentId: data.containerId,
+					index: getSiblings(nodes, data.containerId).length,
+				};
+	}
+
+	const sameParent = data.parentId === from.parentId;
+	const siblings = sameParent
+		? from.siblings
+		: getSiblings(nodes, data.parentId);
+	const parent = data.parentId ? findNode(nodes, data.parentId) : null;
+	const remaining = siblings.filter((node) => node.id !== id);
+	const overIndex = remaining.findIndex((node) => node.id === over.id);
+	const index =
+		overIndex + (isAfter(pointer, over, parent?.kind === "row") ? 1 : 0);
+
+	if (sameParent && from.index === index) {
+		return null;
+	}
+
+	return { parentId: data.parentId, index };
+}
+
 export const FormCanvas = memo(function FormCanvas({
-	nodes: savedNodes,
+	nodes,
 	settings,
 	fieldKeys,
 	selectedId,
@@ -549,12 +720,16 @@ export const FormCanvas = memo(function FormCanvas({
 }: FormCanvasProps) {
 	const dndId = useId();
 	const [activeId, setActiveId] = useState<string | null>(null);
-	const [dragNodes, setDragNodes] = useState<BuilderNode[] | null>(null);
-	const nodes = dragNodes ?? savedNodes;
-	const nodesRef = useRef(nodes);
-	nodesRef.current = nodes;
+	const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
 	const drag = useRef<DragState | null>(null);
-	const movedContainer = useRef(false);
+	const rootRef = useRef<HTMLDivElement>(null);
+	const previewRef = useRef<HTMLDivElement>(null);
+	const pendingMove = useRef<{
+		id: string;
+		frames: ReturnType<typeof measureFrames>;
+		preview: DOMRect | undefined;
+	}>(null);
+	const reduceMotion = useReducedMotion();
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
 	);
@@ -570,6 +745,8 @@ export const FormCanvas = memo(function FormCanvas({
 			onDuplicate,
 			onDelete,
 			onMove,
+			activeId,
+			dropTarget,
 		}),
 		[
 			nodes,
@@ -581,6 +758,8 @@ export const FormCanvas = memo(function FormCanvas({
 			onDuplicate,
 			onDelete,
 			onMove,
+			activeId,
+			dropTarget,
 		],
 	);
 
@@ -589,10 +768,6 @@ export const FormCanvas = memo(function FormCanvas({
 
 		if (!state) {
 			return closestCenter(args);
-		}
-
-		if (movedContainer.current) {
-			return [{ id: args.active.id }];
 		}
 
 		const droppableContainers = args.droppableContainers.filter((droppable) => {
@@ -610,7 +785,13 @@ export const FormCanvas = memo(function FormCanvas({
 		const hits = pointerWithin({ ...args, droppableContainers });
 
 		if (hits.length === 0) {
-			return closestCenter({ ...args, droppableContainers });
+			return closestCenter({
+				...args,
+				droppableContainers: droppableContainers.filter((droppable) => {
+					const data = droppable.data.current as DropData | undefined;
+					return data?.type === "item" && data.parentId === null;
+				}),
+			});
 		}
 
 		const area = (id: string | number) => {
@@ -621,24 +802,10 @@ export const FormCanvas = memo(function FormCanvas({
 		return [...hits].sort((a, b) => area(a.id) - area(b.id)).slice(0, 1);
 	};
 
-	const moveDragged = (id: string, parentId: string | null, index: number) => {
-		if ((getParent(nodesRef.current, id)?.id ?? null) !== parentId) {
-			movedContainer.current = true;
-			requestAnimationFrame(() => {
-				movedContainer.current = false;
-			});
-		}
-
-		const next = moveNode(nodesRef.current, id, parentId, index);
-		nodesRef.current = next;
-		setDragNodes(next);
-	};
-
 	const endDrag = () => {
 		drag.current = null;
-		movedContainer.current = false;
 		setActiveId(null);
-		setDragNodes(null);
+		setDropTarget(null);
 	};
 
 	const handleDragStart = ({ active }: DragStartEvent) => {
@@ -670,67 +837,79 @@ export const FormCanvas = memo(function FormCanvas({
 		setActiveId(id);
 	};
 
-	const handleDragOver = ({ active, over }: DragOverEvent) => {
-		if (!over || over.id === active.id) {
-			return;
-		}
+	const handleDragMove = (event: DragMoveEvent) => {
+		const next = getDropTarget(
+			nodes,
+			event.active,
+			event.over,
+			getPointer(event),
+		);
 
-		const current = nodesRef.current;
-		const id = String(active.id);
-		const fromParent = getParent(current, id)?.id ?? null;
-		const data = over.data.current as DropData | undefined;
-
-		if (!data) {
-			return;
-		}
-
-		if (data.type === "zone") {
-			if (data.containerId !== fromParent) {
-				moveDragged(
-					id,
-					data.containerId,
-					getSiblings(current, data.containerId).length,
-				);
-			}
-
-			return;
-		}
-
-		if (data.parentId === fromParent) {
-			return;
-		}
-
-		const target = data.parentId ? findNode(current, data.parentId) : null;
-		const siblings = getSiblings(current, data.parentId);
-		const overIndex = siblings.findIndex((node) => node.id === over.id);
-		const after = isAfter(active, over, target?.kind === "row");
-		moveDragged(id, data.parentId, overIndex + (after ? 1 : 0));
+		setDropTarget((current) =>
+			current?.parentId === next?.parentId && current?.index === next?.index
+				? current
+				: next,
+		);
 	};
 
-	const handleDragEnd = ({ active, over }: DragEndEvent) => {
-		const current = nodesRef.current;
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event;
 		const id = String(active.id);
-		const data = over?.data.current as DropData | undefined;
+		const target = getDropTarget(nodes, active, over, getPointer(event));
+		const final = target
+			? moveNode(nodes, id, target.parentId, target.index)
+			: nodes;
 
-		if (over && data?.type === "item" && over.id !== active.id) {
-			const { parentId, siblings } = getLocation(current, id);
-
-			if (data.parentId === parentId) {
-				moveDragged(
-					id,
-					parentId,
-					siblings.findIndex((node) => node.id === over.id),
-				);
-			}
+		if (rootRef.current && !reduceMotion) {
+			pendingMove.current = {
+				id,
+				frames: measureFrames(rootRef.current),
+				preview: previewRef.current?.getBoundingClientRect(),
+			};
 		}
 
-		const final = nodesRef.current;
 		endDrag();
 
-		if (final !== savedNodes) {
+		if (final !== nodes) {
 			onDrop(final);
 		}
 	};
+
+	// The tree changes as soon as the pointer is released, so every block, including the dropped one, slides from where it was drawn to its new slot.
+	useLayoutEffect(() => {
+		const move = pendingMove.current;
+		pendingMove.current = null;
+
+		if (!move || !rootRef.current) {
+			return;
+		}
+
+		for (const [nodeId, { frame, rect }] of measureFrames(rootRef.current)) {
+			const before = move.frames.get(nodeId)?.rect;
+
+			if (nodeId === move.id) {
+				if (move.preview) {
+					growFromPreview(frame, move.preview, rect);
+				}
+
+				continue;
+			}
+
+			if (!before) {
+				continue;
+			}
+
+			const x = before.left - rect.left;
+			const y = before.top - rect.top;
+
+			if (Math.abs(x) >= 1 || Math.abs(y) >= 1) {
+				frame.animate(
+					[{ transform: `translate(${x}px, ${y}px)` }, { transform: "none" }],
+					{ duration: MOVE_DURATION, easing: "ease" },
+				);
+			}
+		}
+	});
 
 	if (nodes.length === 0) {
 		return (
@@ -753,18 +932,22 @@ export const FormCanvas = memo(function FormCanvas({
 				sensors={sensors}
 				collisionDetection={collisionDetection}
 				onDragStart={handleDragStart}
-				onDragOver={handleDragOver}
+				onDragOver={handleDragMove}
+				onDragMove={handleDragMove}
 				onDragEnd={handleDragEnd}
 				onDragCancel={endDrag}
 			>
 				<div
+					ref={rootRef}
 					data-drag-active={activeId ? true : undefined}
 					className={classes.canvasRoot}
 				>
 					<NodeList parent={null} />
 				</div>
-				<DragOverlay dropAnimation={null}>
-					{activeNode ? <DragPreview node={activeNode} /> : null}
+				<DragOverlay dropAnimation={null} modifiers={[followCursor]}>
+					{activeNode ? (
+						<DragPreview node={activeNode} ref={previewRef} />
+					) : null}
 				</DragOverlay>
 			</DndContext>
 

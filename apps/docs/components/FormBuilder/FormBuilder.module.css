@@ -229,6 +229,56 @@
   min-height: 48px;
 }
 
+.rowZone,
+.nodeList {
+  border-radius: var(--mantine-radius-sm);
+
+  &[data-drop-target] {
+    outline: 1px dashed var(--mantine-primary-color-filled);
+    outline-offset: 4px;
+  }
+}
+
+.listSlot,
+.columnSlot {
+  position: relative;
+
+  &[data-drop]::after {
+    position: absolute;
+    z-index: 4;
+    content: "";
+    border-radius: 1px;
+    background-color: var(--mantine-primary-color-filled);
+    pointer-events: none;
+  }
+}
+
+.listSlot[data-drop]::after {
+  inset-inline: 0;
+  height: 2px;
+}
+
+.listSlot[data-drop="before"]::after {
+  top: calc(var(--list-gap, var(--mantine-spacing-md)) / -2 - 1px);
+}
+
+.listSlot[data-drop="after"]::after {
+  bottom: calc(var(--list-gap, var(--mantine-spacing-md)) / -2 - 1px);
+}
+
+.columnSlot[data-drop]::after {
+  inset-block: 0;
+  width: 2px;
+}
+
+.columnSlot[data-drop="before"]::after {
+  left: -1px;
+}
+
+.columnSlot[data-drop="after"]::after {
+  right: -1px;
+}
+
 .rowEmpty {
   padding: var(--mantine-spacing-sm);
 }

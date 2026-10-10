@@ -1,11 +1,7 @@
 import type { FormSettings } from "./defaults";
 import { type BuilderField, FIELD_TYPES, getPlaceholder } from "./fieldTypes";
 import { type BuilderNode, getPropDefs, TEXT_CHILD } from "./nodes";
-import {
-	type ElementProps,
-	type PropValues,
-	pickProps,
-} from "./props";
+import { type ElementProps, type PropValues, pickProps } from "./props";
 import { getValidators, type ValidatorSpec } from "./validation";
 
 /** Merges the form-wide input size, derived props, and the field's own props. Later sources win. */
