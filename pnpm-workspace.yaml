@@ -3,8 +3,8 @@ packages:
   - packages/**/*
 
 overrides:
-  "@mantine/core": "9.0.2"
-  "@mantine/hooks": "9.0.2"
+  "@mantine/core": "9.7.1"
+  "@mantine/hooks": "9.7.1"
 
 allowBuilds:
   esbuild: true
@@ -12,6 +12,12 @@ allowBuilds:
   unrs-resolver: true
 
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - "@mantine/code-highlight@9.7.1"
+  - "@mantine/core@9.7.1"
+  - "@mantine/dates@9.7.1"
+  - "@mantine/form@9.7.1"
+  - "@mantine/hooks@9.7.1"
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
