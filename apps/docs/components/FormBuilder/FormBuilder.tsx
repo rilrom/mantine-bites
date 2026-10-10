@@ -381,9 +381,12 @@ export function FormBuilder() {
 					{mode === "test" && (
 						<main className={classes.canvas}>
 							<Paper withBorder radius="md" className={classes.sheet}>
-								<Text size="sm" c="dimmed" mb="lg">
-									Fill in the form and submit it to check the validation rules.
-								</Text>
+								{nodes.length > 0 && (
+									<Text size="sm" c="dimmed" mb="lg">
+										Fill in the form and submit it to check the validation
+										rules.
+									</Text>
+								)}
 								<FormPreview document={document} />
 							</Paper>
 						</main>
