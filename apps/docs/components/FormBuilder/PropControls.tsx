@@ -111,7 +111,7 @@ function PropControl({ def, value, onChange }: PropControlProps) {
 	}
 }
 
-interface PropControlsProps {
+export interface PropControlsProps {
 	defs: PropDef[];
 	values: PropValues;
 	onChange: (def: PropDef, value: PropValue | undefined) => void;

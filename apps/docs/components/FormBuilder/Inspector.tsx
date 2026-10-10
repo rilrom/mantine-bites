@@ -25,7 +25,12 @@ import {
 	type FormSettings,
 	SETTINGS_SECTIONS,
 } from "./defaults";
-import { FieldInspector, Section, SpanSelect } from "./FieldInspector";
+import {
+	FieldInspector,
+	PropSection,
+	Section,
+	SpanSelect,
+} from "./FieldInspector";
 import { FIELD_ICONS, getNodeIcon } from "./fieldIcons";
 import {
 	type BuilderField,
@@ -42,8 +47,13 @@ import {
 	getPropDefs,
 	getTypeLabel,
 } from "./nodes";
-import { PropControls } from "./PropControls";
-import { type PropValues, setPropValue } from "./props";
+import {
+	type PropDef,
+	type PropValue,
+	type PropValues,
+	setPropValue,
+	splitToggles,
+} from "./props";
 
 interface ChangeTypeMenuProps {
 	field: BuilderField;
@@ -140,19 +150,19 @@ export function Inspector({
 					</div>
 				</Group>
 				{SETTINGS_SECTIONS.map((section) => (
-					<Section key={section.title} title={section.title}>
-						<PropControls
-							defs={section.props}
-							values={settings as unknown as PropValues}
-							onChange={(def, value) =>
-								onSettingsChange({
-									...settings,
-									[def.name]:
-										value ?? DEFAULT_SETTINGS[def.name as keyof FormSettings],
-								})
-							}
-						/>
-					</Section>
+					<PropSection
+						key={section.title}
+						title={section.title}
+						defs={section.props}
+						values={settings as unknown as PropValues}
+						onChange={(def, value) =>
+							onSettingsChange({
+								...settings,
+								[def.name]:
+									value ?? DEFAULT_SETTINGS[def.name as keyof FormSettings],
+							})
+						}
+					/>
 				))}
 			</Stack>
 		);
@@ -172,6 +182,12 @@ export function Inspector({
 	}
 
 	const HeaderIcon = getNodeIcon(node);
+	const nodeProps = splitToggles(getStaticPropDefs(node, getPropDefs(node)));
+	const setNodeProp = (def: PropDef, value: PropValue | undefined) =>
+		onChange({
+			...node,
+			props: setPropValue(node.props, def, value),
+		} as BuilderNode);
 
 	return (
 		<Stack gap="lg">
@@ -236,20 +252,12 @@ export function Inspector({
 
 			{node.kind !== "field" && (
 				<Stack gap="lg">
-					<Section title="Props">
-						<PropControls
-							defs={getStaticPropDefs(node, getPropDefs(node))}
-							values={node.props}
-							onChange={(def, value) =>
-								onChange({
-									...node,
-									props: setPropValue(node.props, def, value),
-								} as BuilderNode)
-							}
-						/>
-					</Section>
-
-					<ConditionEditor node={node} scope={scope} onChange={onChange} />
+					<PropSection
+						title="Props"
+						defs={nodeProps.props}
+						values={node.props}
+						onChange={setNodeProp}
+					/>
 
 					{node.kind === "content" && inRow && (
 						<Section title="Layout">
@@ -278,6 +286,15 @@ export function Inspector({
 							)}
 						</Section>
 					)}
+
+					<PropSection
+						title="Toggles"
+						defs={nodeProps.toggles}
+						values={node.props}
+						onChange={setNodeProp}
+					/>
+
+					<ConditionEditor node={node} scope={scope} onChange={onChange} />
 				</Stack>
 			)}
 		</Stack>

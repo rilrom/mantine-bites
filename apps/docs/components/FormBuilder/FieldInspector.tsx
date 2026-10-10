@@ -27,8 +27,13 @@ import {
 	supportsPlaceholder,
 } from "./fieldTypes";
 import { type LeafNode, SPANS } from "./nodes";
-import { PropControls } from "./PropControls";
-import { setPropValue } from "./props";
+import { PropControls, type PropControlsProps } from "./PropControls";
+import {
+	type PropDef,
+	type PropValue,
+	setPropValue,
+	splitToggles,
+} from "./props";
 import { isValidPattern } from "./validation";
 
 interface SectionProps {
@@ -44,6 +49,27 @@ export function Section({ title, children }: SectionProps) {
 			</Text>
 			{children}
 		</Stack>
+	);
+}
+
+interface PropSectionProps extends PropControlsProps {
+	title: string;
+}
+
+export function PropSection({
+	title,
+	defs,
+	values,
+	onChange,
+}: PropSectionProps) {
+	if (defs.length === 0) {
+		return null;
+	}
+
+	return (
+		<Section title={title}>
+			<PropControls defs={defs} values={values} onChange={onChange} />
+		</Section>
 	);
 }
 
@@ -161,16 +187,11 @@ export function FieldInspector({
 		</SimpleGrid>
 	);
 
-	const toggles = getStaticPropDefs(field, definition.props).filter(
-		(def) => def.control.type === "switch",
+	const { props, toggles } = splitToggles(
+		getStaticPropDefs(field, definition.props),
 	);
-	const propSections = [
-		{
-			title: "Props",
-			defs: definition.props.filter((def) => def.control.type !== "switch"),
-		},
-		{ title: "Toggles", defs: toggles },
-	];
+	const setProp = (def: PropDef, value: PropValue | undefined) =>
+		update({ props: setPropValue(field.props, def, value) });
 
 	return (
 		<Stack gap="lg">
@@ -218,6 +239,29 @@ export function FieldInspector({
 					/>
 				</Section>
 			)}
+
+			<PropSection
+				title="Props"
+				defs={props}
+				values={field.props}
+				onChange={setProp}
+			/>
+
+			{inRow && (
+				<Section title="Layout">
+					<SpanSelect
+						node={field}
+						onChange={(next) => onChange(next as BuilderField)}
+					/>
+				</Section>
+			)}
+
+			<PropSection
+				title="Toggles"
+				defs={toggles}
+				values={field.props}
+				onChange={setProp}
+			/>
 
 			{rules.size > 0 && (
 				<Section title="Validation">
@@ -280,30 +324,6 @@ export function FieldInspector({
 				scope={scope}
 				onChange={(next) => onChange(next as BuilderField)}
 			/>
-
-			{inRow && (
-				<Section title="Layout">
-					<SpanSelect
-						node={field}
-						onChange={(next) => onChange(next as BuilderField)}
-					/>
-				</Section>
-			)}
-
-			{propSections.map(
-				(section) =>
-					section.defs.length > 0 && (
-						<Section key={section.title} title={section.title}>
-							<PropControls
-								defs={section.defs}
-								values={field.props}
-								onChange={(def, value) =>
-									update({ props: setPropValue(field.props, def, value) })
-								}
-							/>
-						</Section>
-					),
-			)}
 		</Stack>
 	);
 }

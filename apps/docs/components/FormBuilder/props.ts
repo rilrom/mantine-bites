@@ -140,6 +140,13 @@ export function setPropValue(
 	return next;
 }
 
+export function splitToggles(defs: PropDef[]) {
+	return {
+		props: defs.filter((def) => def.control.type !== "switch"),
+		toggles: defs.filter((def) => def.control.type === "switch"),
+	};
+}
+
 export function pickProps(values: PropValues, defs: PropDef[]) {
 	const names = new Set(defs.map((def) => def.name));
 
