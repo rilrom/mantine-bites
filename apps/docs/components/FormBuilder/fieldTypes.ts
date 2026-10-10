@@ -90,6 +90,8 @@ export type OptionsRender =
 			groupProps: PropValues;
 	  };
 
+export type FieldBinding = "value" | "checkbox" | "raw";
+
 interface FieldTypeDefinition {
 	label: string;
 	group: FieldGroup;
@@ -104,10 +106,9 @@ interface FieldTypeDefinition {
 	inputType?: "email" | "tel" | "url";
 	/** Label and description go on an `Input.Wrapper` because the component has no label of its own. */
 	wrapped?: boolean;
-	checkbox?: boolean;
-	/** The form stores the unmasked value from `onChangeRaw`. MaskInput edits the input on keydown, so `onChange` never fires. */
-	rawChange?: boolean;
-	/** Props computed from the field rather than stored. */
+	/** How the form binds to the component, `'value'` by default. With `'raw'` the form stores the unmasked value from `onChangeRaw`, because MaskInput edits the input on keydown and `onChange` never fires. */
+	binding?: FieldBinding;
+	/** Props computed from the field rather than stored, or required props applied when the field leaves them unset. */
 	derivedProps?: (field: BuilderField) => PropValues;
 	/** Props that stay on the component itself when the field's own props are passed to each option instead. */
 	componentProps?: PropValues;
@@ -198,12 +199,7 @@ export const orientationProp: PropDef = {
 };
 
 const chipProps: PropDef[] = [
-	{
-		name: "variant",
-		label: "Variant",
-		control: { type: "segmented", data: ["filled", "outline", "light"] },
-		default: "filled",
-	},
+	choiceVariantProp,
 	orientationProp,
 	...groupedChoiceProps,
 ];
@@ -302,7 +298,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		placeholder: labelPlaceholder,
 		// MaskInput requires a mask, so a cleared mask control falls back to the default.
 		derivedProps: () => ({ mask: DEFAULT_MASK }),
-		rawChange: true,
+		binding: "raw",
 	},
 	textarea: {
 		label: "Textarea",
@@ -591,7 +587,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		rules: ["required"],
 		props: [choiceVariantProp, ...groupedChoiceProps, radiusProp],
 		initialValue: () => false,
-		checkbox: true,
+		binding: "checkbox",
 	},
 	checkboxgroup: {
 		label: "Checkbox group",
@@ -620,7 +616,7 @@ export const FIELD_TYPES: Record<FieldType, FieldTypeDefinition> = {
 		rules: ["required"],
 		props: [...groupedChoiceProps, radiusProp],
 		initialValue: () => false,
-		checkbox: true,
+		binding: "checkbox",
 	},
 	switchgroup: {
 		label: "Switch group",
@@ -827,5 +823,5 @@ export function getDefaultOptions(type: FieldType) {
 }
 
 export function isCheckboxLike(field: BuilderField) {
-	return Boolean(FIELD_TYPES[field.type].checkbox);
+	return FIELD_TYPES[field.type].binding === "checkbox";
 }

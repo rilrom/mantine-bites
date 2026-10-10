@@ -142,29 +142,24 @@ export function PreviewField({
 	form,
 	settings,
 }: PreviewFieldProps) {
-	const {
-		component,
-		props,
-		wrapper,
-		options,
-		checkbox,
-		rawChange,
-		validators,
-	} = describeField(field, settings);
+	const { component, props, wrapper, options, binding, validators } =
+		describeField(field, settings);
 	const Component = getComponent(component);
 	const inputProps = form.getInputProps(
 		fieldKey,
-		checkbox ? { type: "checkbox" } : undefined,
+		binding === "checkbox" ? { type: "checkbox" } : undefined,
 	);
 	const element = (
 		<Component
 			key={form.key(fieldKey)}
 			{...props}
 			{...inputProps}
-			{...(rawChange && {
-				onChangeRaw: (value: string) =>
-					form.setFieldValue(fieldKey, value, { forceUpdate: false }),
-			})}
+			onChangeRaw={
+				binding === "raw"
+					? (value: string) =>
+							form.setFieldValue(fieldKey, value, { forceUpdate: false })
+					: undefined
+			}
 		>
 			{options && renderOptions(options)}
 		</Component>

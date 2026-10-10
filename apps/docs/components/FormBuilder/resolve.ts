@@ -1,5 +1,10 @@
 import type { FormSettings } from "./defaults";
-import { type BuilderField, FIELD_TYPES, getPlaceholder } from "./fieldTypes";
+import {
+	type BuilderField,
+	FIELD_TYPES,
+	type FieldBinding,
+	getPlaceholder,
+} from "./fieldTypes";
 import { type BuilderNode, getPropDefs, TEXT_CHILD } from "./nodes";
 import { type ElementProps, type PropValues, pickProps } from "./props";
 import { getValidators, type ValidatorSpec } from "./validation";
@@ -56,8 +61,7 @@ export interface FieldDescription {
 		layout: { component: "Group" | "Stack"; props: ElementProps };
 		items: OptionItem[];
 	} | null;
-	checkbox: boolean;
-	rawChange: boolean;
+	binding: FieldBinding;
 	validators: ValidatorSpec[];
 }
 
@@ -77,13 +81,14 @@ export function describeField(
 ): FieldDescription {
 	const definition = FIELD_TYPES[field.type];
 	const validators = getValidators(field);
-	const checkbox = Boolean(definition.checkbox);
+	const binding = definition.binding ?? "value";
 	const label = {
 		label: field.label,
 		description: field.description || undefined,
 	};
 	const withAsterisk =
-		!checkbox && validators.some((validator) => validator.name === "isNotEmpty")
+		binding !== "checkbox" &&
+		validators.some((validator) => validator.name === "isNotEmpty")
 			? true
 			: undefined;
 	const { orientation, ...resolved } = resolveFieldProps(field, settings);
@@ -128,8 +133,7 @@ export function describeField(
 			? compact({ ...label, withAsterisk, ...errorProps })
 			: null,
 		options,
-		checkbox,
-		rawChange: Boolean(definition.rawChange),
+		binding,
 		validators,
 	};
 }
