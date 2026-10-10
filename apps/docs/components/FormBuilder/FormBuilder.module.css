@@ -258,6 +258,23 @@
   right: -1px;
 }
 
+.columnSlot[data-drop][data-stacked]::after {
+  inset-block: auto;
+  inset-inline: 0;
+  width: auto;
+  height: 2px;
+}
+
+.columnSlot[data-drop="before"][data-stacked]::after {
+  top: -1px;
+  left: 0;
+}
+
+.columnSlot[data-drop="after"][data-stacked]::after {
+  right: 0;
+  bottom: -1px;
+}
+
 .rowEmpty {
   padding: var(--mantine-spacing-sm);
 }

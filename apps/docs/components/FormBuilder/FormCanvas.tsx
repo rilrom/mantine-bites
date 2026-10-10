@@ -116,6 +116,8 @@ interface DropTarget {
 	parentId: string | null;
 	/** Position among the target's children once the dragged node is removed, as `moveNode` expects. */
 	index: number;
+	/** Whether the target's siblings sit side by side, so the indicator runs vertically between them. */
+	horizontal: boolean;
 }
 
 interface CanvasState extends CanvasContextValue {
@@ -420,7 +422,7 @@ function useDropSlots(parentId: string | null, children: BuilderNode[]) {
 	const { activeId, dropTarget } = useCanvas();
 
 	if (dropTarget?.parentId !== parentId) {
-		return { targeted: false, getSlot: () => undefined };
+		return { targeted: false, horizontal: false, getSlot: () => undefined };
 	}
 
 	const remaining = children.filter((child) => child.id !== activeId);
@@ -429,13 +431,14 @@ function useDropSlots(parentId: string | null, children: BuilderNode[]) {
 
 	return {
 		targeted: true,
+		horizontal: dropTarget.horizontal,
 		getSlot: (id: string) =>
 			id === before ? "before" : id === after ? "after" : undefined,
 	};
 }
 
 function RowContent({ row }: { row: RowNode }) {
-	const { targeted, getSlot } = useDropSlots(row.id, row.children);
+	const { targeted, horizontal, getSlot } = useDropSlots(row.id, row.children);
 	const { setNodeRef } = useDroppable({
 		id: zoneId(row.id),
 		data: { type: "zone", containerId: row.id } satisfies DropData,
@@ -466,6 +469,7 @@ function RowContent({ row }: { row: RowNode }) {
 										span={getColSpan(child)}
 										className={classes.columnSlot}
 										data-drop={getSlot(child.id)}
+										data-stacked={!horizontal || undefined}
 									>
 										<NodeFrame
 											node={child}
@@ -552,6 +556,28 @@ function getPointer({
 	const start = getDragStart(activatorEvent);
 
 	return start ? { x: start.x + delta.x, y: start.y + delta.y } : null;
+}
+
+/** Row columns wrap onto their own lines on narrow screens, so this checks the rendered layout rather than the row's spans. */
+function sharesLine(id: string) {
+	const column = document.querySelector(
+		`[data-frame-id="${id}"]`,
+	)?.parentElement;
+
+	if (!column?.parentElement) {
+		return false;
+	}
+
+	const top = column.getBoundingClientRect().top;
+	const columns = column.parentElement.querySelectorAll(
+		`:scope > .${classes.columnSlot}`,
+	);
+
+	return Array.from(columns).some(
+		(other) =>
+			other !== column &&
+			Math.abs(other.getBoundingClientRect().top - top) < 1,
+	);
 }
 
 function isAfter(pointer: Coordinates | null, over: Over, horizontal: boolean) {
@@ -684,26 +710,32 @@ function getDropTarget(
 	const from = getLocation(nodes, id);
 
 	if (data.type === "zone") {
-		return data.containerId === from.parentId
-			? null
-			: {
-					parentId: data.containerId,
-					index: getSiblings(nodes, data.containerId).length,
-				};
+		if (data.containerId === from.parentId) {
+			return null;
+		}
+
+		const children = getSiblings(nodes, data.containerId);
+		const last = children.at(-1);
+
+		return {
+			parentId: data.containerId,
+			index: children.length,
+			horizontal: last ? sharesLine(last.id) : false,
+		};
 	}
 
 	const siblings = getSiblings(nodes, data.parentId);
 	const parent = data.parentId ? findNode(nodes, data.parentId) : null;
 	const remaining = siblings.filter((node) => node.id !== id);
 	const overIndex = remaining.findIndex((node) => node.id === over.id);
-	const index =
-		overIndex + (isAfter(pointer, over, parent?.kind === "row") ? 1 : 0);
+	const horizontal = parent?.kind === "row" && sharesLine(String(over.id));
+	const index = overIndex + (isAfter(pointer, over, horizontal) ? 1 : 0);
 
 	if (data.parentId === from.parentId && from.index === index) {
 		return null;
 	}
 
-	return { parentId: data.parentId, index };
+	return { parentId: data.parentId, index, horizontal };
 }
 
 export const FormCanvas = memo(function FormCanvas({
@@ -846,7 +878,9 @@ export const FormCanvas = memo(function FormCanvas({
 		);
 
 		setDropTarget((current) =>
-			current?.parentId === next?.parentId && current?.index === next?.index
+			current?.parentId === next?.parentId &&
+			current?.index === next?.index &&
+			current?.horizontal === next?.horizontal
 				? current
 				: next,
 		);
